@@ -1,0 +1,37 @@
+To add a filter, use the script plm_add_filter.pl.  It takes these arguments:
+
+--software <software>
+
+    <software> is the name of the software as listed in the plm_software table
+    or as used to add the software to PLM with the plm_add_software.pl script.
+
+    'all' can be used so that a filter applies for all software packages listed
+    in PLM.
+
+--name <name>
+
+    <name> is the name of the filter to be added to PLM.
+
+--location <url>
+
+    <url> is the URL the PLM Supervisors will use to wget the the filter.
+                        
+--command <script>
+
+    <script> is the name of the script that the PLM Supervisors will execute
+    when running the filter.
+
+--runtime <seconds>
+
+    <seconds> is the number of seconds that will elapse before PLM will
+    assume the script has taken too long to run, assume there is an error, and
+    requeue the filter to be execute later.
+
+--filter_type <code>
+
+    <code> is the name of the filter type as listed in the plm_filter_type
+    table or the code used too add a filter with the plm_add_filter_type.pl
+    script.
+
+    'all' can be used so that a filter applies for all filter types listed
+    in PLM.

@@ -1,0 +1,27 @@
+- Way to group patches together (a patch set) (namespace?)
+
+- Way to delete patches
+
+- Browse a list of users in the system (hmm...)
+
+- Move security point into backend database (from web server)
+
+- Modify the patch applies tree
+
+- md5sum of patch on patch info web page
+
+- Seperate the patch name and version field (see Pat)
+
+- Search patches list by submission date from web interface
+
+- Web page search generates bookmarkable URL
+
+- Web page patch search by applies tree
+
+- Submit/delete/modify bug reports
+
+- caching of patches on download (getpatch)
+
+- Way to pass <> through SOAP patch search interface
+
+- Update docs

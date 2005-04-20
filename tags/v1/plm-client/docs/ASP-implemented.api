@@ -1,0 +1,56 @@
+OERMISSION SCHEMA
+  There are four levels to the permission schema
+  1 - No login required (no user/pass passed) 
+  2 - A logged in user 					[user]
+  3 - The user that owns the object in question		[owner]
+  4 - A user with admin access is required		[admin]
+
+HIDDEN OPTIONS
+  [user], [owner], and [admin] all implicitly imply that the first two 
+parameters to a function will be the username and password. 
+
+Status Key:
+  ~ not implimented at all
+  + implemented fully
+  - implemented stub
+  [admin] means requires admin flag
+
+* USER *	( NEEDS PERMISSION AUDIT & COMPLETION AUDIT )
+  + user_verify( "username", opt: "password" )
+  ~ user_login()							[user]
+  + user_add( "username", "password" )					
+  + user_delete( "username" )						[admin]
+  + user_password( "username", "oldpassword", "newpassword" )		[owner]
+  + user_get_option( "option" )						[owner]
+  + user_set_option( "option", "value" )				[owner]
+  ~ user_list( "search string or *", "sort key" )			[admin]
+  + user_find_by_email( "email" )					[admin]
+
+
+* PATCH *	( NEEDS PERMISSION AUDIT & COMPLETION AUDIT )
+  + patch_get( id )
+  ~ patch_list_depend( "type", PatchID )
+  + patch_add( XML patch schema )					[user]
+  + patch_delete( id )							[owner]
+  - patch_add_depend( "type", PatchID, VersionID )			[owner]
+  - patch_delete_depend( "type", PatchID, VersionID )			[owner]
+
+* SOFTWARE *	( NEEDS PERMISSION AUDIT & COMPLETION AUDIT )
+  - software_verify( "softName" )
+  - software_list( "search string or *" )
+  - software_version_list( "search string or *" )
+  - software_add_software( "softName" )					[admin]
+  - software_delete_software( SoftwareID )				[admin]
+
+* FILTER *
+  ~ filter_verify( "filterName" )
+  ~ filter_get( "filterName" )
+  ~ filter_update( filterID, XML )					[owner]
+  ~ filter_version_bump( filterID )					[owner]
+  ~ filter_add( XML )							[admin]
+
+* FILTER REQUEST *
+  ~ filter_request_get( filter_request_id )
+  ~ filter_request_add( "session", XML )				[user]
+  ~ filter_request_cancel( filter_request_id )				[owner]
+  ~ filter_request_modify( XML )					[admin]
