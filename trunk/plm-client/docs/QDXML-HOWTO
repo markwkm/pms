@@ -1,0 +1,95 @@
+Quick/Dirty HOWTO for Quick/Dirty XML
+
+
+one of the shortcuts that QDXml takes is the requirement of having
+an XML schema built before importing or exporting any data.  given
+a schema as follows:
+
+   <rec>
+      <subrec>
+         <subdata>
+         </subdata>
+      </subrec>
+      <moredata>
+      </moredata>
+   </rec>
+
+we need to create the schema in memory using a QDXml object:
+
+   # instanciate the main xml container
+   my $xml = new QDXml( "rec" );
+
+   # since the subrec is technically also a QDXml object, we
+   # need to create it as well, and populate it with children
+   my $xmlSubRec = new QDXml( "subrec" );
+
+   # add subrec's entry, subdata, empty - we can do this in two
+   # ways, we'll explore the first here, passing the element name
+   # and an empty element value -- much easier to deal with this
+   # stuff in a typed language, but since perl is untyped, and
+   # we're overloading, we have to make some tradeoffs
+   $xmlSubRec->addElement( "subdata", "" );
+
+   # now, add the subrec to the main data -- notice the overloading
+   $xml->addElement( $xmlSubRec );
+
+   # here's where we add moredata, going to demonstrate adding it
+   # the "other" way
+   my $xmlElement = new QDXmlElement( "moredata" );
+
+   # now, add moredata into the tree
+   $xml->addElement( $xmlElement );
+
+   # from here, we just want to print the tree before we start
+   # acting on it
+   print $xml->toString();
+
+
+now that we have the schema created, we can interact with the data.
+there are a few ways to populate the data, one is at creation,
+such as above, when we passed "", we could have passed the values
+of the elements as well.  another is to do it programatically,
+which we would want to do when creating an xml record to be passed
+to another application:
+
+   # set the value of subrec.subdata to something
+   $xml->setElementValue( "subrec.subdata", "my data" );
+
+   # set the value of moredata to something
+   $xml->setElementValue( "moredata", "even more data" );
+
+   # print the tree to show that we've done it
+   print $xml->toString();
+
+
+the other way of getting data into the xml schema is to pass a
+full xml string of data to have the xml schema parse for its
+values:
+
+   # this is the data we want to parse, you'll note that it
+   # is the same schema
+   my $data = "<rec><subrec><subdata>nothing here</subdata></subrec> "
+	. "<moredata>move along please</moredata></rec>";
+
+   # parse the data
+   $xml->parseXMLData( $data );
+
+   # print the tree to show that we've done it
+   print $xml->toString();
+
+
+now that we have the data in there, chances are, we're going to
+want to get it out.  to do so, we need to be mindful of what the
+schema looks like:
+
+   # extract subrec.subdata from the record, at this point
+   # it should say "nothing here"
+   my $subdata = $xml->getElementValue( "subrec.subdata" );
+
+   # we'll want to extract the value of moredata as well,
+   # it should say "move along please"
+   my $moredata = $xml->getElementValue( "moredata" );
+
+   # now, we print it to show we have it
+   print "subrec.subdata -> " . $subdata . "\n";
+   print "moredata -> " . $moredata . "\n";

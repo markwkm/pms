@@ -1,0 +1,56 @@
+<html>
+  <head>
+    <title>Patch Lifecycle Manager</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <script language="JavaScript">
+    <!--
+      function MM_swapImgRestore() { //v3.0  
+        var i,x,a=document.MM_sr; for(i=0;a&&i<a.length&&(x=a[i])&&x.oSrc;i++) x.src=x.oSrc;} 
+      function MM_preloadImages() { //v3.0  
+        var d=document; if(d.images){ if(!d.MM_p) d.MM_p=new Array(); var i,j=d.MM_p.length,a=MM_preloadImages.arguments; for(i=0; i<a.length; i++) if (a[i].indexOf("#")!=0){ d.MM_p[j]=new Image; d.MM_p[j++].src=a[i];}}}
+      function MM_findObj(n, d) { //v4.01  
+        var p,i,x; if(!d) d=document; if((p=n.indexOf("?"))>0&&parent.frames.length) { d=parent.frames[n.substring(p+1)].document; n=n.substring(0,p);}  if(!(x=d[n])&&d.all) x=d.all[n]; for (i=0;!x&&i<d.forms.length;i++) x=d.forms[i][n]; for(i=0;!x&&d.layers&&i<d.layers.length;i++) x=MM_findObj(n,d.layers[i].document); if(!x && d.getElementById) x=d.getElementById(n); return x;} 
+      function MM_swapImage() { //v3.0 
+        var i,j=0,x,a=MM_swapImage.arguments; document.MM_sr=new Array; for(i=0;i<(a.length-2);i+=3) if ((x=MM_findObj(a[i]))!=null){document.MM_sr[j++]=x; if(!x.oSrc) x.oSrc=x.src; x.src=a[i+2];}} 
+    //-->
+    </script>
+  </head>
+  <body bgcolor="#FFFFFF" text="#000000" alink="#003399" vlink="#003399" link="#003399" 
+    onLoad="MM_preloadImages('IMAGE_URL/buttons/home-over.jpg','IMAGE_URL/buttons/userpage-over.jpg','IMAGE_URL/buttons/search-over.jpg','IMAGE_URL/buttons/addpatch-over.jpg','IMAGE_URL/buttons/logout-over.jpg','IMAGE_URL/buttons/login-over.jpg','IMAGE_URL/buttons/logout.jpg','IMAGE_URL/buttons/logout-over.jpg','IMAGE_URL/main/filler_1.jpg','IMAGE_URL/main/filler_2.jpg','IMAGE_URL/main/filler_3.jpg')">
+    <font face="Verdana, Arial, Helvetica, sans-serif, clean" size="1"></font> 
+    <center>
+    <table width="837" border="0" cellpadding="0" cellspacing="0">
+      <tr>
+        <td width="837"><img src="IMAGE_URL/main/plm_top.jpg" width="850" height="57" usemap="#Map" border="0"></td>
+      </tr> 
+      <tr>
+        <td width="837"><img src="IMAGE_URL/main/plm_top2.jpg" width="416" height="36" usemap="#Map2" border="0"><a href="index.html" onMouseOut="MM_swapImgRestore()" onMouseOver="MM_swapImage('Image3','','IMAGE_URL/buttons/home-over.jpg',1)"><img name="Image3" border="0" src="IMAGE_URL/buttons/home.jpg" width="60" height="36"></a><a href="userpage.html" onMouseOut="MM_swapImgRestore()" onMouseOver="MM_swapImage('Image4','','IMAGE_URL/buttons/userpage-over.jpg',1)"><img name="Image4" border="0" src="IMAGE_URL/buttons/userpage.jpg" width="85" height="36"></a><a href="search.html" onMouseOut="MM_swapImgRestore()" onMouseOver="MM_swapImage('Image5','','IMAGE_URL/buttons/search-over.jpg',1)"><img name="Image5" border="0" src="IMAGE_URL/buttons/search.jpg" width="75" height="36"></a><a href="addpatch.html" onMouseOut="MM_swapImgRestore()" onMouseOver="MM_swapImage('Image6','','IMAGE_URL/buttons/addpatch-over.jpg',1)"><img name="Image6" border="0" src="IMAGE_URL/buttons/addpatch.jpg" width="89" height="36"></a><a href="logout.html" onMouseOut="MM_swapImgRestore()" onMouseOver="MM_swapImage('Image7','','IMAGE_URL/buttons/logout-over.jpg',1)"><img name="Image7" border="0" src="IMAGE_URL/buttons/logout.jpg" width="75" height="36"></a><img src="IMAGE_URL/main/plm_top3.jpg" width="50" height="36"></td>
+      </tr> 
+      <tr> 
+        <td width="837"><img src="IMAGE_URL/main/filler_1.jpg" width="837" height="32"></td>
+      </tr>
+    </table>
+    <table width="837" border="0">
+      <tr>
+        <td><img src="IMAGE_URL/main/filler_2.jpg" width="102" height="27"></td>
+        <td><img src="IMAGE_URL/captions/CAPTION_TEMPLATE.jpg" width="95" height="27"></td>
+	<td><img src="IMAGE_URL/main/filler_3.jpg" width="640" height="27"></td>
+      </tr>
+    </table>
+    <table width="837" border="0">
+      <tr>
+        <td width="111"><img src="IMAGE_URL/main/filler_2.jpg" width="110" height="27"></td>
+	<td width="615" valign="top"><hr>CONTENT_INSERT</td>
+	<td width="111"><img src="IMAGE_URL/main/filler_2.jpg" width="110" height="27"></td> 
+      </tr> 
+    </table> 
+  </center> 
+  <map name="Map"> 
+    <area shape="rect" coords="21,3,91,94" href="http://www.osdl.org">
+  </map>
+  <map name="Map2"> 
+    <area shape="rect" coords="22,3,28,8" href="#"> 
+    <area shape="rect" coords="19,0,90,26" href="#">
+  </map>
+</body>
+</html>
