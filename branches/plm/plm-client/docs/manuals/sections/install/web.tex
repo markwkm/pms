@@ -1,0 +1,52 @@
+\section {Configuring a Web Interface}
+\index{Configure!Web Interface}
+Configuring a web interface requires some additional work after the RPM is installed.
+
+In the future, we plan to have a web interface specific RPM that does all of
+the following tasks on install.
+
+\subsection{Configuration}
+\index{Configure!Web Interface!Configuration}
+The important entries in the /etc/plm.cfg file for the web interface scripts are:
+
+\begin{itemize}
+\item dsn: Perl DSN (DBI:mysql:host=hostname;dbname=database)
+\item dsnuser: Username to login to the database with
+\item dsnpass: Password to login to the database with
+\item namespace: Should be plm\_
+\item plm\_http: URL for the cgi-bin space (used in links)
+\item getpatch\_url: Full URL to the getpatch script (used in links)
+\item support\_email: Email address for users to send questions to
+\item admin\_email: Email address to send administrator errors to
+\item access\_state\_dir: On-disk location of the login cookies (pay attention to standard security precautions.  Make sure this directory is only readable by the web interface user)
+\item repository\_path: Location on webserver where PLM patches are stored. Readable and writable by web owner.
+\item webapp\_data\_dir: Local directory where the brand .html files are located
+\item webapp\_image\_url: URL portion showing where the PLM images are kept
+\item webapp\_brand: Code (used in file names) for brand identification
+\item webapp\_patch\_server: Where the webapp should point people to download patches
+\item webapp\_source\_\#: The webapp source link for where to get base versions for repository \# 
+\item new\_account\_link: URL to send users to who need an account on the system (hey, if anybody wants to provide the PLM with it's own user management interface, that would be great.  We don't need one so we didn't write one)
+\end{itemize}
+
+\subsection{Cron Job}
+\index{Configure!Web Interface!Cron Job}
+The logins for the PLM do not have a default expire date.  Cookies are expired server-side by deleting their files.  Each time a user with a session access the web interface, the atime on the cookie file is updated.  A cron job should be setup to delete old cookies.  A crontab user entry could look like:
+
+\begin{verbatim}
+*/10 * * * * (cd /var/plm/access && find -amin +180 -print | xargs rm -vf)
+\end{verbatim}
+
+That would effectively purge (Every 10 minutes) the access directory of any login cookies that were older than 3 hours.  Remember, a session will last as long as a user is constantly active.  The user would have to be away from the site for 3 hours before this would take effect.
+
+\subsection{Configuration Steps}
+We suggest the following steps for setting up a supervisor system:
+\begin{enumerate}
+\item Perform the regular steps from 'Installing the RPM'
+\item Add a 'plm' user to the system
+\item Configure the /etc/plm.cfg with the proper web interface options
+\item Configure the /etc/plm.cfg with the proper web user permissions
+\item Configure the /var/plm/access directory
+\item Configure the /var/plm/access cron job
+\item Move the web interface (getpatch, plm, plm\_server.pl, asp-private) scripts to your cgi-bin directory.
+\item Configure your web server to restrict access to the asp-private script (if security is a concern at this location)
+\end{enumerate}

@@ -1,0 +1,129 @@
+\subsection{PLM::Object}
+The PLM::Object:: module space has the following sub-modules:
+
+\begin{itemize}
+\item Patch.pm
+\item Source.pm
+\item SourceSync.pm
+\item SourceSync/Tar.pm
+\item SourceSync/Cvs.pm
+\end{itemize}
+
+All of the modules in the PLM::Object:: space are children of the PLM::Object object Template.
+These are used when we want to store the data, but not use any of the database access 
+functionality.
+PLM::Object has two attributes 'elementName' and 'data'.  The 'elementName' attribute is 
+the type of data contained for administrative reasons.  The 'data' attribute contains a simple 
+hash for the 'active' data, which can be accessed through the routines 'getElementValue', 
+'setElementValue', and has 'addElement' for initialising hash.  All methods:
+
+\begin{itemize}
+\item addElement( <key>, <value> )  initialising hash.
+\item getElementValue( <key> )  access data.
+\item setElementValue( <key>, <value> )  set data values.
+\item getValue( <key> )  access data, wrapper for getElementValue.
+\item setValue( <key>, <value> )  set data values, wrapper for setElementValue.
+\item loadDataOnly( <ref> ) To copy data from another PLM::Object to this one.
+\item getElementName()  Returns elementName attribute value.
+\item setElementName( <elementName> )  Sets elementName attribute value.
+\end{itemize}
+
+
+\subsubsection{Patch.pm}
+\index{PLM::Object::Patch.pm}
+Provides a Patch object.
+
+\begin{verbatim}
+new()
+\end{verbatim}
+\index{PLM::Object::Patch.pm!new()}
+Instantiates a new object of type PLM::Object::Patch.
+
+\subsubsection{Source.pm}
+\index{PLM::Object::Source.pm}
+Provides a Source object.
+
+\begin{verbatim}
+new()
+\end{verbatim}
+\index{PLM::Object::Source.pm!new()}
+Instantiates a new object of type PLM::Object::Source
+
+\subsubsection{SourceSync.pm}
+\index{PLM::Object::SourceSync.pm}
+Provides a SourceSync object.
+
+\begin{verbatim}
+new()
+\end{verbatim}
+\index{PLM::Object::SourceSync.pm!new()}
+Instantiates a new object of type PLM::Object::SourceSync.
+
+\subsubsection{PLM::Object::SourceSync::Tar.pm}
+\index{SourceSync\/Tar.pm}
+Provides an interface to the SourceSync Object for web access.
+
+\begin{verbatim}
+fix_name()
+\end{verbatim}
+\index{PLM::Object::SourceSync::Tar.pm!fix\_name()}
+This script is to do the appropriate name fix is one is required, or return the name unedited.
+
+\begin{verbatim}
+name_checks()
+\end{verbatim}
+\index{PLM::Object::SourceSync::Tar.pm!name\_checks()}
+Does checks to see if a file is configured to be 'wanted'.
+
+\begin{verbatim}
+get_applies_version()
+\end{verbatim}
+\index{PLM::Object::SourceSync::Tar.pm!get\_applies\_version()}
+From a file name returns what patch it should be applied to.
+
+\begin{verbatim}
+get_file_type()
+\end{verbatim}
+\index{PLM::Object::SourceSync::Tar.pm!get\_file\_type()}
+From a file name returns the correct file type.
+
+\begin{verbatim}
+isa_base()
+\end{verbatim}
+\index{PLM::Object::SourceSync::Tar.pm!isa\_base()}
+From the patch name, returns 'TRUE' if it is a 'base' and 'FALSE' if if applies to something.
+
+\subsubsection{PLM::Object::SourceSync::Cvs.pm}
+\index{SourceSync\/Cvs.pm}
+Provides an interface to the SourceSync Object for CVS repository access.   These are functions used for getting information about the CVS repository.
+
+\begin{verbatim}
+fix_name()
+\end{verbatim}
+\index{PLM::Object::SourceSync::Cvs.pm!fix\_name()}
+This script is to do the appropriate name fix if one is required, or return the name unedited.
+
+\begin{verbatim}
+name_checks()
+\end{verbatim}
+\index{PLM::Object::SourceSync::Cvs.pm!name\_checks()}
+Always returns 'TRUE'.
+
+\begin{verbatim}
+get_applies_version()
+\end{verbatim}
+\index{PLM::Object::SourceSync::Cvs.pm!get\_applies\_version()}
+From a file name returns what patch it should be applied to.
+
+\begin{verbatim}
+get_file_type()
+\end{verbatim}
+\index{PLM::Object::SourceSync::Cvs.pm!get\_file\_type()}
+From a file name returns the correct file type.
+
+\begin{verbatim}
+isa_base()
+\end{verbatim}
+\index{PLM::Object::SourceSync::Cvs.pm!isa\_base()}
+From the patch name, returns 'TRUE' if it is a 'base' and 'FALSE' if if applies to something.
+

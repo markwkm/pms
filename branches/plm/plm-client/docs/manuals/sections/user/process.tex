@@ -1,0 +1,133 @@
+\section{Process}
+\subsection{Lifecycle of a Patch}
+The lifecycle of a patch involves numerous stages:
+
+\begin{itemize}
+\item Creation of the patch (in diff format)
+\item Submission to the PLM 
+\item Filter application \& reporting
+\item Testing (http://www.osdl.org/stp/)
+\end{itemize}
+
+\subsection{Base Version}
+\index{Base Version}
+A base version is special in that it does not have any content stored in 
+PLM and does not apply to any parent version.  Instead the PLM holds an 
+internal pointer to where the tarball can be retrieved by utilities to be
+used as the base to apply other patches onto.
+
+The PLM has a utility that will auto-submit software versions from a web 
+accessible directory structure.  These patches are added with enough 
+meta-data that other utilities will be able to find the correct .tar.gz 
+or .tar.bz2 file when attempting to build the source tree.
+
+Users cannot add base versions through any of the standard interfaces.  
+Currently, they may be pulled from a web-based source repository.  The 
+head of this
+repository is configured in the plm\_source table.  Specific directions
+are then set up in the 'plm\_source\_sync' table.  This is a bit 
+complicated and 
+needs to be done by an admin.  The same system can be used to pull 
+patches posted at the repository.
+
+Formerly, a base version had to be created by packaging up a full source 
+tree and placing it in the local directory structure that was also 
+available via web.  Now, you can point at a remote URL, but keep in mind 
+that this system will have the frailties of using a remote sight and 
+of not controlling when files may be rearranged.  The tar archive will be 
+pulled from this location every time it is accessed.  This may be best for 
+testing or for systems that are not heavily used.
+
+At the OSDL we choose to have a local mirror of the Linux Kernel ftp archive.  
+When a new kernel is released, the mirror places it in the local repository.  
+Then the utility notices the new version and adds the new base version to 
+the PLM repository.  This is a completely automatic procedure for us.
+
+\subsection{Apply Trees}
+\index{Apply Tree}
+A patch tree can be created by applying patches to base versions or previously
+submitted patches.  Note that a patch can only apply to a single lower version.  
+The tree can be walked to find the base version.  Using this tree structure the
+back-end can build a full source tree with applied patches to use for testing.
+
+After the initial submission to the PLM, the patch can be used as a parent
+in the applies tree of another patch.  When this happens, a patch may no 
+longer be deleted from the system without first deleting all of the patches 
+that depend on it.
+
+\subsection{Submission}
+\index{Patch Submission}
+Submission to the PLM can happen through a number of interfaces.  The basic
+information that must be provided about the patch at submission time is:
+
+\begin{itemize}
+\item Name of patch
+\item Name or ID of version that patch applies to
+\item Actual patch content
+\end{itemize}
+
+As you can see the initial submission does not contain a large amount of 
+information regarding the patch.  Most of the information the PLM keeps 
+regarding patches is gathered by the system through filter runs and various
+tracking information such as submission date and a md5sum of the patch.
+
+After patch submission, a series of filters (if available) are automatically 
+queued to run against the patch.  The most basic filter we run is to test
+that the patch actually applies to the version specified for it.  This 
+is the minimal check that should be run on all patches submitted.
+
+\subsection{Filters}
+\index{Filters}
+A filter is a script that does 'something' with a patch or against the 
+full source tree created from a patch applies tree.  
+
+Filters can be created to handle any task that does not require rebooting the 
+machine the filter is running on.  Some of the filters we use at the OSDL to
+check Linux Kernel patches include patch application checks as well as 
+multiple compilation checks for multiple architectures.  The filters have the
+ability to configure a kernel for compilation, execute the compilation and
+verify a correct completion.  Another compilation test counts the build warnings 
+and errors and reports on those instead of the basic pass/fail.
+
+The output of filter runs is available through the web interface on the Patch
+Info page.
+
+Filters are run automatically by the back-end and users will receive an email 
+notifying them when all of the filters against the patch are complete.
+
+\subsection{Testing}
+\index{Testing}
+The PLM was created to service the need of the Scalable Test Platform.  The STP
+had used CVS for it's patch submissions and required users to import entire CVS
+versions of the source tree in a long and painful process.
+
+After a patch is in the PLM, if there is an associated STP setup like there is
+at the OSDL, additional testing can happen there.  The STP has the ability to 
+run stress tests, workloads, regression tests in a much more flexible environment 
+than the PLM filters.  STP tests start out with a complete OS install and are able
+to deal with system crashes and reboots during testing.
+
+Some software (such as kernels) cannot be installed without a reboot.  These 
+software items cannot be fully tested within the PLM filter framework because 
+filters cannot reboot the machine to install the software.  These types of software
+packages can instead be tested by the Scalable Test Platform which integrates with
+the PLM to provide additional testing flexibility.
+
+\subsection{Patch Archive}
+\index{Patch Archive}
+The PLM will store patches until they are deleted.  There is no automatic purge operation.
+
+In the future, we may look at ways of decreasing the amount of storage required 
+by the back-end. The current .bz2 format does keep the individual patches small but the 
+uncompress time slows things down.
+
+Patches can be deleted by the user who submitted them.  When a user is logged in and a
+patch can be deleted, a link to do so will be on the Patch Info page.  Patch deletion 
+can only happen through the web interface.  If there are any other patches in the system 
+that apply to the patch a user wishes to delete, those dependent patches must first be 
+deleted.  If they are owned by other users, the user will not be able to resolve the
+dependencies and will be unable to delete the patch from the system.
+
+There is no automatic method for deleting STP test requests that refer to a patch ID 
+that has been deleted.  It is for this reason we suggest not deleting patches if you have 
+requested testing through the STP system.

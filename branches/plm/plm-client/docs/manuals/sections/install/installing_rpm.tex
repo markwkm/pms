@@ -1,0 +1,26 @@
+\section {Installing the RPM}
+\index{Install}
+
+\subsection{RPM Dependencies}
+\index{Install!RPM Dependencies}
+The dependencies for the PLM depend on what type of host you are installing the RPM on (aka, what it's going to be used for)
+In the future we plan to split out the RPM into the various uses and have rpm handle the dependency issues for us.
+
+For CVS access, the following perl modules are required:  IO-Tty-1.02 (for Pty), Class-Accessor-0.19, IPC-Run-0.78, Cvs-0.06.  (The version numbers are just what I used, maybe older ones will work, except for Cvs where only 0.06 or better will work).
+
+
+\subsection{Perl Dependencies}
+\index{Install!Perl Dependencies}
+For a PLM Supervisor client host, you only need the Mail::Internet perl module.
+
+\subsection{Configuration}
+The configuration file for the PLM is /etc/plm.cfg.  Each type of server/client will have different portions of that file that are important to it.  Those will be listed under their own configuration sections.
+
+\subsection{Bug Workarounds}
+\index{Install!Bug Workarounds}
+The following bug workarounds are suggested:
+
+\begin{itemize}
+\item The file /var/log/plm.log must be created and writable by whatever user your PLM scripts will be run as.  In the future we plan to move all the logging to a syslog USER* facility.
+\item You may need to force-nodeps to get the RPM to install
+\end{itemize}
