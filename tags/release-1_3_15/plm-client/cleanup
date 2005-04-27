@@ -1,0 +1,18 @@
+#!/bin/bash
+
+ptidy () {
+  for x in $*; do
+    echo Processing: [ $x ]
+    perltidy -pt=0 -sbt=0 -bt=0 -bbt=1 -nsfs -lp -ce $x
+    mv $x.tdy $x
+    if [ `echo $x | grep -c pl` == 1 ]; then
+      chmod +x $x
+    else
+      chmod -x $x
+    fi
+  done
+}
+
+ptidy `find -name \*.pl`
+ptidy `find -name \*.pm`
+

@@ -1,0 +1,690 @@
+DEVELOPMENT
+    * release: 1.3.15 -- get reverse gatues as list to decrease cgi load.
+        * PLM::RPC::Patch:  Add method patch_get_list.
+        * plm_build_tree.pl:  Get reverse values as a list.
+    * release: 1.3.14 -- 
+        * PLM::RPC::Supervisor:  fix send e-mail when filters are complete
+        * egate.pl Reply to email from datebase, not sender.
+        * PLM::Web::Patch Get rid of code2html link.
+    * release: 1.3.13 -- Rework Makefile.PL and .spec file
+        * Edit Makefile.PL to work with ebuild.
+        * Edit .spec file to work with new Makefile.PL
+    * release: 1.3.12 -- Pull in text files with .dif suffix
+        * PLM/Archive/Tar.pm -- Match for '.dif'
+        * PLM/Object/SourceSync/Tar.pm
+        * plm_source_sync.pl -- Match for '.dif' 
+    * release: 1.3.11 -- Fix cleanup.
+        * PLM/RPC/Supervisor.pm -- Do not set state 'canceled' back to 'queued'
+    * release: 1.3.10 -- Abbreviate applies list in PLM::RPC/Patch.pm
+        * PLM/RPC/Patch.pm -- Fix so build_apply_list not so bigg for patch search
+    * release: 1.3.9 -- Abbreviate applies list for simple search
+        * PLM/Web/Patch.pm -- Fix so that parse_applies_tree does a limited list
+    * release: 1.3.8 -- Change submit_result into attachment
+        * Change submit_result into SOAP attachment. (Fixes timeouts)
+        * Get rid of all XML Objects.
+        * Add 'Object' object which has same calls, bit is a simple hash.
+        * Fix egate.pl, which was not working with SOAP Attachment.
+        * Fix Delete Patch link.
+        * Pass all objects as they are, no more toString, parseXML.
+    * release: 1.3.7 -- Change upload into attachment
+        * PLM::PLMClient.pm Handles attachments, use 'binary' encoding.
+        * plm_source_sync.pl passes content as 2nd argument.
+        * PLM/RPC/Patch.pm edited to receive attachments
+        * Depends on:  MIME-Tools, SOAP::MIME
+    * release: 1.3.6 -- Move file get back to web client.
+        but do not base64 encode it.(Soap tales care of.)
+        * Add timeout to PLM::PLMClient.pm
+        * Edit plm_source_sync, PLM/RPC/Patch.pm
+    * release: 1.3.5 -- Move file get to web server.
+        * Edit plm_source_sync, PLM/RPC/Patch.pm
+    * release: 1.3.4 -- Merge plm_applies_id into plm_patch
+        * Edit plm_build_tree.pl, plm_source_sync.pl
+               PLM/Web/PatchAdd.pm to deal with new DB structre.
+        * Accept no success value if there is not CVS error for pserver,
+        * Database:  Add column plm_applies_id to table plm_patch, 
+            drop table plm_applies, plm_obsoletes
+    * release: 1.3.3 -- Add Changes for interface
+        * Add RPC method 'patch_get_software_name'
+        * Add web page:  'Softwareinfo'.
+        * Database:  New column description for plm_software.
+
+    * release: 1.3.2 -- Add build, install, validate command sets
+        * database:  New tables: plm_command, plm_command_set, 
+              software_type_to_command_set.
+        * Add 'plm_build_app.pl' script to add 
+        * Edit Web to be able to see command sets tied to software type.
+        * Feature: Can reverse patches.
+            -Check box on web page
+            -Displays info in 'patch Info' page
+            -plm_build_tree.pl checks and applies patches with '-R' option.
+-- JL <judith@osdl.org>
+
+    * release: 1.3.1 -- Clean-up, Bug fix
+        * change: Fix the module names to match the path-prepend 'PLM::'
+        * change: Rename some modules: PLMClient to PLM::Client,
+              'BASE' to 'Util', PLM.pm to Util.pm
+        * change: Pull TempFile scripts into a seperate PLM::Util module, as
+              they are not used often.
+-- JL <judith@osdl.org>
+
+    * release: 1.3.0 -- Clean-up, Bug fix
+        * change: RPC Transport now uses SOAP again.  To make it accessible 
+              from other apps.
+        * Bug Fix: errors due to base64 encoding.
+-- JL <judith@osdl.org>
+
+    * release: 1.2.2 -- Clean-up, Bug fix
+        * database:  Eliminate tables plm_user_to_filter, plm_user_to_queue, 
+             plm_queue, plm_approval, plm_approval_state.
+        * database:  Remove column plm_auth_id from table 'plm_user'
+        * dead code:  Remove software_add_version, software_version_verify, 
+             software_delete_version, filter_request_output,
+        * change: Update plm_private_server.pl and plm_server.pl
+        * Bug fix: in Archive::Tar.pm fix get_top_page_content to be called 
+            with file and path.  In plm_source_sync.pl fix how new and 
+            get_top_page_content are called in this module.
+-- JL <judith@osdl.org>
+             
+    * release: 1.2.1
+        * feature: Added 'CVS' as a source type.
+        * database: Added column last_timestap to table plm_source_sync.
+        * dependencies: To do CVS now need IO/Pty.pm, Cvs-0.06,IPC-Run-0.78, 
+          Class-Accessor-0.19.
+-- Judith Lebzelter <judith@osdl.org>	
+         
+    * release: 1.2.0
+        * feature: Make it easy to add source types.
+        * Change: Redesign module XML::SourceSync.pm is now XML::SourceSync::TAR.pm.
+        * Change: Dynamically loading XML::SourceSync::TAR.pm and
+             Archive::TAR.pm modules.
+        * database: Added table plm_source, renamed plm_archive to 
+             plm_source_sync and it refers back to plm_source_id instead
+             of plm_software_type.
+-- Judith Lebzelter <judith@osdl.org>	
+
+    * release: 1.1.6
+	* feature: Added checks on software repo when patches added or pulled.
+        * feature: Made supervisors fork so that parent could timeout child,
+                  which runs the filters.
+        * feature: Add server_dead.sh script.
+-- Judith Lebzelter <judith@osdl.org>	
+
+    * release: 1.1.5
+	* bugfix: Update HOWTO and fix links.
+        * bugfix: Make objects select only 1 row to identify columns in 
+		corresponding table.  This speeds things up.
+-- Judith Lebzelter <judith@osdl.org>	
+
+    * release: 1.1.4
+
+	* bugfix: Fix race condition makes filters run many times. 
+	* bugfix: Initialise arrays correctly, get rid of apache errors.
+	* Change: Move log file to /var/log/plm/plm.log
+	* Change: Move cgi's to different location.
+-- Judith Lebzelter <judith@osdl.org>	
+
+    * release: 1.1.3
+
+	* bugfix: permissions on asp_supervisor.pl.
+	* bugfix: Make rpm not whine about needing BASE::Log.
+	* Change: Install permissions/ownership/groups
+	* Change: Install perl modules into /usr/lib/perl5/site_perl/PLM
+	* bugfix: for Multiple repositories. (Edit PLMWeb/Software.pm software_list(),
+		PLMWeb/Software.pm calling wrong module,
+		popup_menus did not work. )
+-- Judith Lebzelter <judith@osdl.org>	
+
+    * release: 1.1.1
+
+	* feature: New report script to summarize compile results
+	* feature: Code to capture Martin J. Bligh and IBM's LSE patch efforts
+	* feature: New script to add filter types to the database
+	* feature: New script to add filters to the database
+	* bugfix: Filter requests states are not correct for failed and running
+	* bugfix: Reverted everything from mod_perl to the cgi gateway
+	* SQL: Made column 'code' in plm_filter_type UNIQUE
+	* SQL: Made column 'name' in plm_filter UNIQUE
+	* SQL: Made column 'name' in plm_software UNIQUE
+	* doc: Updated README.filter
+
+-- Mark Wong <markw@osdl.org>
+
+    * bugfix: Get correct plm_software_id for patch when adding by applies
+                  name in the web interface
+	* feature: db_echeck() database error catch routine (uses panic())
+
+-- Nathan T. Dabney <smurf@osdl.org>
+
+
+Thu, 20 Feb 2003 15:01:12 -0800
+
+	* Release: 1.1.0
+	
+	* feature: View patches online as plain text or code2html
+	* feature: Handle multiple software repositories
+	* feature: Support "universal" filters, that apply to all software
+
+-- Mark Wong <markw@osdl.org>
+
+	* code: perltidy run
+	* bugfix: PLM.pm temp file cleanup API added (mod_perl requirement)
+	* config: Add option for getpatch_url
+	* bugfix: Add all of Server.pm calls to PrivateServer.pm as well
+	* bugfix: PLM.pm - _panic & endScript references fixed
+	* feature: Global panic() routine with call trace!
+
+-- Nathan T. Dabney <smurf@osdl.org>
+
+
+Mon, 17 Feb 2003 15:31:09 -0800
+
+	* Release: 1.0.2
+	* bugfix: Correctly inserting ia64 patches into the database
+	* feature: Support syncing of Andrew Morton's mm patch sets
+	* feature: Mail notification sent per filter completion
+	* feature: plm_build_tree external support
+	* speed: ASP::Supervisor and build_tree using direct database access
+
+-- Mark Wong <markw@osdl.org>
+
+	* feature: New account link
+	* bugfix: plm_supervisor: correct output on panic
+	* bugfix: ResultSet bugfix
+	* bugfix: ResultSet lib: die on execute failure
+	* bugfix: plm_supervisor had a race in deciding when to email results
+	* feature: new library PLM::FilterType & SQL support
+    	* feature: mod_perl required removal of cgi-bin hard-paths
+    	* library: Standard library location: /usr/share/plm/lib
+    	* feature: External Supervisor support (ASP)
+    	* bugfix: Correct path searching in plm_version_sync_kernel
+    	* speed: cache setting functionPointer in ASP::Server
+    	* doc: New docs/ISSUES file to track work remaining for the next release
+    	* filter: New ia64- compile filter
+	* server: New plm_private_server for unsecured access calls
+	
+-- Nathan T. Dabney <smurf@osdl.org>
+
+
+Thu, 10 Oct 2002 09:04:42 -0700
+
+	* Release: 1.0.1
+	* doc: PLM API call graph doc
+	* speed: XML->DB table format cache, reduce DB queries by up to 80%
+	* bug: plm_build_tree now does 100 retries with wget to get a file
+
+-- Nathan T. Dabney <smurf@osdl.org>
+
+	
+Thu, 26 Sep 2002 13:44:26 -0700
+
+	* Release: 1.0.0 
+	* web: Patch info, reword explanation of filter log link
+	* supervisor: Email now mentions the presence of download & log links
+	* supervisor: Changed result email spacing to allow for larger detail
+	* filter: minor bugfix in compile_STP.sh filter
+	
+-- Nathan T. Dabney <smurf@osdl.org>
+
+
+Wed, 25 Sep 2002 11:54:22 -0700
+
+	* Release: 0.9.4
+	* bugfix: plm_supervisor missing PLM::User include
+	* bugfix: search_sql reference bugfix in supervisor
+	* script: plm_supervisor cleans up build area now
+	* bugfix: plm_supervisor incorrect select from DB
+	* bugfix: Patch was not detecting gzip correctly
+	* web: Extra line before delete option
+	* script: supervisor now passes patch Id to filter
+	* filter: Major filter reworks to detet for messed up patches
+	* feature: build_tree leaves patch.error when patch fails
+	* bugfix: Fitlers only requested after patch add is verified
+	* bugfix: getpatch only puts out two \n before content
+	* bugfix: now removes correct files after filter run
+
+-- Nathan T. Dabney <smurf@osdl.org>
+
+
+Tue, 24 Sep 2002 14:36:05 -0700
+
+	* Release: 0.9.3
+	* bugfix: Correct call to check ACL of patches
+	* bugfix: Correct reference to returned ACL search
+	* bugfix: ACL is case insensitive now.
+	* web: more info on patch reject.
+	* bugfix: md5sum fix in web site
+
+-- Nathan T. Dabney <smurf@osdl.org>
+
+
+Tue, 24 Sep 2002 10:51:13 -0700
+
+	* Release: 0.9.2
+	* log: added debug to patch_can_delete ASP call
+	* bugfix: Correct is_admin call from ASP
+	* bugfix: wrong patch_id token passed in URL
+	* bugfix: patch_delete on ref instead of ID.  doh.
+
+-- Nathan T. Dabney <smurf@osdl.org>
+
+Tue, 24 Sep 2002 10:23:12 -0700
+
+	* Release: 0.9.1
+	* bugfix: Tainted data perl error in search of applies date
+	* bugfix: Attempt fix for delete problem
+
+-- Nathan T. Dabney <smurf@osdl.org>
+
+
+Tue, 24 Sep 2002 09:42:36 -0700
+
+	* Release: plm-0.9.0
+	* feature: color coded filter result field
+	* filter: Three new filters
+	* filter: output available through website
+	* filter: output stored in database in Base64 format
+	* feature: ASP supports ACL's against patch names to user combos
+	* filter: Web report uses single Status column for State/Result
+	* filter: Notification email when all filters have passed
+	* patch: Autodetect patch file format on submission (web)
+	* supervisor: Much more reliable, can run multiple instances
+	* PLM: base lib getTempFileHandle call, auto cleanup of temps
+	* Patch: md5sum support in patch_add
+	* sql: md5sum field in plm_patch
+	* web: md5sum support in patch_info page when md5sum is available
+	* filter: Fitlers now run against mainline patches as well
+	* patch: Library support for deleting patches
+	* ASP: ASP support for deleting patches
+	* web: Web patch-info page support for deleting patches
+	* web: Web page support for testing if we can delete a patch
+	* ASP: ASP support for testing for upwards depends 
+	* bugfix: Email was not being reported correctly
+
+-- Nathan T. Dabney <smurf@osdl.org>
+
+
+Fri, 13 Sep 2002 16:01:30 -0700
+
+	* Release: plm-0.6.0
+	* feature: Took --verbose off patch application
+	* web: start support for web filter report
+	* fix: Minor bug fixes in PLM::Filter stuff (new auto states)
+	* web: New Filter autorun feature & report in patch info
+
+-- Nathan T. Dabney <smurf@osdl.org>
+
+
+Thu, 12 Sep 2002 10:27:09 -0700
+
+	* Release: plm-0.5.2
+	* image: New caption bug for patch report
+	* web: Rename Detailed Patch Report to Patch Information Report
+	* web: Took out extra page title form Patch Info page
+	* web: Took out extra page titel from Search results page
+	* filter: apply_patch: includes output on patch OK 
+	* suptervisor: runs through filters.  yay
+	* build: Cleanup build, better permissions
+	* lib: Library location changes
+
+-- Nathan T. Dabney <smurf@osdl.org>
+
+
+Thu,  5 Sep 2002 14:21:24 -0700
+
+	* Release: plm-0.5.1
+	* feature: Correctly suggests a filename when downloading patches
+	* bugfix: Rights bug fixed to allow downloads again
+
+-- Nathan T. Dabney <smurf@osdl.org>
+
+
+Thu, 05 Sep 2002 11:24:29 -0700
+
+	* Release: plm-0.5.0
+	* feature: Fully functional search interface
+	* feature: Search now auto-expands to *text*
+	* cleanup: Main table width now from global variable
+	* web: Changed size of content table by 120 pixels (larger)
+	* feature: Patch apply tree field in patch search
+	* search: Userpage includes private patches in search
+	* security: New setuid model for running as user plm for ASP work
+	* doc: New TODO doc for tracking feature requests
+	* patch: New patch info webpage & supporting ASP functions
+	* speed: connection pooling on certain patch ASP functions
+
+-- Nathan T. Dabney <smurf@osdl.org>
+
+
+Wed, 28 Aug 2002 10:16:42 -0700
+
+	* Release: plm-0.4.4
+	* web: Addpatch - tweeks to phrasing of entries
+	* web: Addpatch, buildrow now uses auto-widths
+	* web: Patch Search only lists repo as choice when >1 is available
+	* web: Added repo list to add patch page when >1 exists
+	* web: Patch Search can now search by patch ID
+	* bugfix: broken add patch form - missing software library
+	* feature: Switch to security mode is now automatic
+	* config: Server to serve patches is now configurable (webapp_patch_server)
+	* feature: getpatch now attempts to set the filename (browser specific?)
+	* config: branding filename is now configurable (webapp_brand)
+
+-- Nathan T. Dabney <smurf@osdl.org>
+
+
+Mon, 26 Aug 2002 16:07:25 -0700
+
+	* Release: plm-0.4.3
+	* web: Submit Query => Add Patch on AddPatch form
+	* web: Extra inline docs on adding patch (kernels...)
+	* web: getpatch serves a file instead of text
+	* web: many tweeks on user interface
+
+-- Nathan T. Dabney <smurf@osdl.org>
+
+
+Mon, 26 Aug 2002 12:55:25 -0700
+
+	* Release: plm-0.4.2
+	* web: Wildcard explanation on search page
+	* web: Downlaod instructions on search results page
+	* web: Addpatch includes explanation of file formats
+	* web: Userpage lists "Not set" as email when it's missing
+
+-- Nathan T. Dabney <smurf@osdl.org>
+
+
+Mon, 26 Aug 2002 09:27:09 -0700
+
+	* Release: plm-0.4.1
+	* library: new: ASP::User->get_user_info() call
+	* library: Started adjustment for "is owner" or "is admin" logic
+	* library: PLM::Patch now uses DB::XML methods (Yay!)
+	* bugfix: DB::XML errors on select all type queries
+	* library: PLM::Userpage (new)
+	* library: PLM::Addpatch (new)
+	* bugfix: PLM Branding content, removed caption preload error
+	* bugfix: Server found by $ENV{SERVER_ADDR} for the time being 
+	* getpatch: The getpatch script supports the .bz2 extension (55.bz2)
+	* security: Cookies are now guarenteed to be unique AND psychotic
+	* bugfix: Force rsf=1 on DB::XML add()
+	* web: New web interface first cut done.  Basic functionailty working
+	* bugs: New file docs/BUGS to track bugs & major missing features
+	* feature: Can pass limit, order type SQL commands to DB::XML, YAY!
+	* bugfix: Can't create temp file on login now tries 15 times
+	* bugfix: Login bug mod - 99 tries with no delay
+	* feature: Make image/ base URL configurable
+
+-- Nathan T. Dabney <smurf@osdl.org>
+
+
+Thu, 22 Aug 2002 10:13:32 -0700
+
+	* Release: plm-0.4.0
+	* feature: Support for Filters
+	* feature: Support for Filter Queue
+	* library: Now uses CGI::Carp to push errors to the browser
+	* library: PLM Level _panic now uses die() instead of exit()
+	* script: plm_apply_filter.pl (gets and runs a filter)
+	* filter: Apply Patch (v1)
+	* SQL: Major SQL revisions, new tables and numerous table modifications
+	* docs: Updates ASP API with new security level definitions
+	* bugfix: Numerous minor bug fixes
+	* library: Changing library includes for development
+	* library: Push CGI::Carp usage to the scripts that use the web ONLY
+	* library: Bugfix in DB::XML - now uses $dbh->quote to prep all data
+	* bugfix: Set rsf & autopublig_flag on user create
+	* library: New library PLMWeb::General for website support functions
+	* library: New library PLMWeb::Session for cookie/security management
+	* library: New library PLMWeb::Userpage for userpage module
+	* library: New library PLMWeb::User for generic user functions
+
+-- Nathan T. Dabney <smurf@osdl.org>
+
+
+Fri, 16 Aug 2002 11:03:43 -0700
+
+	* Release: plm-0.3.3
+	* bugfix: patch_find_by_name was broken in the ASP layer
+	* bugfix: patch_find_by_name searching on wrong parameter
+	* bugfix: infinate loop on user_add through gateway verify.  Ow!
+	* feature: plm_user report for list users now takes length-back option
+	* bugfix: plm_user fix to allow listing users based on username
+
+-- Nathan T. Dabney <smurf@osdl.org>
+
+
+Thu,  8 Aug 2002 12:52:31 -0700
+
+	* Release: plm-0.3.2
+	* bugfix: Improper array reference in kernel repo sync
+	* bugfix: Forgot to declare as @ instead of $ in repo sync
+
+-- Nathan T. Dabney <smurf@osdl.org>
+
+	
+Thu, 08 Aug 2002 10:58:46 -0700
+
+	* Release: plm-0.3.1
+	* logging: Many logging points added to linux_kernel_sync script
+	* plmsend: plmsend now support a target=file option
+	* plmsend: plmsend now auto-builds the .plmrc file from user input
+	
+-- Nathan T. Dabney <smurf@osdl.org>
+
+
+Thu, 25 Jul 2002 10:03:28 -0700
+
+	* Release: plm-0.3.0
+	* Docs: Added PLM-HOWTO.html
+	* Docs: Added goals file
+	* script: Nightly test request automation
+	* contrib: 2 contrib helper scripts
+	* perlformat: perltidy on all scripts
+	* Docs: FAQ Started
+	* build: cleanup script (auto perltidy on source & CVS update)
+	* build: added cleanup & auto CVS tagging to build script
+	* build: entire project syncs, cleanup and build on one command
+	* bugfix: Removed stupid debug exit that broke the nightly sync
+	* feature: Log target syslog now supported
+	* lib: New Filter.pm module for Filter tracking (PLM Level)
+	* lib: PLM::DATA abstraction for DB<->XML Automation
+	* docs: Removed mention of SANITY=GONE feature from HOWTO
+	* api: User verify -> login (added API compatible wrapper)
+	* lib: Support auto-sync flag for XML<->DB setValue automation
+	* lib: Support field 'types' auto-configure for XML<->DB updates
+	* lib: Support internal 'empty XML Schema' state tracking (auto)
+	* api: DB::XML generic load() call (takes row ID)
+	* api: DM::XML generic unload() call (no options)
+	* api: DB::XML generic verify_id() call (takes row ID)
+	* api: DB::XML generic add() call (takes NULL or XML)
+	* api: DB::XML generic delete() call (takes row ID)
+	* api: DB::XML generic search_sql() call (takes hash values)
+	* api: DB::XML generic atime() mtime() ctime() calls
+	* api: DB::XML generic setValue() call (takes token, value)
+	* api: DB::XML generic getValue() call (takes token)
+	* lib: Support auto mtime() & ctime() updates within DB::XML
+	* lib: Support for child control of atime() through DB::XML
+	* lib: DB::XML works as either a child or seperate object
+	* lib: Converted PLM::User to use DB::XML functionality
+	* lib: Converted PLM::Filter to use DB::XML functionality
+	* docs: Added new documentation & moved SQL file locations
+	* build: Updated build process with new file locations & fixes
+
+-- Nathan T. Dabney <smurf@osdl.org>
+
+
+Fri,  7 Jun 2002 11:28:25 -0700
+
+	* Release: plm-0.2.7
+	* typo: email gateway - hash instead of username - applies bug fix
+	* typo: email gatewy: ref to username & pass on doASP call
+	* plmsend: remove --batch on gpg encrypt (need key errors)
+	* plmsend: clean screen after password entry (need *** method)
+	* plmsend: checks return of mail send - throw better error
+	* plmsend: Refuses to run without .plmrc file - better error
+
+-- Nathan T. Dabney <smurf@osdl.org>
+
+
+Tue,  4 Jun 2002 14:03:25 -0700
+
+	* Release: plm-0.2.6
+	* typo: hte -> the in plmsend.  Stupid fingers.
+	* script: plmsend - correct sanity chekc logic
+	* API: patch_find_by_name( $User, $Pass, $Name ) added (ret: ID)
+	* egate: Correctly points to patch instead of version in applies
+	* egate: Rejects on patch duplicate
+	
+-- Nathan T. Dabney <smurf@osdl.org>
+
+
+Tue,  4 Jun 2002 09:49:20 -0700
+
+	* Release: plm-0.2.5
+	* libs: removed include of PLM & log semantics from Validation::User
+	* script: renamed plmmail script to plmsend
+	* script: plmsend: added .plmrc options file ability
+	* script: plmsend: will prompt for required user/pass info if needed
+	* script: plmsend: can handle either 'mail' or 'mutt' for submission
+	* script: plmsend: multiple debugging sections & verbose errors
+	* script: plmsend: version: 0.01
+	* bugfix: lib/PLM/Patch.pm - set rsf=1 on patch submission
+	* docs: Updated PLM-HOWTO to reflect plmsend 
+
+-- Nathan T. Dabney <smurf@osdl.org>
+
+
+Mon,  3 Jun 2002 17:33:09 -0700
+
+	* Release: plm-0.2.4
+	* BUG: Fixed munging of applies in email gateway
+	* Script: Changed plm_user script to output patch count and not ?admin
+	* BUG: Now sets the correct user for patch submissions
+	* Script: plmmail script for automating submissions
+	* API: ASP: user_verify now returns user ID
+
+-- Nathan T. Dabney <smurf@osdl.org>
+
+
+	
+Mon,  3 Jun 2002 10:39:10 -0700
+
+	* Release: plm-0.2.3
+	* Internal: Patches are now kept on disk instead of in the database
+	* Fix: plm_version...sync now avoids Historic, old and people dirs
+	* script: plm_build_tree builds trees of multiple patches now
+	* internal: All patch submission/retrieval is done through SOAP now
+	* BUG Fix: plm_version_kernel_sync uses `find` instead of perl 
+	* script: New plm_user internal admin script
+
+-- Nathan T. Dabney <smurf@osdl.org>
+
+
+Thu, 30 May 2002 13:14:57 -0700
+
+	* Release: plm-0.2.2
+	* SQL: Removed version field from plm_patch
+	* SQL: Added filename field in plm_software_version
+	       Added support in plm_version_sync_linux_kernel.pl
+	* SQL: Removed plm_requires table
+	* SQL: Renamed target field for plm_allies and plm_obsoletes to: 
+	       target_plm_patch_id INT
+	* Feature: Removed plm_requires support from Validation & PLM Levels
+	* Feature: Nightly sync script support mainline and patches
+	* Internal: Support for filename attribute of mainline versions
+
+-- Nathan T. Dabney <smurf@osdl.org>
+	
+
+Wed, 22 May 2002 09:03:04 -0700
+
+	* Release: plm-0.2.1
+	* Logging: Changed logging priorities and added extra debug points 
+	* Script: plm_user_list -> plm_user_list.pl (quick report)
+	* Script: kernel_sync.pl -> plm_repo_sync.pl (version sync)
+	* Copyright: Logs copyright on debug level 3 or higher
+	* Bugfix: Fixed perl include directories in scripts
+	* Build: Changed MANIFEST generation to be automatic in .spec
+	* MEM/Speed: (in progress) Perl module to support caching of objects
+	* Script: New client: plm_build_tree.pl (auto source tree build)
+	* SQL: added: plm_software_version.location VARCHAR(250)
+	* PLM/Patch.pm: Added 
+	* PLM/Software.pm: Added: set_location() & search_sql()
+	* PLM.pm: Added getTempDir() & integrated into createTempFile()
+	* Feature: patch_get_depend() PLM & ASP level functionality
+	* Feature: patch_*_depend() require PLM & ASP level functionality
+	* Feature: patch_*_depend() obsolete PLM & ASP level functionality
+
+-- Nathan T. Dabney <smurf@osdl.org>
+
+
+Fri,  3 May 2002 10:29:49 -0700
+
+	* Release: plm-0.2
+	* Feature: patch_get() PLM & ASP level
+	* Feature: software_*() PLM & ASP level
+	* Script: getpatch cgi-bin - download patch by number 
+	* Script: kernel_sync.pl
+	* Database: Added second MySQL centric SQL schema build
+	* Database: Data is now stored in bzip2 in the database
+	* Cleanup: PLM.pm module, major code reuse & cleanup
+	* egate: patch_applies logic
+
+-- Nathan T. Dabney <smurf@osdl.org>
+
+ 
+Fri, 26 Apr 2002 11:40:19 -0700
+
+	* Release: plm-0.1.2
+	* Fixes: Memory usage on web server ASP side
+	* Fixes: Memory usage in egate
+	* Fixes: Any data can now be placed in a patch, UNICODE or no
+
+-- Nathan T. Dabney <smurf@osdl.org>
+
+
+Fri, 26 Apr 2002 09:13:23 -0700
+
+	* Release: plm-0.1.1 
+	* Fixes: Binary/odd data that is compatible with UNICODE issues
+
+-- Nathan T. Dabney <smurf@osdl.org>
+
+ 
+Wed, 24 Apr 2002 19:12:33 -0700
+
+	* Release: plm-0.1.1-pre2
+	* XXX: Add Detail Later
+	
+-- Nathan T. Dabney <smurf@osdl.org>
+  
+  
+Mon, 22 Apr 2002 09:39:03 -0700
+
+	* Release: plm-0.1.1-pre1
+	* lib/PLMClient.pm: removed extra variable, added debug output
+	* lib/DB/Handle.pm: _puke -> _panic conversion
+		- Connect now returns internal _dbh reference
+		- dbh() command added to retrieve internal _dbh reference
+		- quote() wrapper added ( $self->{ _dbh }->quote( $text ) )
+	* lib/PLM/Patch.pm: Field SQL special craracter escape attempt
+	* lib/PLM/User.pm: removed 'use diagnostics' entry
+		- Removed commented functions
+		- Switched variable grabbing methods
+		- Added numerous vaiable count checks
+		- Added valid() call (checks dbh->quote)
+		- Added calid call to verify ( on $user )
+		- Minor (numerous) formating syncs
+		- Increase passwd rand to 10000
+	* scripts/email-gateway/egate.pl: remove extra debug value mod
+		- Added chomp() on PARSE input (doesn't affect patch)
+
+-- Nathan T. Dabney <smurf@osdl.org>
+
+
+Thu, 18 Apr 2002 09:36:45 -0700 
+
+	* Release: plm-0.1
+	
+-- Nathan T. Dabney <smurf@osdl.org>

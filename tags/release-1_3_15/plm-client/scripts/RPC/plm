@@ -1,0 +1,134 @@
+#!/usr/bin/perl -w
+
+use strict;
+use MIME::Base64();
+use Fcntl;
+use POSIX qw(tmpnam); 
+use CGI qw/:standard/;
+use CGI::Carp qw(fatalsToBrowser);
+use PLM::Util;
+
+$ENV{PATH} = "/bin:/usr/bin";
+delete @ENV{'IFS', 'CDPATH', 'ENV', 'BASH_ENV'};
+
+$CGI::POST_MAX=1024 * 1024 * 32;  # max 32MB POST 
+
+use PLM::Web::General;
+use PLM::Web::Session;
+use PLM::Web::Userpage;
+use PLM::Web::Addpatch;
+use PLM::Web::Patch;
+use PLM::Web::Command;
+use PLM::Web::Software;
+
+my $config = getConfig();
+
+my $dsn     = $config->get( "dsn" );
+my $dsnuser = $config->get( "dsnuser" );
+my $dsnpass = $config->get( "dsnpass" );
+my $dbh     = DBI->connect( $dsn, $dsnuser, $dsnpass );
+
+my $DATADIR = "../data";
+
+#
+# MODULE: ( home )
+#
+
+sub content_home {
+    new_html_page();
+    page_select("home");
+
+    my ( $header, $footer ) = seperate_html();
+    
+    print $header;
+   
+    print_data_file("home.html");
+
+    webapp_debug() if ( param('debug') && param('debug') eq 'on' );
+    print $footer;
+    
+    exit (0);
+}
+
+#
+# MODULE: ( filter_output )
+#
+
+sub content_filter_output {
+    my $id = param( 'id' );
+
+    new_html_page();
+
+    print "<html><head>";
+    print "<title>Filter Request Output for Request $id</title>";
+    print "</head><body><pre>";
+
+    my $sql;
+    $sql = "SELECT output "
+        . "FROM plm_filter_request "
+        . "WHERE id = $id";
+    my $sth = $dbh->prepare( $sql );
+    $sth->execute();
+    if ( $DBI::rows ) {
+
+        my @row = $sth->fetchrow_array;
+        my $output = MIME::Base64::decode( $row[0] );
+
+        my $filename;
+        do { $filename = tmpnam() }
+            until sysopen(FH, $filename, O_RDWR|O_CREAT|O_EXCL);
+
+        print FH $output;
+
+        close FH;
+
+        my $txt = `cat $filename | bunzip2 2> /dev/null`;
+
+        unlink( $filename ) || warn ("Unable to unlink $filename");
+
+        print $txt;
+    } else {
+        print "Could not get filter request output.";
+    }
+
+    print "</pre></body></html>";
+    
+    exit (0);
+}
+
+#
+# The actual code control path begins here
+#
+
+# Catch the login attempts here (does not generate HTML)
+handle_login();
+
+# Set the access state for the rest of the connection
+detect_access_state();
+
+# Default module is home if no other modules are specified
+content_home unless ( param('module') );
+
+# The following modules do not require a encrypted or authenticated connection
+content_home() if param('module') eq "home";
+content_search() if param('module') eq "search";
+content_logout() if param('module') eq "logout";
+content_patch_info() if param('module') eq "patch_info";
+content_filter_output() if param('module') eq "filter_output";
+content_patch_delete() if param('module') eq "patch_delete";
+content_build_info() if param('module') eq "build_info";
+content_software_info() if param('module') eq "software_info";
+
+# Make sure the user is on an authentication session
+# This also makes sure the connection is Encrypted from here out
+force_authentication(); 
+
+# The following modules require a encrypted and authenticated connection
+content_userpage() if param('module') eq "userpage";
+content_addpatch($config) if param('module') eq "addpatch";
+content_addpatch_submission() if param('module') eq "addpatch_submission";
+
+# If we get here, there is a security problem or major application bug
+warn ("SECURITY: Invalid Module: " . param('module'));
+panic ('INVALID MODULE, CONTACT ADMIN');
+

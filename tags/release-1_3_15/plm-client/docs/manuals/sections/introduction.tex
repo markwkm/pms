@@ -1,0 +1,40 @@
+\section{Patch Lifecycle Manager}
+This manual covers the Patch Lifecycle Manager (\emph{PLM}).  The PLM is a system
+for managing not only patches against a source tree but meta-data concerning
+those patches as well.
+
+The PLM can also run some limited tests against code submitted to the system to 
+look for errors in code submissions.
+
+\subsection{Patch Formats}
+The format for patches is the accepted standard \emph{diff(1)} format.  The PLM
+is not affected by the tools used to control the management of the source code
+as long as patches in \emph{diff(1)} format can be generated.
+
+Example:
+\begin{verbatim}
+diff -urN file.orig file.changed > file_version.patch
+\end{verbatim}
+
+\subsection{Scope}
+\index{SCCS}
+Most current SCCS systems allow the import and export of patches in diff format.
+This common functionality allows the PLM to act as a sort of glue, enabling a
+command presentation format separate from the software and formats used to manage 
+the source code during development.
+
+The PLM does not attempt to take on the role of a traditional SCCS system and 
+considers managing the actual changes to individual source code files to be outside
+it's area of interest.  The PLM is not well suited for SCCS work but is very well
+suited as a value add to an environment where traditional SCCS tools are in place.
+
+\subsection{Filters}
+\index{Filters}
+Filters are one of the powerful portions of the PLM.  A filter is essentially a 
+scripted test that is run against a patch.  A filter could do anything from 
+test the correct application of a patch to compile the resulting source.  A filter
+could even be written to run a static profiler, lint analysis or other static analysis.
+The one restriction that the filter environment has is the system cannot 
+be rebooted as part of the filter test sequence.
+
+\input {sections/license.tex}
