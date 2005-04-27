@@ -163,6 +163,12 @@ sub patch_get {
     return $patch;
 }
 
+=head1 FUNCTION patch_get_list
+
+Pass a ref to list of patch ID's get a ref to list of 'reverse' flags.
+
+=cut 
+
 sub patch_get_list {
     shift;
     my $field = shift;
