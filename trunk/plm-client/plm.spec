@@ -81,7 +81,7 @@ if [ -e /etc/SuSE-release ]; then
 export  INSTALLSITELIB=$RPM_BUILD_ROOT%{perl_site_perl}
 fi
 
-RPM_BUILD_ROOT=%{buildroot}
+RPM_BUILD_ROOT=/
 export  INSTALLSITELIB=$RPM_BUILD_ROOT%{perl_site_perl}
 
 mkdir -p $RPM_BUILD_ROOT/usr
