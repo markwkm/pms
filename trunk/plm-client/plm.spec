@@ -76,9 +76,10 @@ echo "DEBUG: RUNNING MAKE TEST"
 %install
 export  INSTALLSITELIB=$RPM_BUILD_ROOT%{perl_site_perl}
 [ "%{buildroot}" != "/" ] && rm -rf $RPM_BUILD_ROOT
-#if [ -e /etc/SuSE-release ]; then
-#    RPM_BUILD_ROOT=%{buildroot}
-#fi
+if [ -e /etc/SuSE-release ]; then
+    RPM_BUILD_ROOT=%{buildroot}
+export  INSTALLSITELIB=$RPM_BUILD_ROOT%{perl_site_perl}
+fi
 
 mkdir -p $RPM_BUILD_ROOT/usr
 %{makeinstall} `%{__perl} -MExtUtils::MakeMaker -e ' print \$ExtUtils::MakeMaker::VERSION <= 6.05 ? qq|PREFIX=%{buildroot}%{_prefix}| : qq|DESTDIR=%{buildroot}| '`
