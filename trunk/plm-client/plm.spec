@@ -102,9 +102,15 @@ print "%defattr(-,root,root)";
 #print "%doc  cgi-bin doc Changes INSTALL README";
 print "%doc  Changelog  docs/INSTALL-HOWTO docs/README";
 for my $x (sort @dirs, @files) {
-    push @ret, $x unless indirs($x);
+    # These lines for SuSE, probably break RH
+    if ( -e "/etc/SuSE-release" ){
+        $y = $x;
+        $y .= "\.gz" if $x =~ /(\.1|\.3pm)$/;
+    }
+    push @ret, $y unless indirs($x);
 }
 print join "\n", sort @ret;
+exit;
 
 sub wanted {
     return if /auto$/;

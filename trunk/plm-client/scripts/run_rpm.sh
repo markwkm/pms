@@ -7,10 +7,14 @@ VER=`cat plm.spec | grep "define version" | cut -d\  -f3`
 TMP=/tmp/plm-build-$$/
 BASE=`pwd`
 TAG="devel"
+SOURCES_DIR=/usr/src/packages/SOURCES/
+#SOURCES_DIR=/usr/src/rpm/SOURCES/
+SPECS_DIR=/usr/src/packages/SPECS/
+#SPECS_DIR=/usr/src/rpm/SPECS/
 
-rm -f /usr/src/rpm/SOURCES/plm-$VER.tar.bz2
-if [ -f "/usr/src/redhat/SOURCES/plm-$VER.tar.bz2" ]; then
-  echo "ERROR: /usr/src/redhat/SOURCES/plm-$VER.tar.bz2 exists already"
+rm -f plm-$VER.tar.bz2
+if [ -f "${SOURCES_DIR}plm-$VER.tar.bz2" ]; then
+  echo "ERROR: ${SOURCES_DIR}plm-$VER.tar.bz2 exists already"
   echo "If you are sure about this rebuild, please remove it and try again."
   exit
 fi
@@ -32,23 +36,24 @@ echo "Base source: $BASE"
 echo "Using temp location: $TMP"
 
 echo "Cleaning previous build processes"
-rm -f /usr/src/redhat/SOURCES/plm-$VER.tar.bz2
-rm -f /usr/src/rpm/SPECS/plm.spec
+rm -f ${SOURCES_DIR}plm-$VER.tar.bz2
+rm -f ${SPECS_DIR}plm.spec
 rm -f $BASE/Makefile.old
 
 echo "Setting up build space"
 cvs export -r$TAG -d plm-$VER plm
-cp $TMP/plm-$VER/plm.spec /usr/src/rpm/SPECS/plm.spec
+echo Temp dir at `pwd`
+cp $TMP/plm-$VER/plm.spec ${SPECS_DIR}plm.spec
 #cp -a $BASE plm-$VER 
 #rm -rf `find -name CVS -type d`
 
-echo "Compressing sources to: [/usr/src/redhat/SOURCES/plm-$VER.tar.bz2]"
-tar -jcf /usr/src/redhat/SOURCES/plm-$VER.tar.bz2 plm-$VER 
+echo "Compressing sources to: [${SOURCES_DIR}plm-$VER.tar.bz2]"
+tar -jcf ${SOURCES_DIR}plm-$VER.tar.bz2 plm-$VER 
 
 echo "Running rpm"
 cd /usr/src/rpm
 #lsb-rpm -ba SPECS/lsb-rpm.spec 
-rpmbuild -ba SPECS/plm.spec 
+rpmbuild -ba ${SPECS_DIR}plm.spec 
 
 echo "Cleaning up the package build temp dir"
 rm -rf $TMP
