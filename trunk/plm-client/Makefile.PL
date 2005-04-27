@@ -47,6 +47,7 @@ my %opts = (
             'INSTALLDIRS'   => 'site',
             'NAME'          => $args{name},
             'VERSION_FROM'  => 'lib/PLM/Util.pm',
+            'LIB'           => '/usr/lib/perl5/site_perl/',
             'AUTHOR'        => 'Open Source Development Lab',
             'EXE_FILES'     => [ qw(
                                      scripts/admin/asp_supervisor.pl
