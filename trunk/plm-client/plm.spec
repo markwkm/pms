@@ -56,6 +56,7 @@ fi
 %build
 CFLAGS="$RPM_OPT_FLAGS"
 export INSTALLSITELIB=$RPM_BUILD_ROOT%{perl_site_perl}
+export  LIB=/usr/lib/perl5/site_perl
 export INSTALLSITEMAN3DIR=$RPM_BUILD_ROOT%{local_mandir}/man3
 export INSTALLSITEMAN1DIR=$RPM_BUILD_ROOT%{local_mandir}/man1
 echo "DEBUG: CLEANING BUILD SPACE"
