@@ -162,6 +162,22 @@ sub patch_get {
     return $patch;
 }
 
+sub patch_get_list {
+    shift;
+    my $field = shift;
+    my $array_ref = shift;
+    my $id;
+    my $return_array_ref="";
+    $patch = new PLM::PLM::Patch();
+    foreach  $id (@{$array_ref}){
+        $patch->load( $id );
+        ($value) = $patch->getValue( $field );
+        push @{$return_array_ref}, $value;
+    }
+    return $return_array_ref;
+}
+
+
 # patch_get_value
 # This should be written to get 1 or more fields.
 sub patch_get_value {

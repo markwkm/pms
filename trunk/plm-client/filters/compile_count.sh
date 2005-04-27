@@ -10,7 +10,7 @@
 #
 # kernstats performs the following things during a build:
 #   make mrproper (unless using supplied .config) 
-#   make ($OURCONFIG) 
+#   make (defconfig) 
 #   make dep
 #   make bzImage (continues to completion even if there are errors)
 #   make modules (continues to completion even if there are errors)
@@ -58,14 +58,14 @@
 #			Changed alternate.configs to alternate.configs.<arch>
 #       0.1.0           Shortened version for single compile.
 #
-COMPDEFAULT_VERSION="0.1.0"
+COMPCOUNT_VERSION="0.1.0"
 #
 
 # Set this to the number of CPUs you want to use when building the kernel
 # to autodetect try: CPU_MAX=`grep -c cpu /proc/cpuinfo`
 # Comment this line out to avoid forcing -j to make
 # The -j# will be CPU_MAX+1 when in PLM mode
-#declare CPU_MAX=`grep -c processor /proc/cpuinfo`
+declare CPU_MAX=`grep -c processor /proc/cpuinfo`
 
 #
 # For a cross-compile, set environmental variables:
@@ -83,8 +83,6 @@ declare    MAKEOPT="KBUILD_VERBOSE=0 -ki"
 declare    NOARCH=""
 declare    CLEANUP=""
 declare    ALT_CONFIGS=0
-declare    CONFIG_LOG="$HOME/config.log"
-declare    OURCONFIG="allyesconfig"
 
 #
 # If a cross-compile is setup, MY_ARCH needs to be set from the
@@ -98,8 +96,6 @@ if [ ! -z $ARCH ]; then
             MAKECONFIGOPT="$MAKECONFIGOPT ARCH=$ARCH"
             MAKEDEPOPT="ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE"
         fi
-else
-        MY_ARCH=i386
 fi
 
 #
@@ -110,22 +106,19 @@ MODE=PLM
 #if [ ! -z $COMPREGRESS_MODE ]; then
 	#MODE=$COMPREGRESS_MODE
 #fi
-if [ $MODE == 'PLM' ]; then
 
-    patch_id=`tail -100 ./LOG | grep Applies |tail -1|cut -d' ' -f3`
-    if [ ! -z $patch_id ]; then
-       ssh plm@build "mkdir -p /home/plm/plm/results/${patch_id}/$MY_ARCH"
-    fi
-    MY_URL="http://www.osdl.org/projects/plm/results/${patch_id}/$MY_ARCH"
-fi
-
+# These are environmental variables I have found useful to set-up in wrapper script:
+#    OLDCONFIG_ONLY-Run oldconfig even if default is available (set to 1).
+#    NO_PRINT_CONFIGS-Do not print out config file (set to 1).
+#    CONFIG_URL-Print out the config URL (set to URL)
+#
 if [ -z $OLDCONFIG_ONLY ]; then 
      OLDCONFIG_ONLY=0
 fi
 
-#if [ -z $NO_PRINT_CONFIGS ]; then
-    #NO_PRINT_CONFIGS=0
-#fi
+if [ -z $NO_PRINT_CONFIGS ]; then
+    NO_PRINT_CONFIGS=0
+fi
 
 #
 # This should be the only way to leave this script
@@ -147,14 +140,12 @@ if [ $MY_ARCH == ia64 ]; then
 			BZIMAGE=vmlinux.gz
 		fi
 	fi
-elif [ $MY_ARCH == alpha -o $MY_ARCH == sparc64 -o $MY_ARCH == sparc -o $MY_ARCH == ppc64 -o $MY_ARCH == x86_64 ]; then
-        BZIMAGE="vmlinux"
 else
 	BZIMAGE=bzImage
 fi
 
 echo "
-Welcome to the [ Compile Default Count on ${MY_ARCH} ] Filter $COMPDEFAULT_VERSION
+Welcome to the [ Compile Count on ${MY_ARCH} ] Filter $COMPCOUNT_VERSION
 "
 
 if [ $MODE == PLM ]; then
@@ -180,13 +171,19 @@ log () {
 # original .config, set it to the default config options
 #
 setup_oldconfig() {
+#       for x in 1 2 3 4 5 6 7 8 9 10; do
+#		STR="\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n${STR}"
+#	done
+  
 	make mrproper > /dev/null 2>&1
 	test -f oldconfig-config && cp oldconfig-config .config
 
-	(while :; do echo -e "\n"; done) | make $MAKECONFIGOPT oldconfig &> /dev/null
-	(while :; do echo -e "\n"; done) | make $MAKECONFIGOPT oldconfig &> /dev/null
+	(while :; do echo -e "\n"; done)| make $MAKECONFIGOPT oldconfig &> /dev/null
+	(while :; do echo -e "\n"; done)| make $MAKECONFIGOPT oldconfig &> /dev/null
+	#echo -e $STR | make $MAKECONFIGOPT oldconfig &> /dev/null
+	#echo -e $STR | make $MAKECONFIGOPT oldconfig &> /dev/null
 	if [ "$BASE_VERSION" == 2.4 ]; then 
-		make $MAKEDEPOPT dep >> $OUT_MAKE_CONFIG 2>$ERR_MAKE_CONFIG
+		make $MAKEDEPOPT dep >> $KERNEL_OLDCONFIG 2>&1
 	fi
 }
 
@@ -196,6 +193,9 @@ setup_oldconfig() {
 # configs override those in the .config file.
 #
 alt_configs() {
+	#for x in 1 2 3 4 5 6 7 8 9 10; do
+                #STR="\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n${STR}"
+        #done
 	if [ -f ../alternate.configs.$MY_ARCH ]; then
 		mv ../alternate.configs.$MY_ARCH .
 	fi
@@ -204,20 +204,10 @@ alt_configs() {
 		TMPFILE=`mktemp $VERSION.XXXXXX`
 		cat .config alternate.configs.$MY_ARCH > $TMPFILE
 		mv $TMPFILE .config		
-		(while :; do echo -e "\n"; done) | make $MAKECONFIGOPT oldconfig &> /dev/null
+	        (while :; do echo -e "\n"; done)| make $MAKECONFIGOPT oldconfig &> /dev/null
+		#echo -e $STR | make $MAKECONFIGOPT oldconfig > /dev/null 2>&1
 	fi
-        cat .config >> $CONFIG_LOG
 }
-
-# Dump the log output (always exits after)
-#dump_log () {
-#  echo
-#  echo "=== Config Options ==="
-#  cat $CONFIG_LOG
-#  echo
-#  rm -f $CONFIG_LOG
-#}
-
 
 print_alt_configs() {
 	if [ -f alternate.configs.$MY_ARCH ]; then
@@ -238,10 +228,10 @@ no_modversions() {
 }
 
 print_counts() {
-	WARN_COUNT=`egrep -i " warning: " $1 | sort -u | wc -l`
-        ERROR_COUNT=`egrep " Error | error: " $1 | sort -u | wc -l`
-	egrep " Error | error: " $1 >> $ERROR_LIST
-	egrep -i " warning: " $1 >> $WARN_LIST
+	WARN_COUNT=`egrep " warning: " $1 | sort -u | wc -l`
+	ERROR_COUNT=`egrep " Error " $1 | sort -u | wc -l`
+	egrep " Error " $1 >> $ERROR_LIST
+	egrep " warning: " $1 >> $WARN_LIST
 	printf "%s warnings, %s errors\n" $WARN_COUNT $ERROR_COUNT
 }
 
@@ -285,14 +275,14 @@ if [ -f patch.error ]; then
 fi
 
 #
-# we need to find out of this kernel supports "$OURCONFIG" as a make target
+# we need to find out of this kernel supports "defconfig" as a make target
 #
-if make $MAKECONFIGOPT -n $OURCONFIG > /dev/null 2>&1 ; then
-	HAS_OURCONFIG=1
-	echo "This kernel supports '$OURCONFIG' (including)"
+if make $MAKECONFIGOPT -n defconfig > /dev/null 2>&1 ; then
+	HAS_DEFCONFIG=1
+#	echo "This kernel supports 'defconfig' (including)"
 else
-	HAS_OURCONFIG=0
-	echo "This kernel does NOT support '$OURCONFIG' (skipping)"
+	HAS_DEFCONFIG=0
+#	echo "This kernel does NOT support 'defconfig' (skipping)"
 fi
 
 #
@@ -307,7 +297,7 @@ fi
 #
 # Make sure we have at least one of the required configure methods
 #
-if [ $HAS_OURCONFIG == 0 ] && [ $HAS_OLDCONFIG == 0 ]; then 
+if [ $HAS_DEFCONFIG == 0 ] && [ $HAS_OLDCONFIG == 0 ]; then 
 	echo "no .config present and oldconfig is not supported either."
 	log RESULT: FAIL
 	log RESULT-DETAIL: No known config methods available
@@ -318,13 +308,13 @@ fi
 #  Choose oldconfig only
 ###
 if [ $OLDCONFIG_ONLY == 1 ] && [ $HAS_OLDCONFIG == 1 ]; then
-        HAS_OURCONFIG=0
+        HAS_DEFCONFIG=0
 fi
 
 #
 # Disable HAS_OLDCONFIG when it is not needed
 #
-if [ $HAS_OLDCONFIG == 1 ] && [ $HAS_OURCONFIG == 1 ] && [ ! -f .config ]; then
+if [ $HAS_OLDCONFIG == 1 ] && [ $HAS_DEFCONFIG == 1 ] && [ ! -f .config ]; then
 	HAS_OLDCONFIG=0
 fi
 
@@ -377,21 +367,18 @@ VERSION="$1.$2.$3$4"
 #
 # Construct output files
 #
-OUT_MAKE_CONFIG="$VERSION.$OURCONFIG.config.txt"
-ERR_MAKE_CONFIG="$VERSION.$OURCONFIG.config.err"
-OUT_MAKE_KERNEL="$VERSION.$BZIMAGE.txt"
-ERR_MAKE_KERNEL="$VERSION.$BZIMAGE.err"
-OUT_MAKE_MODULES="$VERSION.modules.txt"
-ERR_MAKE_MODULES="$VERSION.modules.err"
+KERNEL_DEFCONFIG="$VERSION.defconfig.$BZIMAGE.txt"
+KERNEL_OLDCONFIG="$VERSION.oldconfig.$BZIMAGE.txt"
+MODULES_DEFCONFIG="$VERSION.defconfig.modules.txt"
+MODULES_OLDCONFIG="$VERSION.oldconfig.modules.txt"
 DIRECTORY_BUILDS="$VERSION.log"
 FAIL_SUMMARY="$VERSION.failure.summary"
 WARN_SUMMARY="$VERSION.warning.summary"
 ERROR_LIST="$VERSION.error.list"
 WARN_LIST="$VERSION.warning.list"
 
-rm -f $OUT_MAKE_CONFIG $ERR_MAKE_CONFIG
-rm -f $OUT_MAKE_KERNEL $OUT_MAKE_KERNEL
-rm -f $OUT_MAKE_MODULES $ERR_MAKE_MODULES
+rm -f $KERNEL_DEFCONFIG $KERNEL_OLDCONFIG
+rm -f $MODULES_DEFCONFIG $MODULES_OLDCONFIG
 rm -f $DIRECTORY_BUILDS* $FAIL_SUMMARY $WARN_SUMMARY $ERROR_LIST $WARN_LIST
 
 printf "Kernel version: %s\n" $VERSION
@@ -407,73 +394,53 @@ if [ -n $CPU_MAX ]; then
 fi
 
 #
-# Build kernel and modules ($OURCONFIG)
+# Build kernel and modules (defconfig)
 #
 printf "Kernel build: \n"
 
-if [ $HAS_OURCONFIG == 1 ]; then
-	printf "   Making configuration  ($OURCONFIG, then oldconfig with alternate config): "
+if [ $HAS_DEFCONFIG == 1 ]; then
+	printf "   Making $BZIMAGE (defconfig, then oldconfig with alternate config): "
 	make mrproper > /dev/null 2>&1
-	make $MAKECONFIGOPT $OURCONFIG > $OUT_MAKE_CONFIG 2>$ERR_MAKE_CONFIG
-	print_counts $ERR_MAKE_CONFIG
+	make $MAKECONFIGOPT defconfig > $KERNEL_DEFCONFIG 2>&1
 	alt_configs
 	if [ "$BASE_VERSION" == 2.4 ]; then 
-		make $MAKEDEPOPT dep >> $OUT_MAKE_CONFIG 2>$ERR_MAKE_CONFIG
+		make $MAKEDEPOPT dep >> $KERNEL_DEFCONFIG 2>&1
 	fi
-	printf "   Making $BZIMAGE: "
-	make $MAKEOPT $BZIMAGE >> $OUT_MAKE_KERNEL 2>$ERR_MAKE_KERNEL
-	print_counts $ERR_MAKE_KERNEL
+	make $MAKEOPT $BZIMAGE >> $KERNEL_DEFCONFIG 2>&1
+	print_counts $KERNEL_DEFCONFIG
 
-	printf "   Making modules: "
-	make $MAKEOPT modules > $OUT_MAKE_MODULES 2>$ERR_MAKE_MODULES
-	print_counts $ERR_MAKE_MODULES
-	cp -f .config $OURCONFIG-config
+	printf "   Making modules (defconfig, then oldconfig with alternate config): "
+	make $MAKEOPT modules > $MODULES_DEFCONFIG 2>&1
+	print_counts $MODULES_DEFCONFIG
+	cp -f .config defconfig-config
 fi
 
-if [ $HAS_OLDCONFIG == 1 ] && [ $HAS_OURCONFIG == 0 ]; then
-        OUT_MAKE_CONFIG="$VERSION.oldconfig.config.txt"
-        ERR_MAKE_CONFIG="$VERSION.oldconfig.config.err"
+if [ $HAS_OLDCONFIG == 1 ] && [ $HAS_DEFCONFIG == 0 ]; then
         printf "\n\nKernel build of original configuration: \n"
         printf "   Making $BZIMAGE (oldconfig with alternate config): "
 	alt_configs
         #setup_oldconfig
-        make $MAKEOPT $BZIMAGE >> $OUT_MAKE_KERNEL 2>$ERR_MAKE_KERNEL
-	print_counts $ERR_MAKE_KERNEL
+        make $MAKEOPT $BZIMAGE >> $KERNEL_OLDCONFIG 2>&1
+	print_counts $KERNEL_OLDCONFIG
 
         printf "   Making modules (oldconfig with alternate config): "
-        make $MAKEOPT modules > $OUT_MAKE_MODULES 2>$ERR_MAKE_MODULES
-	print_counts $ERR_MAKE_MODULES
+        make $MAKEOPT modules > $MODULES_OLDCONFIG 2>&1
+	print_counts $MODULES_OLDCONFIG
 fi
-echo
-
-if [ $MODE == 'PLM' ] && [ ! -z $patch_id ]; then
-    gzip *txt
-    gzip *err
-    scp *txt.gz plm@build:/home/plm/plm/results/${patch_id}/$MY_ARCH/
-    scp *err.gz plm@build:/home/plm/plm/results/${patch_id}/$MY_ARCH/
-    printf "Compile Output:  </PRE><a href=$MY_URL> $MY_URL </A><PRE> \n"
-    if [ $HAS_OURCONFIG == 1 ]; then
-        scp .config plm@build:/home/plm/plm/results/${patch_id}/$MY_ARCH/${OURCONFIG}.config
-        printf "Config Options:  </PRE><a href=$MY_URL/config> $MY_URL/${OURCONFIG}.config </A><PRE>"
-    elif [ $HAS_OLDCONFIG == 1 ] && [ $HAS_OURCONFIG == 0 ]; then
-        scp .config plm@build:/home/plm/plm/results/${patch_id}/$MY_ARCH/oldconfig.config
-        printf "Config Options:  </PRE><a href=$MY_URL/config> $MY_URL/oldconfig.config </A><PRE>"
-    fi
-fi
-
 echo
 
 if [ ! $NO_PRINT_CONFIGS == 1 ]; then
     print_alt_configs
 fi
-
-#dump_log
+if [ ! -z $CONFIG_URL ]; then
+    echo Config file used here is at:
+    echo $CONFIG_URL
+fi
 
 #
 # Print Summary Information
 #
 #printf "\n\nError Summary:\n"
-TMPFILE=`mktemp $VERSION.XXXXXX`
 #sort -u < $FAIL_SUMMARY | tee $TMPFILE
 #cp $TMPFILE $FAIL_SUMMARY
 #printf "\n\nWarning Summary:\n"
@@ -483,6 +450,7 @@ TMPFILE=`mktemp $VERSION.XXXXXX`
 #
 # Print Detailed Information
 #
+TMPFILE=`mktemp $VERSION.XXXXXX`
 printf "\n\nError List:\n\n"
 sort -u < $ERROR_LIST | tee $TMPFILE
 cp $TMPFILE $ERROR_LIST
@@ -496,8 +464,8 @@ echo
 #
 [ $MODE == PLM ] || exit 0
 
-ERROR_COUNT=`egrep -c " Error | error:" $ERROR_LIST`
-WARN_COUNT=`egrep -ic " warning: " $WARN_LIST`
+ERROR_COUNT=`grep -c " Error " $ERROR_LIST`
+WARN_COUNT=`grep -c " warning: " $WARN_LIST`
 
 if [ $ERROR_COUNT == 0 ]; then
 	log RESULT: PASS
@@ -506,5 +474,4 @@ else
 fi
 
 log RESULT-DETAIL: $WARN_COUNT warnings, $ERROR_COUNT errors 
-
 leavecleanly

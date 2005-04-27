@@ -109,6 +109,8 @@ print "\n";
 print "</script>\n";
 print "<pre>\n";
 
+unlink $CONFIG_LOG;
+
 if ( $ERROR_COUNT == 0 ) {
     logme( "RESULT: PASS" );
 } else {

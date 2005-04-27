@@ -67,8 +67,12 @@ sub build_tree {
 
     my $base_patch = pop @{$applies};
     handle_base( $base_patch );
+    # Get all the 'reverse_applies' values here in array then use 
+    # array later instead of many calls
+    my $reverse_array_ref= $rpc->ASP( "patch_get_list", "reverse", $applies );
     for ( reverse @{$applies} ) {
-        handle_patch( $_ );
+        my $reverse = pop @{$reverse_array_ref};
+        handle_patch( $_ , $reverse );
     }
 }
 
@@ -130,6 +134,7 @@ sub handle_base {
 
 sub handle_patch {
     my $pid  = shift;
+    my $reverse = shift;
     my $file = "plm-$pid.patch";
     my $path;
 
@@ -147,7 +152,6 @@ sub handle_patch {
         rename "getpatch\?id\=${pid}", $file;
     }
 
-    my $reverse = $rpc->ASP('patch_get_value', $pid, 'reverse');
     chdir $repo;
 
     print "Patching source, placing output in: patch.$pid.out\n";
