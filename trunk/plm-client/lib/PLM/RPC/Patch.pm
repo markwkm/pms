@@ -175,7 +175,8 @@ sub patch_get_list {
     my $array_ref = shift;
     my $id;
     my $return_array_ref="";
-    $patch = new PLM::PLM::Patch();
+    my $value = 0;
+    my $patch = new PLM::PLM::Patch();
     foreach  $id (@{$array_ref}){
         $patch->load( $id );
         ($value) = $patch->getValue( $field );
