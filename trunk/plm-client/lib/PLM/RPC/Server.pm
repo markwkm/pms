@@ -13,7 +13,7 @@ use strict;
 
 use PLM::RPC::CommandSet qw( command_set_get_content );
 use PLM::RPC::User qw( user_verify ) ;
-use PLM::RPC::Patch qw( patch_add patch_get_value patch_get_software_name patch_find_by_name );
+use PLM::RPC::Patch qw( patch_add patch_get_list patch_get_value patch_get_software_name patch_find_by_name );
 #use PLM::RPC::Patch qw( patch_add patch_add_depend patch_get_value patch_get_software_name patch_find_by_name );
 use PLM::RPC::Software qw( software_verify );
 use PLM::RPC::Source qw( source_get_by_software source_get );
