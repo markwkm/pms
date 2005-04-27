@@ -37,8 +37,8 @@ rm -f /usr/src/rpm/SPECS/plm.spec
 rm -f $BASE/Makefile.old
 
 echo "Setting up build space"
-cp $BASE/plm.spec /usr/src/rpm/SPECS/plm.spec
-bk export -r$TAG $BASE plm-$VER
+cvs export -r$TAG -d plm-$VER plm
+cp $TMP/plm-$VER/plm.spec /usr/src/rpm/SPECS/plm.spec
 #cp -a $BASE plm-$VER 
 #rm -rf `find -name CVS -type d`
 
