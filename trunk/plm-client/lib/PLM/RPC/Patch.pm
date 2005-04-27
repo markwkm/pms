@@ -14,6 +14,7 @@ use MIME::Entity;
   patch_add
   patch_find_by_name
   patch_get
+  patch_get_list
   patch_get_value
   patch_get_software_name
 );
