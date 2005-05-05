@@ -1,5 +1,5 @@
 DEVELOPMENT
-    * release: 1.3.15 -- get reverse gatues as list to decrease cgi load.
+    * release: 1.3.15 -- get reverse values as list to decrease cgi load.
         * PLM::RPC::Patch:  Add method patch_get_list.
         * plm_build_tree.pl:  Get reverse values as a list.
     * release: 1.3.14 -- 

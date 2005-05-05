@@ -7,10 +7,14 @@ VER=`cat plm.spec | grep "define version" | cut -d\  -f3`
 TMP=/tmp/plm-build-$$/
 BASE=`pwd`
 TAG="devel"
-SOURCES_DIR=/usr/src/packages/SOURCES/
-#SOURCES_DIR=/usr/src/rpm/SOURCES/
-SPECS_DIR=/usr/src/packages/SPECS/
-#SPECS_DIR=/usr/src/rpm/SPECS/
+if [ -e /etc/SuSE-release ]; then
+    SOURCES_DIR=/usr/src/packages/SOURCES/
+    SPECS_DIR=/usr/src/packages/SPECS/
+else
+    # RH
+    SOURCES_DIR=/usr/src/rpm/SOURCES/
+    SPECS_DIR=/usr/src/rpm/SPECS/
+fi
 
 rm -f plm-$VER.tar.bz2
 if [ -f "${SOURCES_DIR}plm-$VER.tar.bz2" ]; then

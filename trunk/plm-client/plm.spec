@@ -87,6 +87,7 @@ RPM_BUILD_ROOT=/
 export  LIB=/usr/lib/perl5/site_perl
 
 mkdir -p $RPM_BUILD_ROOT/usr
+# This is what fixed it!!! Using these vars INSTALLSITELIB, LIB on the line.
 %{makeinstall} INSTALLSITELIB=/usr/lib/perl5/site_perl LIB=/usr/lib/perl5/site_perl
 #%{makeinstall} `%{__perl} -MExtUtils::MakeMaker -e ' print \$ExtUtils::MakeMaker::VERSION <= 6.05 ? qq|PREFIX=%{buildroot}%{_prefix}| : qq|DESTDIR=%{buildroot}| '`
 

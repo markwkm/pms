@@ -34,6 +34,7 @@ CREATE TABLE plm_patch(
         patch_path varchar(255) default NULL,
         remote_identifier varchar(255) default NULL,
         plm_source_id int(11) NOT NULL default '0',
+        plm_applies_id int(11) default NULL,
         reverse INT,
 	PRIMARY KEY (id),
 	KEY (rsf),
@@ -41,24 +42,6 @@ CREATE TABLE plm_patch(
 	KEY (plm_user_id),
 	KEY (plm_software_id),
 	KEY (name)
-);
-
-CREATE TABLE plm_note(
-	id INT NOT NULL,
-	rsf INT,
-	created INT,
-	deleted INT,
-	accessed INT,
-	plm_user_id INT,
-	plm_patch_id INT,
-	plm_note_type_id INT,
-	subject VARCHAR(255),
-	content BLOB,
-	PRIMARY KEY (id),
-	KEY (rsf),
-	KEY (plm_user_id),
-	KEY (plm_patch_id),
-	KEY (plm_note_type_id)
 );
 
 CREATE TABLE plm_filter(
@@ -201,25 +184,6 @@ CREATE TABLE plm_software_to_command_set(
     PRIMARY KEY  (id)
 );
 
-CREATE TABLE plm_applies(
-	plm_patch_id INT,
-	target_plm_patch_id INT
-);
-
-CREATE TABLE plm_obsoletes(
-	plm_patch_id INT,
-	target_plm_patch_id INT
-);
-
-CREATE TABLE plm_note_type(
-	id INT,
-	rsf INT,
-	deleted INT,
-	created INT,
-	accessed INT,
-	name VARCHAR(60)
-);
-
 CREATE TABLE plm_keyword(
 	id INT,
 	rsf INT,
@@ -258,14 +222,12 @@ CREATE TABLE plm_patch_acl_to_user(
 
 INSERT INTO plm_index (token) VALUES ('plm_user');
 INSERT INTO plm_index (token) VALUES ('plm_patch');
-INSERT INTO plm_index (token) VALUES ('plm_note');
 INSERT INTO plm_index (token) VALUES ('plm_filter');
 INSERT INTO plm_index (token) VALUES ('plm_filter_request');
 INSERT INTO plm_index (token) VALUES ('plm_filter_request_state');
 INSERT INTO plm_index (token) VALUES ('plm_group');
 INSERT INTO plm_index (token) VALUES ('plm_user_to_group');
 INSERT INTO plm_index (token) VALUES ('plm_software');
-INSERT INTO plm_index (token) VALUES ('plm_note_type');
 INSERT INTO plm_index (token) VALUES ('plm_keyword');
 INSERT INTO plm_index (token) VALUES ('plm_patch_to_keyword');
 
