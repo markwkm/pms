@@ -17,6 +17,7 @@ my %args = (
             web_user        => 'www', # 'apache',
             web_group       => 'www', # 'apache',
             httpd_dir       => '/etc/httpd/conf',
+            html_dir        => '/var/www/plm/html',
             img_dir         => '/var/www/plm/html/images',
             cgi_dir         => '/var/www/plm/cgi-bin',
             private_cgi_dir => '/var/www/plm/asp-private',
@@ -176,6 +177,10 @@ sub MY::postamble {
 
     my $private_cgi_dir = catdir( $destdir, $args{private_cgi_dir} );
     $text .= install_clause(catfile('scripts', 'RPC', 'plm_private_server.pl'),  $private_cgi_dir, 1);
+
+    # Install Web header and footer
+    my $html_dir = catdir( $destdir, $args{html_dir} );
+    $text .= install_clause(catfile('docs', 'PLM-HOWTO.html'), $html_dir);
 
     # Install Web header and footer
     my $branding_dir = catdir( $destdir, $args{branding_dir} );

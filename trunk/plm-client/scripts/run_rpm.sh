@@ -7,14 +7,14 @@ VER=`cat plm.spec | grep "define version" | cut -d\  -f3`
 TMP=/tmp/plm-build-$$/
 BASE=`pwd`
 TAG="devel"
-if [ -e /etc/SuSE-release ]; then
-    SOURCES_DIR=/usr/src/packages/SOURCES/
-    SPECS_DIR=/usr/src/packages/SPECS/
+if [ -f /etc/SuSE-release ]; then
+    RPM_DIR=/usr/src/packages/
 else
     # RH
-    SOURCES_DIR=/usr/src/rpm/SOURCES/
-    SPECS_DIR=/usr/src/rpm/SPECS/
+    RPM_DIR=/usr/src/rpm/
 fi
+SOURCES_DIR=${RPM_DIR}SOURCES/
+SPECS_DIR=${RPM_DIR}SPECS/
 
 rm -f plm-$VER.tar.bz2
 if [ -f "${SOURCES_DIR}plm-$VER.tar.bz2" ]; then
@@ -55,7 +55,7 @@ echo "Compressing sources to: [${SOURCES_DIR}plm-$VER.tar.bz2]"
 tar -jcf ${SOURCES_DIR}plm-$VER.tar.bz2 plm-$VER 
 
 echo "Running rpm"
-cd /usr/src/rpm
+cd ${RPM_DIR}
 #lsb-rpm -ba SPECS/lsb-rpm.spec 
 rpmbuild -ba ${SPECS_DIR}plm.spec 
 
