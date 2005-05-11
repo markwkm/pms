@@ -65,9 +65,9 @@ the action should be completed on.
 	mysql> mysqladmin create plm 
 [MYSQL]	Add a user for the PLM.
 	plm/scripts/admin/plm_user -a robot
-[MYSQL]	Create the required tables, mysql.SQL is in plm/docs/mysql.SQL.
+[MYSQL]	Create the required tables, plm_setup_db.sql is in plm/scripts/admin/sql.
 	mysql> use plm
-	mysql> source mysql.SQL
+	mysql> source plm_setup_db.sql
 
 [SPRVR]	plm.cfg
 [SPRVR]	Configure /etc/plm.cfg according to host requirements
