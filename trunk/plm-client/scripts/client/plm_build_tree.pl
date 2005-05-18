@@ -69,10 +69,13 @@ sub build_tree {
     handle_base( $base_patch );
     # Get all the 'reverse_applies' values here in array then use 
     # array later instead of many calls
-    my $reverse_array_ref= $rpc->ASP( "patch_get_list", "reverse", $applies );
-    if ( $#{$applies} != $#{$reverse_array_ref} ){
-        $log->msg( 0, "ERROR - there is a mismatch in number of 'reverse' values. Expected " . $#{$applies} .", got " . $#{$reverse_array_ref});
-        exit 1;
+    my $reverse_array_ref = ();
+    if ( $#{$applies} > -1 ){
+        $reverse_array_ref = $rpc->ASP( "patch_get_list", "reverse", $applies );
+        if ( $#{$applies} != $#{$reverse_array_ref} ){
+            $log->msg( 0, "ERROR - there is a mismatch in number of 'reverse' values. Expected " . $#{$applies} .", got " . $#{$reverse_array_ref});
+            exit 1;
+        }
     }
     for ( reverse @{$applies} ) {
         my $reverse = pop @{$reverse_array_ref};
