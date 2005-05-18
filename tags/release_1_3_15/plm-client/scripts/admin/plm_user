@@ -1,0 +1,245 @@
+#!/usr/bin/perl -w -I/usr/local/share/perl/5.8.0/:/usr/share/plm/lib
+
+use strict;
+#use Crypt::Cracklib;
+
+use diagnostics;
+use PLM::PLM::User;
+use PLM::PLM::Patch;
+use PLM::Util;
+
+my $log = getLog( "user_add" );
+my $cfg = getConfig();
+my $User = new PLM::PLM::User();
+my $Patch = new PLM::PLM::Patch();
+
+my $u = "";
+my $p = "";
+my $date_offset = 0;
+
+if ( ! defined $ARGV[0] ) { usage() }
+if ( defined $ARGV[1] && ! ( $ARGV[1] =~ /^-/ ) ) { $u = $ARGV[1] }
+if ( defined $ARGV[1] && $ARGV[1] =~ /^-/ ) { $date_offset = $ARGV[1] }
+if ( defined $ARGV[2] ) { $p = $ARGV[2] }
+
+if ( $ARGV[0] eq "-a" ) { add_user() }
+if ( $ARGV[0] eq "-d" ) { delete_user() }
+if ( $ARGV[0] eq "-l" ) { list_users() }
+if ( $ARGV[0] eq "-p" ) { change_password() }
+if ( $ARGV[0] eq "-v" ) { verify_user() }
+
+exit 0;
+
+
+sub usage {
+    print "\n";
+    print "plm_user (-a|-d|-p|-l|-v) [username] [password]\n";
+    print "	-a	Add User\n";
+    print "	-d	Delete User\n";
+    print "	-p	Change User's Password\n";
+    print "	-l	Show Userlist\n";
+    print "     -v	Verify a username/password combo\n";
+    print "\nIf -l is given a text string on the command line, only users\n";
+    print "Matching that string as regex ( /\$string/i ) are listed\n";
+    print "\n";
+
+    exit 1;
+}
+
+
+sub add_user {
+    while ( ! valid_user() ) {
+        print "Enter a valid username: ";
+        chomp ($u = <STDIN>);
+    }
+
+    while ( ! valid_pass() ) { 
+        print "Enter a valid password for $u: ";
+        chomp ($p = <STDIN>);
+    }
+
+    print "Adding $u to PLM system\n";
+    $User->add( $u, $p );
+
+    if ( $User->verify( $u ) ) {
+        print "User add verified\n";
+    } else {
+        print "ERROR: $u not added for unknown reason\n";
+    }
+}
+
+
+sub delete_user {
+    if ( defined $ARGV[1] ) {
+        $u = $ARGV[1];
+    } else {
+        print "Enter the username to DELETE: ";
+	$u = <STDIN>;
+    }
+ 
+    if ( $User->verify( $u ) ) {
+        print "Removing $u from PLM system\n";
+	if ( $User->delete( $u ) ) {
+	    print "User remove verified\n";
+	} else {
+	    print "ERROR: $u not removed for unknown reason\n";
+	} 
+    } else {
+        print "$u does not exist in the PLM system\n";
+    }
+}
+
+
+sub list_users {
+    my $dbh = getDBHandle();
+    my $ref = $dbh->getAll( "*", "plm_user" );
+
+    print "\t\t\tPatch Lifecycle Manager (PLM) User List\n\n";
+    print "ID\tName\t\tPublic Submit STP  Patches  Accessed\n\n";
+    print "-"x79 . "\n";
+    
+    unless ( defined $ref ) {
+        print "NO USERS IN DATABASE\n" . "-"x79 . "\n";
+	return;
+    }
+
+    if ( $u eq "" ) {
+        for ( @{ $ref } ) { print_user_detail( $_ ) }
+    } else {
+        for ( @{ $ref } ) {
+	    if ( ${ $_ }{ name } =~ /$u/i ) {
+	        print_user_detail( $_ );
+	    }
+	}
+    }
+    
+    print "-"x79 . "\n";
+}
+
+
+sub change_password {
+    if ( ! $User->verify( $u ) ) {
+        print "Enter a valid username: ";
+        chomp ($u = <STDIN>);
+    }
+
+    unless ( $User->verify( $u ) ) {
+        print "User does not exist\n";
+	return;
+    }
+
+    while ( ! valid_pass() ) { 
+        print "Enter new password for $u: ";
+        chomp ($p = <STDIN>);
+    }
+
+    if ( $User->verify( $u, $p ) ) {
+        print "Password not changed, old value is the same as new\n";
+	return;
+    }
+
+    $User->password( $u, $p );
+    if ( $User->verify( $u, $p ) ) {
+        print "Password changed for $u\n";
+    } else {
+        print "ERROR: Password not changed for unknown reason\n";
+    }
+}
+
+    
+sub print_user_detail {
+    my %I = %{ $_[0] };
+    my $pref = 0;
+    my $dbh = getDBHandle();
+
+    if ( $date_offset ) {
+	my $date = `date +%s -d "$date_offset"`;
+	$pref = $dbh->getAll( "id", "plm_patch", "plm_user_id = $I{ id } AND "
+				  	       . "created > '$date'" );
+    } else {
+        $pref = $Patch->search_sql( { plm_user_id => $I{ id } } );
+    }
+
+    $I{ public } = $I{ autopublic_flag };
+    $I{ submit } = $I{ autosubmit_flag };
+    $I{ stp } = $I{ stp_flag };
+    $I{ accessed } = localtime( $I{ accessed } );
+    
+    if ( $pref ) {
+        $I{ patch_count } = @{ $pref };
+    } else {
+        $I{ patch_count } = 0;
+    }
+    
+    print $I{ id } . " "x(8 - length($I{ id }));
+    print $I{ name } . " "x(16 - length($I{ name }));
+    print $I{ public } . " "x(7 - length($I{ public }));
+    print $I{ submit } . " "x(7 - length($I{ submit }));
+    print $I{ stp } . " "x(5 - length($I{ stp }));
+    print $I{ patch_count } . " "x(9 - length($I{ patch_count }));
+    print $I{ accessed } . "\n";
+}
+
+    
+sub valid_user {
+    if ( length($u) < 3 ) { 
+        print "username too short\n";
+	return 0;
+    }
+    
+    if ( $u =~ /\.|\$/ ) { 
+        print "contains invalid characters\n";
+        return 0;
+    }
+    
+    if ( $User->verify( $u ) ) { 
+        print "User already exists.\n";
+	return 0;
+    }
+
+    return 1;
+}
+
+
+sub valid_pass {
+    if ( $p eq "" ) { return 0 }
+    
+    #unless ( -r "/var/cache/cracklib/cracklib_dict.pwd" ) { 
+        if ( length($p) < 6 ) { 
+	    print "'$p' rejected: Too short\n";
+	    return 0;
+	}
+	return 1;
+    #}
+    
+    #$Crypt::Cracklib::DICT = '/var/cache/cracklib/cracklib_dict';
+    #if ( check($p) ) { return 1 }
+    
+    #print "rejected: " . fascist_check($p) . "\n";
+    
+    #return 0;
+}
+
+
+sub verify_user {
+    unless ( $u ) {
+        print "Enter username: ";
+        chomp ($u = <STDIN>);
+    }
+
+    unless ( $User->verify( $u ) ) {
+        print "User does not exist\n";
+	return;
+    }
+
+    unless ( $p ) { 
+        print "Enter password for $u: ";
+        chomp ($p = <STDIN>);
+    }
+
+    if ( $User->verify( $u, $p ) ) {
+        print "Password checks out for user $u\n";
+    } else {
+        print "Invalid password for $u\n";
+    }
+}

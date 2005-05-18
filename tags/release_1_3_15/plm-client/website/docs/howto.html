@@ -1,0 +1,91 @@
+<html>
+<head>
+<title>Patch Lifecycle Manager HOWTO</title>
+</head>
+<body>
+<center><h2>Patch Lifecycle Manager</h2></center>
+The following information details how to use the Patch Lifecycle Manager (PLM)
+with the Open Source Development Lab's Scalable Test Platform (STP).<p>
+
+This document is Copyright (c) 2002 Open Source Development Lab<br>
+The license for this release is the GNU License, Version 2 - please see the
+file COPYING for more information.<p>
+
+Last Modified: August 8th, 2002 by Nathan Dabney <smurf@osdl.org><p>
+
+<hr>
+<h2>USERNAME AND PASSWORD</h2><p>
+
+Your username and password under the PLM are the same as your username and 
+password as a OSDL Associate.  If you do not have an Associate account, please
+<a href="http://www.osdl.org/cgi-bin/eidetic.cgi?modulename=users&command=edit">sign up</a> for one.<p>
+
+If you are sure of your Associate username and password but the PLM is refusing
+your login, please login to the STP <a href="http://www.osdl.org/stp/">here</a> 
+once to verify and sync-up your login with the PLM.  Then try the PLM again and 
+if it still fails, please <a href="mailto:support@osdl.org">contact</a> us.<p>
+
+<hr>
+<h2>QUICK INFORMATION ON PLAIN TEXT PASSWORDS</h2><p>
+
+You are strongly encouraged to encrypt your patches prior to emailing them.  The
+system will handle the decryption before putting the patch into the database.<p>
+
+The Public key for the plm@osdl.org user is available <a href="http://www.osdl.org/projects/plm/plm.gpg">here</a>.  Remember to import the key before attempting to 
+use it.<p>
+  
+<hr>
+<h2>EMAIL SUBMISSION</h2><p>
+
+<a href="http://www.osdl.org/projects/plm/plmsend.gz">plmsend</a> is a script for the 
+auto-submission of patches.  It will handle the encryption and patch metadata 
+information for you.<p> 
+
+The first time you run the plmsend script, it will save your setup for future runs.<P>
+
+The email address to have plmsend submit patches to is: plm@osdl.org<p>
+
+The plmsend script can be configured for any of the following mailers: 
+<ul>
+  <li><strong>mail</strong> - Standard local SMTP configuration (sendmail/exim)
+  <li><strong>mutt</strong> - Use the mutt program to send via external SMTP
+  <li><strong>file</strong> - Save the patch in a file for submission manualy
+</ul>
+
+If you output to file, email your patch file (with the metadata included) to plm@osdl.org<p>
+
+<hr>
+<h2>PLMSEND SYNTAX</h2><p>
+
+To submit a patch, you will need to have the following information:
+<ul>
+  <li><strong>Applies</strong> - You need to know the patch name that your patch applies to (as registered in the PLM database).  For regular mainline Linux Kernel patches, the naming looks /exactly/ like the file on kernel.org. (example:  linux-2.4.18  or  patch-2.4.19-pre2)
+  <li><strong>Name</strong> - Your patch needs a name - include the version in the string.
+  <li><strong>Filename</strong> - The name of your file on disk.  If you can't find this, we can't help you.
+</ul>
+Syntax for the plmsend command is:<p>
+
+<pre>
+	plmsend [applies] [name] [filename]
+</pre>
+
+Example plmsend submission line:<p>
+
+<pre>
+	$ plmsend linux-2.4.18 2.4.18-rawio-2 2.4.18-rawio-2.patch
+</pre>
+
+<hr>
+<h2>PATCH SUBMISSION</h2><p>
+
+You will get an email in response telling you the PLM ID of the accepted patch 
+or telling you what went wrong with your submission.  If you don't get any 
+email back at all, that means you don't have an account.  We don't respond to 
+invalid account emails to avoid being triggered by SPAM.  In the future if you 
+attempt to login with a '#plm login' command and your login fails, we will 
+email you to let you know.<p>
+
+If you have any questions about errors you receive or believe you do have an 
+account and are not getting responses, please email <a href="mailto:support@osdl.org">support@osdl.org</a> and let us know.
+</body>
+</html>
