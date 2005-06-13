@@ -152,8 +152,8 @@ sub handle_patch {
     panic( "Can't get getpatch path from config" ) unless $path;
 
     unless ( -f "getpatch?id=$pid" || -d $file ) {
-        print "wget -nv -t50 --waitretry=50 $path?id=$pid\n";
-        system "wget -nv -t50 --waitretry=50 $path?id=$pid";
+        print "wget -nv -t5 --wait=30 $path?id=$pid\n";
+        system "wget -nv -t5 --wait=30 $path?id=$pid";
         panic( "unable to download patch $pid" )
           unless ( -f "getpatch?id=$pid" );
         rename "getpatch\?id\=${pid}", $file;
