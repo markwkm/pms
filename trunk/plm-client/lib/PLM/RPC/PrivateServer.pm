@@ -9,6 +9,7 @@ use strict;
 #use PLM::RPC::User qw( user_verify user_add user_delete user_password user_set_option user_get_option user_find_by_email user_get_info) ;
 use PLM::RPC::User qw( user_verify user_get_email ) ;
 use PLM::RPC::CommandSet qw( command_set_get_content );
+use PLM::RPC::Filter qw( filter_request_request );    # Requires name/password
 use PLM::RPC::Patch qw( patch_add patch_get_list patch_get_value patch_get_software_name patch_find_by_name );
 #use PLM::RPC::Patch qw( patch_add patch_get_value patch_get_software_name patch_add_depend patch_find_by_name );
 use PLM::RPC::Software qw( software_verify );

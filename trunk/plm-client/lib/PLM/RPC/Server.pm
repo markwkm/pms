@@ -12,6 +12,7 @@ use strict;
 
 
 use PLM::RPC::CommandSet qw( command_set_get_content );
+use PLM::RPC::Filter qw( filter_request_request );    # Requires name/password
 use PLM::RPC::User qw( user_verify ) ;
 use PLM::RPC::Patch qw( patch_add patch_get_list patch_get_value patch_get_software_name patch_find_by_name );
 #use PLM::RPC::Patch qw( patch_add patch_add_depend patch_get_value patch_get_software_name patch_find_by_name );

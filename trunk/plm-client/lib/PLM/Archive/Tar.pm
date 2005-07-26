@@ -109,7 +109,7 @@ sub get_content_to_file{
    $ref->{'remote_identifier'}=$filename;
 
    $ua = LWP::UserAgent->new;
-   $ua->agent("PLM/0.1");
+   $ua->agent("PLM/0.1 patch spider http://developer.osdl.org/dev/stp/");
    # Create a request
    my $req = HTTP::Request->new(GET => $url );
    my $res = $ua->request($req, $filename);
@@ -136,7 +136,7 @@ sub get_top_page_content{
         print "Check URL $url\n";
     }
     $ua = LWP::UserAgent->new;
-    $ua->agent("PLM/0.1");
+    $ua->agent("PLM/0.1 patch spider http://developer.osdl.org/dev/stp/");
     # Create a request
     my $req = HTTP::Request->new(GET => $url );
     

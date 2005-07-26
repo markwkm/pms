@@ -65,4 +65,39 @@ sub filter_request_by_patch {
     return \@ret;
 }
 
+sub filter_request_request{
+    shift;    # shift of class
+
+    # We want one long connection to the database for this
+    my $dbh = getDBHandle();
+    $dbh->connect();
+
+    my $patch_id = shift;
+    my $filter_id = shift;
+    my $user = shift;
+    my $pass = shift;
+
+    my $request       = new PLM::PLM::FilterRequest();
+    my $patch         = new PLM::PLM::Patch();
+    my $user         = new PLM::PLM::User();
+
+    my $user_id = $user->login( $user, $pass );
+    if ( ! $user_id ){
+        return "";
+    }
+
+    return "" unless ( $patch_id && $patch_id =~ /^\d+$/ );
+    return "" unless ( $patch->verify_id( $patch_id ) );
+
+    # Add a filter/software type check here.
+
+    $request->setValue( "plm_filter_id", $filter_id );
+    $request->setValue( "plm_user_id",   $user_id );
+    $request->setValue( "priority",      1 );
+    $request->setValue( "plm_patch_id",  $patch_id );
+
+    return $request->add();
+
+}
+
 1;

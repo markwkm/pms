@@ -188,7 +188,6 @@ sub MY::postamble {
     $text .= install_clause(catfile('branding', 'default_footer.html'), $branding_dir);
     $text .= install_clause(catfile('branding', 'home.html'), $branding_dir);
 
-    system `echo $text >/tmp/judithinstclause.txt`;
     return $text;
 }
 

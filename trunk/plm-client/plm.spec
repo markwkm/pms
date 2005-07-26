@@ -7,7 +7,7 @@
 %define plm_home /home/plm
 
 %define pkgname         plm
-%define release         0
+%define release         1
 # This spacing matches the script
 %define version 1.3.15
 %define perl_site_perl  /usr/lib/perl5/site_perl
