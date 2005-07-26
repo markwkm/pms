@@ -1,0 +1,33 @@
+I have a new plm release 1.2.1.  It has a database change, and a new rpm.
+
+It needs to be installed in fire, osdlab, the plm supervisors and stp.
+Since there are database changes, STP and PLM hosts need to be stopped.
+
+Procedure:
+  1. Add extra perl packages we need for all Clients, Supervisors, STP, osdlab:
+         IO-Tty-1.02 (for Pty)
+         Class-Accessor-0.19
+         IPC-Run-0.78
+         Cvs-0.06
+        
+  2. Back up plm database:  Table: plm_source_sync
+  3. Stop STP, PLM Supervisors.
+  4. Do 'plm' database update:
+
+ALTER TABLE plm_source_sync ADD COLUMN last_timestamp VARCHAR(255);
+
+  5. Install rpm plm-1.2.1-2
+  6. Test:
+      a) Run plm_build_tree.pl make sure it pulls base and patch.
+      b) Run  /usr/local/bin/plm_source_sync.pl --config /home/plm/repos_linux.cfg --list_only
+            See that not too many patches would be pulled. 
+      c) We could try to configure and pull from CVS on webtest. :)   That would require
+            * a CVS repository to pull from, 
+            * update tables plm_software, plm_source, plm_source_sync with access info
+            * Create config for 'plm_source_sync.pl'
+            * Run plm_source_sync.pl.  This should generate a patch off the head and dated when it was made.
+            * Run again, no patch should be made because no diffs.
+            * Put a change in, run again and a patch should be pulled.
+
+
+

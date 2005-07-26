@@ -1,0 +1,22 @@
+#!/bin/sh
+
+# wwwdiff
+#
+# Script to retrieve two URL's given on commandline via wget and print
+# the diff between them.
+
+if [ $# -lt 2 ]; then
+    echo "Usage:  $0 <url1> <url2>"
+    exit -1
+fi
+
+rnd=$RANDOM
+file1="/tmp/wd-$rnd-1.txt"
+file2="/tmp/wd-$rnd-2.txt"
+
+wget -q "$1" -O $file1
+wget -q "$2" -O $file2
+
+diff -bBiuw -U 0 --minimal  $file1 $file2
+
+rm $file1 $file2
