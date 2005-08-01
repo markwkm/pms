@@ -1,6 +1,5 @@
 package PLM::RPC::PrivateServer;
 
-use  SOAP::MIME;
 use  MIME::Entity;
 @ISA = qw( SOAP::Server::Parameters );
 use strict;

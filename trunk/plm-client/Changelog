@@ -1,4 +1,8 @@
 DEVELOPMENT
+    * release 1.3.16 
+        * Remove SOAP::MIME module, but require minimum SOAP::Lite 
+          version 0.60.  This gets rid of warnings.
+        * Fix errors in Makefile.PL
     * release: 1.3.15 -- get reverse values as list to decrease cgi load.
         * PLM::RPC::Patch:  Add method patch_get_list.
         * plm_build_tree.pl:  Get reverse values as a list.

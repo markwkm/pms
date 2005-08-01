@@ -5,7 +5,6 @@ package PLM::RPC::Server;
 #   via plm_build_tree.pl.  plm_source_sync also runs here, but probably should be 
 #   private.
 #
-use  SOAP::MIME;
 use  MIME::Entity;
 @ISA = qw( SOAP::Server::Parameters );
 use strict;

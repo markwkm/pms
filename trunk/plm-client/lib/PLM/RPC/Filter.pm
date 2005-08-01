@@ -5,6 +5,7 @@ require Exporter;
 
 @EXPORT = qw(
   filter_request_by_patch
+  filter_request_request
 );
 
 # 'strict' does not seem to work with Exporter.
@@ -74,14 +75,14 @@ sub filter_request_request{
 
     my $patch_id = shift;
     my $filter_id = shift;
-    my $user = shift;
+    my $username = shift;
     my $pass = shift;
 
     my $request       = new PLM::PLM::FilterRequest();
     my $patch         = new PLM::PLM::Patch();
     my $user         = new PLM::PLM::User();
 
-    my $user_id = $user->login( $user, $pass );
+    my $user_id = $user->login( $username, $pass );
     if ( ! $user_id ){
         return "";
     }

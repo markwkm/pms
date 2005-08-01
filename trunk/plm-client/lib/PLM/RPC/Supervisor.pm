@@ -1,6 +1,5 @@
 package PLM::RPC::Supervisor;
 
-use SOAP::MIME;
 use MIME::Entity;
 
 use DBI::DBD;

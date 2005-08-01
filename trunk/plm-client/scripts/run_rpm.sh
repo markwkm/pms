@@ -60,5 +60,5 @@ cd ${RPM_DIR}
 rpmbuild -ba ${SPECS_DIR}plm.spec 
 
 echo "Cleaning up the package build temp dir"
-rm -rf $TMP
-rm -f /var/tmp/rpm-tmp* 
+#rm -rf $TMP
+#rm -f /var/tmp/rpm-tmp* 

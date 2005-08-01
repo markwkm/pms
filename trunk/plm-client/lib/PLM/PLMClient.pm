@@ -17,12 +17,10 @@
 
 package PLM::PLMClient;
 
-#use PLM::Util::Config;
 use PLM::Util::Log;
 use PLM::Util::Trace;
 
 use SOAP::Lite;
-use SOAP::MIME;
 use MIME::Entity;
 
 require Exporter;
@@ -72,18 +70,19 @@ sub ASP {
     if ($command =~ m/^patch_add$/){
         $ent = attach_content($args[3]);
         @args2=($args[0], $args[1], $args[2]);
+        push @parts, $ent;
     }elsif ($command =~ m/^submit_result$/){
         $ent = attach_content($args[2]);
         @args2=($args[0], $args[1]);
-    } else {
-        $ent = attach_content("");
-        @args2=@args;
+        push @parts, $ent;
     }
-    push @parts, $ent;
 
     eval { 
-        $soap = SOAP::Lite->readable(1)->uri( $obj->{'uri'}, timeout=>600 )->parts(@parts)->proxy( $obj->{'proxy'} )->$command( @args2 );
-        #$soap = SOAP::Lite->uri( $obj->{'uri'} )->proxy( $obj->{'proxy'}, timeout=>1200 )->$command( @args );
+        if (@parts){
+            $soap = SOAP::Lite->readable(1)->uri( $obj->{'uri'}, timeout=>600 )->parts(@parts)->proxy( $obj->{'proxy'} )->$command( @args2 );
+        } else {
+            $soap = SOAP::Lite->uri( $obj->{'uri'} )->proxy( $obj->{'proxy'}, timeout=>1200 )->$command( @args );
+        }
         if ( $soap->fault ) {
             print STDERR "SOAP::Lite fault message:\n";
             print STDERR $soap->faultcode . " " . $soap->faultstring . "\n";
