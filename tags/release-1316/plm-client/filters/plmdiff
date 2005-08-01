@@ -1,0 +1,29 @@
+#!/bin/sh
+
+# plmdiff
+#
+# Given two filter id's, returns the warnings / errors that are
+# different between them.
+
+if [ $# -lt 2 ]; then
+    echo "Usage:  $0 <filter-id-1> <filter-id-2>"
+    exit -1
+fi
+
+if [ ! -x ./wwwdiff ]; then
+    echo "Error:  wwwdiff script not found"
+    exit -1
+fi
+
+url1="http://osdl.org/plm-cgi/plm?module=filter_output&id=$1"
+url2="http://osdl.org/plm-cgi/plm?module=filter_output&id=$2"
+
+./wwwdiff $url1 $url2 | grep -v CONFIG \
+    | egrep -v ^-# | egrep -v ^-$ \
+    | egrep -v "^[-\+]Version information" | egrep -v "^[-\+]Kernel version" \
+    | grep -v "Filter Request Output" | grep -v RESULT-DETAIL \
+    | grep -v "body>" | grep -v "Error List" | grep -v "No newline at" \
+    | grep -v " /tmp/wd-" | egrep -v "Compile Output" | grep -v "Config Options" \
+    | egrep -v "^ \w+" | egrep -v "^  \w+" | egrep -v "^ {" \
+    | grep -v "^[-\+]   Making " | egrep -v "^-===" | egrep -v "^ $" \
+    | egrep -v "^@@"

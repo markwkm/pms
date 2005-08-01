@@ -1,0 +1,140 @@
+<html>
+<head>
+<title>Patch Lifecycle Manager MINI-HOWTO</title>
+</head>
+<body>
+<center><h1>Patch Lifecycle Manager MINI-HOWTO</h1></center>
+The following information details how to use the Patch Lifecycle Manager (PLM)
+with the Open Source Development Lab's Scalable Test Platform (STP).<p>
+
+This document is Copyright (c) 2002 Open Source Development Lab<br>
+The license for this release is the GNU License, Version 2 - please see the
+file COPYING for more information.<p>
+
+Last Modified: September 17th, 2003 by Judith Lebzelter &lt plm-devel@lists.sourceforge.net &gt <p>
+
+<hr>
+<h2>USERNAME AND PASSWORD</h2><p>
+
+Your username and password under the PLM are the same as your username and 
+password as an OSDL Associate.  If you do not have an Associate account, please
+<a href="http://www.osdl.org/cgi-bin/eidetic.cgi?modulename=users&command=edit">sign up</a> for one.<p>
+
+If you are sure of your Associate username and password but the PLM is refusing
+your login, please login to the STP <a href="http://www.osdl.org/stp">here</a> 
+once to verify and sync-up your login with the PLM.  Then try the PLM again and 
+if it still fails, please <a href="mailto:support@osdl.org">contact</a> us.<p>
+
+<hr>
+<h2><a href="http://www.osdl.org/plm-cgi/plm">WEB INTERFACE</a></h2><p>
+
+You do not need an account to use the search functionality of the web interface, view the patch information or to download the actual patch.
+<br>
+You do need an account to add patches to the system and of course, to view your userpage.
+<p>
+The web interface is located at: <a href="http://www.osdl.org/plm-cgi/plm">http://www.osdl.org/plm-cgi/plm</a>.  Selecting any of the web interface sections below will take you to that page in the PLM.
+
+<h3><a href="http://www.osdl.org/plm-cgi/plm?module=userpage">USERPAGE</a></h3>
+
+The userpage shows a quick listing of your latest patches submitted to the system.
+
+<h3><a href="http://www.osdl.org/plm-cgi/plm?module=search">SEARCH</a></h3>
+
+You can search for patches based on the following criteria:
+
+<ul>
+  <li>Patch Name
+  <li>Patch ID
+  <li>User Name
+  <li>When the patch was created 
+</ul>
+
+Searches are partial-match by default so "2.4.18" will find the base release of the 2.4.18
+release as well as any patches that apply to that version.<p>
+
+<h3><a href="http://www.osdl.org/plm-cgi/plm?module=addpatch">ADD PATCH</a></h3>
+
+When adding patches to the system, please prepare the diffs so that they can be expanded from within the base directory of the source (i.e. within linux/) with the -p1 option to strip the first directory level.<p>
+
+To add a patch, you should provide the following information:
+
+<ul>
+  <li>Patch Name (example: "fast-mmap")
+  <li>Patch Version (examples: "1", "ac-2", "-rc1")
+  <li>File to upload off the local disk. (formats: plain text, gzip or bzip2 are autodetected)
+  <li>Patch ID or Name to Apply to
+</ul>
+
+Every patch you add into the system must 'apply' to another patch in the system.  Base releases are 'magic' in the sense they have no parent.  These are added automatically into the system by the backend.<p>
+
+One of the benefits of the PLM is the ability to have "trees" of patches.  You can set your patch to apply to another patches which in turn applies to a base version or another patch on down the line.<p>
+
+<hr>
+
+<h2>EMAIL INTERFACE</h2><p>
+
+<a href="http://www.osdl.org/archive/plm/plmsend">plmsend</a> is a script for the 
+auto-submission of patches.  It will handle the encryption and patch metadata 
+information for you.<p> 
+
+The first time you run the plmsend script, it will save your setup for future runs.<p>
+
+The email address to have plmsend submit patches to is: plm@osdl.org<p>
+
+The plmsend script can be configured for any of the following mailers: 
+<ul>
+  <li><strong>mail</strong> - Standard local SMTP configuration (sendmail/exim)
+  <li><strong>mutt</strong> - Use the mutt program to send via external SMTP
+  <li><strong>file</strong> - Save the patch in a file for submission manually
+
+</ul>
+
+If you output to file, email your patch file (with the metadata included) to plm@osdl.org<p>
+
+<hr>
+<h2>PLMSEND SYNTAX</h2><p>
+
+To submit a patch, you will need to have the following information:
+<ul>
+  <li><strong>Applies</strong> - You need to know the patch name that your patch applies to (as registered in the PLM database).  For regular mainline Linux Kernel patches, the naming looks /exactly/ like the file on kernel.org. (example:  linux-2.4.18  or  patch-2.4.19-pre2)
+  <li><strong>Name</strong> - Your patch needs a name - include the version in the string.
+  <li><strong>Filename</strong> - The name of your file on disk.  If you can't find this, we can't help you.
+
+</ul>
+Syntax for the plmsend command is:<p>
+
+<pre>
+	plmsend [applies] [name] [filename]
+</pre>
+
+Example plmsend submission line:<p>
+
+<pre>
+	$ plmsend linux-2.4.18 2.4.18-rawio-2 2.4.18-rawio-2.patch
+</pre>
+
+<hr>
+<h2>PATCH SUBMISSION</h2><p>
+
+You will get an email in response telling you the PLM ID of the accepted patch 
+or telling you what went wrong with your submission.  If you don't get any 
+email back at all, that means you don't have an account.  We don't respond to 
+invalid account emails to avoid being triggered by SPAM.  In the future if you 
+attempt to login with a '#plm login' command and your login fails, we will 
+email you to let you know.<p>
+
+<hr>
+<h2>QUICK INFORMATION ON PLAIN TEXT PASSWORDS</h2><p>
+
+This only applies to the email interface, the web interface uses SSL to protect passwords.<p>
+
+You are strongly encouraged to encrypt your patches prior to emailing them.  The
+system will handle the decryption before putting the patch into the database.<p>
+
+The Public key for the plm@osdl.org user is available <a href="http://www.osdl.org/archive/plm/plm.gpg">here</a>.  Remember to import the key before attempting to use it.<p>
+
+<p><hr><p>
+If you have any questions about errors you receive or believe you do have an 
+account and are not getting responses, please email <a href="mailto:support@osdl.org">support@osdl.org</a> and let us know.
+</body>
+</html>

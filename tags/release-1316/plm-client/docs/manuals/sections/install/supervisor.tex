@@ -1,0 +1,61 @@
+\section {Configuring a Supervisor host}
+\index{Configure!Supervisor}
+The supervisor script controls the execution of the filters.  
+
+\subsection{Multiple Supervisors}
+\index{Configure!Supervisor!Multiple}
+If your filters are single-threaded, you can run one supervisor per CPU on the machine.
+If not, then you will want to take scaling issues into account when deciding how many 
+supervisors to run on each machine.  Each supervisor will require it's own scratch space.
+
+\subsection{Scratch Space}
+\index{Configure!Supervisor!Scratch Space}
+The scratch space is where the supervisor downloads the software, applies patches, builds
+the software and applies the filters.  Having multiple supervisors run in the save 
+scratch space will cause major problems.  To avoid this, the supervisor script takes a
+'lockfile' command line option.  Pick a filename (such as PID) and use it for every
+supervisor on the machine to avoid accidental issues.
+
+\subsection{Supervisor Configuration}
+\index{Configure!Supervisor!Configuration}
+The supervisor hosts will also act as clients, so in addition to the following configuration parameters for a client should be set up. The important entries in the /etc/plm.cfg file for the asp\_supervisor.pl script are:
+
+\begin{itemize}
+\item ccache\_dir: Specifies where to store the ccache work files
+\item supervisor\_sleep: Number of seconds to sleep between polling for new filters
+\item filter\_type: Types of filters this supervisor can run (: delimited)
+\end{itemize}
+
+\subsection{Cron Job}
+\index{Configure!Supervisor!Cron Job}
+The cronjob for each supervisor you wish to run on the machine should do the following two things:
+
+\begin{enumerate}
+\item Change into the scratch
+\item Launch the asp\_supervisor.pl script
+\item Provide the asp\_supervisor.pl script with the lock filename
+\item Redirect the output from asp\_supervisor.pl script to somewhere sane
+\end{enumerate}
+
+Examples:
+\begin{verbatim}
+*/15 * * * * cd /home/plm/scratch/1 && asp\_supervisor.pl PID 1>> LOG 2>> LOG &
+*/15 * * * * cd /home/plm/scratch/2 && asp\_supervisor.pl PID 1>> LOG 2>> LOG &
+\end{verbatim}
+
+Note: You may need the full pathname to the asp\_supervisor.pl script.  
+(/usr/local/bin/asp\_supervisor.pl)
+
+\subsection{Configuration Steps}
+We suggest the following steps for setting up a supervisor system:
+\begin{enumerate}
+\item Perform the regular steps from 'Installing the RPM'
+\item Add a 'plm' user to the system
+\item Create /home/plm/scratch/[1..CPU] directories for scratch space
+\item If you have multiple disks, spread the actual scratch directories around and use symlinks
+\item Configure the /etc/plm with the proper supervisor-specific options
+\item Configure one cron job for each scratch directory
+\item Make a link called /usr/local/bin/gcc to /usr/bin/ccache
+\item Install "server-dead.sh" in /home/plm.  Make sure the path is set right in the script.  Set it up as a cron job hourly.
+\item (this is a bug workaround) chmod +x /usr/local/bin/asp\_supervisor.pl
+\end{enumerate}
