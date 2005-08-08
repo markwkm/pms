@@ -1,0 +1,57 @@
+		Patch Lifecycle Manager Frequently Asked Questions
+
+Please send PLM questions to smurf@osdl.org
+
+Questions:
+
+1. I am using pine for email and patches I know apply cleanly localy don't
+   apply when taken from the PLM database.
+
+2. Do I have to have a working email program to submit patches using the 
+   'plmsend' script?
+
+3. What file formats does the web interface support?
+
+4. Do I need the PLM package to submit patches?
+
+===============================================================================
+
+Q1:	I am using pine for email and patches I know apply cleanly localy don't 
+apply when taken from the PLM database.
+
+A1:	Pine munges whitespace.  Try a different mailer or upgrade pine to a 
+version that works.
+
+-----
+
+Q2:	Do I have to have a working email program to submit patches using the 
+'plmsend' script?
+
+A2:	Yes.  Not just any email program either, it must be a email program 
+that provides a working 'mail' command to your system.  In other words, you 
+need sendmail, qmail, exim, postfix or a similar program.  If you don't want
+to setup a program like that, you need to setup one that plmsend understands 
+how to use.  Currently that list is limited to 'mutt'.
+
+-----
+
+Q3:	What file formats does the web interface support?
+
+A3:	plain patch, bzip2 and gzip - bzip2 is the suggested format
+
+-----
+
+Q4:	Do I need the PLM package to submit patches?
+
+A4:	No.  The PLM site should have a easy to use web interface available
+	The web interface address for the PLM install at the OSDL is:
+
+		http://www.osdl.org/cgi-bin/plm
+
+	The plmsend script is also a handy way to submit patches through email.
+
+_____
+
+Q5:	How do you indent your perl scripts?
+
+A5:	perltidy -pt=0 -sbt=0 -bt=0 -bbt=1 -nsfs -lp -ce
