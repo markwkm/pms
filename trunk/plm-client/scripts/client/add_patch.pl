@@ -1,9 +1,12 @@
 #!/usr/bin/perl -w
 
+use strict;
+
 use Getopt::Long;
+use MIME::Base64::Perl;
 use SOAP::Lite;
 
-my $wsdl = 'https://plm.osdl.org/Backend/service.wsdl';
+my $wsdl = 'http://lemming:3001/Backend/service.wsdl';
 
 my $applies_patch_name;
 my $help;
@@ -79,7 +82,7 @@ while ($line = <PATCH>) {
 
 my $service = SOAP::Lite -> service($wsdl);
 my $id = $service -> AddPatch($login, $password, $patch_name, $software_name,
-    $applies_patch_name, $patch);
+    $applies_patch_name, encode_base64($patch));
 
 if ($id == -2) {
   print "invalid login or password\n";
