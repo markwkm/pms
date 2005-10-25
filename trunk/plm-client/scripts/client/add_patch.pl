@@ -6,11 +6,10 @@ use Getopt::Long;
 use MIME::Base64::Perl;
 use SOAP::Lite;
 
-my $wsdl = 'http://lemming:3001/Backend/service.wsdl';
+my $wsdl = 'https://plm.osdl.org/Backend/service.wsdl';
 
 my $applies_patch_name;
 my $help;
-my $host;
 my $login;
 my $password;
 my $patch_file;
@@ -20,22 +19,20 @@ my $software_name;
 GetOptions (
     "applies-patch-name=s", \$applies_patch_name,
     "help!", \$help,
-    "host=s", \$host,
     "login=s", \$login,
     "password=s", \$password,
     "patch-name=s", \$patch_name,
     "patch-file=s", \$patch_file,
-    "software-name=s", \$software_name
+    "software-name=s", \$software_name,
+    "wsdl=s", \$wsdl
 );
 
 if ($help) {
   print "usage: add_patch.pl --login <login> --password <password>\n";
   print "    --patch-file <filename> --patch-name <name> --software_name <software>\n";
-  print "    --aplies-patch-name <patch-name> --host <host>\n";
+  print "    --aplies-patch-name <patch-name> --wsdl <wsdl>\n";
   exit 0;
 }
-
-$wsdl = "https://$host/Backend/service.wsdl" if ($host);
 
 my $abort = 0;
 
