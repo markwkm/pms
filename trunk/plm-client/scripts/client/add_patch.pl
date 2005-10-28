@@ -29,7 +29,7 @@ GetOptions (
 
 if ($help) {
   print "usage: add_patch.pl --login <login> --password <password>\n";
-  print "    --patch-file <filename> --patch-name <name> --software_name <software>\n";
+  print "    --patch-file <filename> --patch-name <name> --software-name <software>\n";
   print "    --aplies-patch-name <patch-name> --wsdl <wsdl>\n";
   exit 0;
 }
@@ -37,7 +37,7 @@ if ($help) {
 my $abort = 0;
 
 unless ($patch_file) {
-  print "specify --patch_file\n";
+  print "specify --patch-file\n";
   $abort = 1;
 }
 
@@ -48,18 +48,8 @@ if ($patch_file) {
   }
 }
 
-unless ($login) {
-  print "specify --login\n";
-  $abort = 1;
-}
-
-unless ($password) {
-  print "specify --password\n";
-  $abort = 1;
-}
-
 unless ($software_name) {
-  print "specify --software_name\n";
+  print "specify --software-name\n";
   $abort = 1;
 }
 
@@ -69,6 +59,20 @@ unless ($applies_patch_name) {
 }
 
 exit 1 if $abort == 1;
+
+unless ($login) {
+  print 'login: ';
+  $login = <STDIN>;
+  chomp $login;
+}
+
+unless ($password) {
+  print 'password: ';
+  system('stty -echo');
+  $password = <STDIN>;
+  chomp $password;
+  system('stty echo');
+}
 
 my $patch = "";
 my $line;
@@ -85,7 +89,7 @@ if ($id == -2) {
   print "invalid login or password\n";
   exit 1;
 } elsif ($id == -1) {
-  print "invalid software_name ($software_name), not a unique patch_name ($patch_name), or invalid applies_patch_name ($applies_patch_name)\n";
+  print "invalid software-name ($software_name), not a unique patch_name ($patch_name), or invalid applies_patch_name ($applies_patch_name)\n";
   exit 1;
 }
 
