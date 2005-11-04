@@ -1,0 +1,279 @@
+#!/bin/bash
+
+# PLMSEND V0.03 Copyright 2002 (c) Open Source Development Lab
+# Please see the file COPYING for licensing information
+
+# Original script by Chris Wright <chris@wirex.com>
+# Enhanced by: Nathan Dabney <smurf@osdl.org>
+
+# Email address of the PLM server
+PLM_TO_ADDR=MISSING
+
+# GPG Key for the PLM address
+GPG_KEY="plm"
+
+# Variables
+MAILER=""
+
+# 
+# Happy helper functions...
+#
+
+failed() {
+  echo "ERROR: [ $* ] Exiting."
+  exit 1
+}
+
+get_mailer () {
+  echo "What mailer should I use to send the patches? (or target: file)"
+  echo -n "[mail|mutt|file] (default: file): "
+  read MAILER
+  echo
+  
+  if [ -z $MAILER ]; then MAILER=file; fi
+
+  if [ ! $MAILER = "mail" ] && [ ! $MAILER = "mutt" ]; then
+    MAILER="file"
+  fi
+
+  if [ $MAILER = mail ]; then
+    echo "Please note, to use the mail option you must have a working SMTP"
+    echo "configuration on this box."
+
+    if [ -f /usr/bin/mail ]; then
+      echo "You do have /usr/bin/mail, so this *should* work."
+    else
+      echo "You do not have /usr/bin/mail, so this might not work."
+    fi
+  fi
+
+  echo
+}
+
+get_user () {
+  echo "What is your username on the PLM system? "
+  read USER
+  echo
+  
+  if [ -z $USER ]; then get_user; fi
+}
+
+get_pass () {
+  echo "Enter your password for this account, leave empty to be prompted."
+  read -p "PLM Password: " -s PASS <> /dev/tty
+  echo
+
+  if [ -z $PASS ]; then PASS=ask; fi
+}
+ 
+get_plm_to_addr () {
+  if [ ! $MAILER = "file" ]; then
+    echo "Enter the email address for PLM email submissions:"
+    read PLM_TO_ADDR
+    echo
+
+    if [ -z $PLM_TO_ADDR ]; then get_plm_to_addr; fi
+  else
+    PLM_TO_ADDR=file
+  fi
+}
+
+get_encrypt () {
+  echo "Should submissions be encrypted?  If not, then your password is cleartext."
+  echo -n "[yes|no] "
+  read ENCRYPT
+  echo
+
+  if [ `echo $ENCRYPT | grep -i -c n` = "1" ]; then
+    ENCRYPT=no
+  else
+    ENCRYPT=yes
+  fi
+}
+
+write_plmrc () {
+  echo -n "Saving your setting to the ~/.plmrc file..."
+  
+  rm -f ~/.plmrc
+  
+  echo PLM_TO_ADDR=$PLM_TO_ADDR >> ~/.plmrc
+  echo MAILER=$MAILER >> ~/.plmrc
+  echo USER=$USER >> ~/.plmrc
+  echo PASS=$PASS >> ~/.plmrc
+  echo GPG_KEY=$GPG_KEY >> ~/.plmrc
+  echo ENCRYPT=$ENCRYPT >> ~/.plmrc
+
+  echo -e "Done\n"
+  echo "A ~/.plmrc file has been created with these setting, simply delete it to"
+  echo "be prompted again."
+  echo
+  echo
+}
+  
+# 
+# Actual code path starts here
+#
+
+if [ $# != 3 ]; then
+  echo "Usage: $0 <applies> <patch_name> <patch_file>"
+  exit 1
+fi
+
+
+# read in the settings from the ~/.plmrc file
+# this will override any environment variables except the ones obviously
+# saved below (i.e. $SANITY)
+SANITY_SAVE=$SANITY
+if [ -f ~/.plmrc ]; then
+  . ~/.plmrc
+fi
+if [ ! -z $SANITY_SAVE ]; then SANITY=$SANITY_SAVE; fi
+
+
+# Detect valid ~/.plmrc file
+if [ $PLM_TO_ADDR = "MISSING" ]; then
+  echo "Setting up a .plmrc file for your PLM account"
+  echo
+
+  get_user
+  get_pass
+  get_mailer
+  get_plm_to_addr
+  get_encrypt
+
+  write_plmrc
+fi
+
+# Username/Password Work
+if [ -z $USER ] || [ $USER = "ask" ]; then
+  get_user
+fi
+
+if [ -z $PASS ] || [ $PASS = "ask" ]; then
+  echo Please enter your PLM account password
+  read -p "PLM Password: " -s PASS <> /dev/tty
+  echo
+fi
+
+
+# read in the command line options 
+PLM_BASE=$1
+PLM_PATCHNAME=$2
+PLM_PATCHFILE=$3
+
+
+# verify the existance of the patch file
+if [ -z $PLM_PATCHFILE ] || [ ! -f $PLM_PATCHFILE ]; then
+  echo "Unable to find the file $PLM_PATCHFILE on disk."
+  echo "Please enter the correct filename:"
+  read PLM_PATCHFILE
+fi
+
+if [ -z $PLM_PATCHFILE ] || [ ! -f $PLM_PATCHFILE ]; then 
+  failed finding patch: $PLM_PATCHFILE 
+fi
+
+
+# verify the patch submission details with the user
+echo
+echo "PLM submission details:"
+echo "  - Patch name: $PLM_PATCHNAME"
+echo "  - Patch applies to: $PLM_BASE"
+echo "  - Patch file: $PLM_PATCHFILE"
+
+if [ -z $SANITY ]; then SANITY=check; fi
+if [ $SANITY = "gone" ]; then
+  echo
+  echo "Sanity is gone, so I won't ask you to verify the data."
+  echo
+else
+  echo
+  echo "If everything looks correct, press [enter] to continue."
+  echo "Otherwise, press CTRL-C to cancel."
+  read
+fi
+
+# setup temp locations
+if [ -d ~/tmp ]; then
+  TMPDIR=~/tmp
+else
+  TMPDIR=/tmp
+fi
+
+TEMPFILE=`mktemp ${TMPDIR}/plm.XXXXXX` || failed mktemp for file data
+TEMPGPG=`mktemp ${TMPDIR}/plm.XXXXXX` || failed mktemp for gpg data
+
+
+# build the plaintext patch file
+echo `date +%X` Creating the plaintext patch with PLM metadata 
+
+# add the plm header
+cat << EOF > $TEMPFILE
+#plm login ${USER} ${PASS} 
+#plm applies $PLM_BASE
+#plm name $PLM_PATCHNAME
+EOF
+
+# add the patch content
+cat $PLM_PATCHFILE >> $TEMPFILE
+
+if [ $ENCRYPT = "off" ] || [ $ENCRYPT = "no" ]; then
+  rm -f $TEMPGPG
+  TEMPGPG=$TEMPFILE
+else
+  echo `date +%X` Encrypting the patch
+  rm -f $TEMPGPG
+  gpg -a -e -r $GPG_KEY -o $TEMPGPG $TEMPFILE
+fi
+
+if [ ! -f $TEMPGPG ]; then
+  rm -f $TEMPFILE 
+  echo "Unable to continue, the patch did not encrypt correctly"
+  echo "Please make sure you have imported a copy of the GPG key correctly"
+  echo
+  echo "You might need to setup the key trust permissions."
+  exit 0
+fi
+
+if [ $MAILER = "file" ]; then
+  TARG="$PLM_PATCHFILE.PLM"
+  
+  echo `date +%X` Saving the output to: $TARG
+
+  rm -f $TARG
+  mv -f $TEMPGPG $TARG
+
+  rm -f $TEMPFILE $TEMPGPG
+
+  echo
+  exit 0
+fi
+
+# compose|send mail
+echo `date +%X` Emailing the patch to $PLM_TO_ADDR using $MAILER
+echo
+
+if [ -z $MAILER ] || [ $MAILER = "mail" ]; then
+  if (cat $TEMPGPG | mail -s "[PATCH] $PLM_PATCHNAME" $PLM_TO_ADDR); then
+    echo PLM submission sent to $PLM_TO_ADDR at: `date`
+  else
+    echo There was a problem using the \'mail\' program to submit the patch
+    echo Please fix your SMTP mailer
+  fi
+fi
+
+if [ $MAILER = "mutt" ]; then 
+  if (mutt -s "[PATCH] $PLM_PATCHNAME" -i $TEMPGPG $PLM_TO_ADDR); then
+    echo PLM submission sent to $PLM_TO_ADDR at: `date`
+  else
+    echo There was a problem using the \'mutt\' program to submit the patch
+    echo Please fix your SMTP mailer
+  fi
+fi
+
+
+# cleanup
+rm -f $TEMPFILE $TEMPGPG
+
+echo
+

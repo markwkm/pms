@@ -1,0 +1,34 @@
+% Patch Lifecycle Users Guide 
+\documentclass [twoside,12pt] {article}
+\usepackage {showlabels}
+\usepackage {xspace}
+\usepackage {url}
+\usepackage {fancyvrb}
+\usepackage {indentfirst}
+\usepackage {makeidx}
+\usepackage [dvips] {graphicx}
+\usepackage [left=1.25in, right=1.25in, top=1.0in, bottom=1.0in]{geometry}
+\usepackage {hyperref}
+
+% To include EPS graphics
+%\begin{figure}
+%\begin{center}
+%\includegraphics[key=value,...]{filename}
+
+\makeindex
+\pagestyle{headings}
+
+\begin {document}
+
+\title {Patch Lifecycle Manager}
+\author {Nathan T. Dabney $<$smurf@osdl.org$>$}
+
+\maketitle 
+\tableofcontents
+
+\input {sections/introduction.tex}
+\input {articles/user.tex}
+
+\printindex
+
+\end {document}
