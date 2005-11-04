@@ -72,6 +72,7 @@ unless ($password) {
   $password = <STDIN>;
   chomp $password;
   system('stty echo');
+  print "\n";
 }
 
 my $patch = "";
@@ -85,19 +86,16 @@ my $service = SOAP::Lite -> service($wsdl);
 my $id = $service -> AddPatch($login, $password, $patch_name, $software_name,
     $applies_patch_name, MIME::Base64::encode($patch));
 
-print "\n";
 if ($id == -2) {
   print "invalid login or password\n";
-  exit 1;
 } elsif ($id == -1) {
   print "invalid --software-name ($software_name), not a unique --patch_name ($patch_name), or invalid --applies_patch_name ($applies_patch_name)\n";
-  exit 1;
 } elsif ($id == -3) {
   print "invalid --software-name ($software_name)\n";
-  exit 1;
 } elsif ($id == -4) {
-  print "invalid --applies_patch_name ($applies_patch_name)\n";
-  exit 1;
+  print "invalid --applies_patch_name ($applies_patch_name) or '$applies_patch_name' is not of type --software-name ($software_name)\n";
+} elsif ($id == -5) {
+  print "reserved patch name, pick a diferent --patch-name\n"
 }
 
 print "PLM ID: $id\n";
