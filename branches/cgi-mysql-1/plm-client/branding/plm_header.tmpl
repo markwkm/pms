@@ -1,0 +1,25 @@
+[%- PROCESS "macros.tt2lib" -%]
+[%- PROCESS "namify.tt2" -%]
+[%- PROCESS "nav_start.tt2" -%]
+[%- PROCESS "nav_row.tt2" -%]
+[%- PROCESS "nav_end.tt2" -%]
+
+[%- omit_rhs = 1 -%]
+
+[%- override_lhs = BLOCK -%]
+  [%- nav_start("Patch Lifecycle Manager") -%]
+  [%- nav_row("index.html",                         "PLM",           "On", 0) -%]
+  [%- nav_row("userpage.html",               "User Page",         "Off", 10) -%]
+  [%- nav_row("search.html", "Search", "Off", 10) -%]
+  [%- nav_row("addpatch.html",    "Add Patch", "Off", 10) -%]
+  [%- nav_row("logout.html",    "Logout", "Off", 10) -%]
+  [%- nav_row("http://sourceforge.org/projects/plm/",
+                                               "PLM Development", "Off", 10) -%]
+
+  [%- nav_row("/lab_activities/kernel_testing/stp/",                 "STP",           "Off", 0) -%]
+  [%- nav_end -%]
+  <br />
+[%- END -%]
+[%- omit_locationbar = 1 -%]
+[%- INCLUDE "header.inc" title="Tool" %]
+<td width="615" valign="top">CONTENT_INSERT</td>

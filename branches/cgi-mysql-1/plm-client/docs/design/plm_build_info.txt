@@ -1,0 +1,129 @@
+Incorporating Build Information into PLM
+
+Overview:
+
+Since we will be storing many types of source trees in PLM, we
+need a standard way of storing the build information for each 
+type of software.  We also need to allow this to change with 
+time, though it is not expected to change often.  Also, we need
+to be able to allow users any extra checks they want to verify
+the build.
+
+Functional Requirements
+
+1.  Allow an administrative user to tie a build command set with 
+    a software_type.
+
+2.  Allow them to update the build command set.
+
+3.  Allow an administrative user to tie a validation command set with
+    a software_type.
+
+4.  Allow them to update the validation command set.
+
+5.  Allow a user to build the downloaded repository with the 
+    stored build commands.
+
+6.  Allow a user to validate that the build went well.
+
+Plan:
+
+1.  Set up structure for build/validation set storage.
+2.  Have plm_build_tree.pl drop the command sets in an XML file after 
+    building the tree.  Decide on XML file details.
+3.  Write script that reads dropped file, optionally loads environmental
+    parameters, execute commands and reports errors.
+4.  Add link on Patch Info web page to display build info through cgi. 
+5.  Add administrative web interface to set-up build or validation 
+    scripts.  Set up system to allow only owner or admin to do this. 
+    (This is low priority/optional, until it gets done only admins with
+    database access can update these, but it should not need updating 
+    often.)
+
+
+
+Design
+Part 1
+Storage of Build Information
+  Table build_set
+    Columns
+    id   int
+    name varchar(25)
+
+  Table build_command
+    Columns
+    id              int
+    build_set_id    int   foreign_key
+    order           int
+    command         varchar(255)
+    command_type    varchar(25)
+    expected_result int
+
+Storage of Validation Information
+  Table validation_set
+    Columns
+    id   int
+    name varchar(25)
+
+  Table build_command
+    Columns
+    id              int
+    validation_set_id    int   foreign_key
+    order           int
+    command         varchar(255)
+    command_type    varchar(25)
+    expected_result varchar(255)
+
+Join Table
+  Table software_type_to_build
+    id                   int
+    software_type_id     int
+    build_set_id         int   foreign_key
+    validation_set_id    int   foreign_key
+    min_plm_patch_id     int   foreign_key
+    max_plm_patch_id     int   foreign_key
+
+New modules:
+    PLM::PLM::Command.pm--Parent Class to the next 2
+    PLM::PLM::BuildCommand.pm
+    PLM::PLM::ValidationCommand.pm
+    PLM::PLM::BuildSet.pm--Contains build command object, id, and name
+    PLM::PLM::ValidationSet.pm--Contains validation command object, id, and name
+    PLM::RPC::BuildSet.pm
+    PLM::RPC::ValidationSet.pm
+
+
+New scripts:  add_command_set.pl
+              tie_software_to_command_set.pl
+
+
+Part 2:
+Edit script:  plm_build_tree.pl
+
+
+Part 3:
+New Script:  plm_build_source.pl
+   Usage:  plm_build_source.pl <software_type> <plm_patch>
+   Purpose:   This script will check that the repository 
+      is there, then pull the build commands and run them.
+      It will then do validation if it is configured.  
+      Possibly, it could do validation before the build, 
+      too, if that is configured.
+      This script is for PLM 'clients' to run.
+   Return:  0 on success, error code on failure.
+
+Part 4:
+
+    Edit:  Patch Info Page
+    New cgi:  display_command_sets
+
+Part 5: 
+
+Administration
+  Table:   plm_software
+    New Column:
+    plm_user_id          int   foreign_key
+
+New Web Forms
+   *  Add/Update Build Commands
+   *  Add/Update Validation Commands

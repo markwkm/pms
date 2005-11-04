@@ -1,0 +1,43 @@
+Third in a series, this one in Perl.
+
+'crosscompile_report' is a commandline tool that generates a list of
+warnings and errors that a given patch would introduce if it were merged
+into the kernel.
+
+I wrote this strictly for my own purposes - the NFSv4 group posts
+patches regularly, and I report to that group about compile issues found
+on the various cross compilers via PLM.  (This will reduce a 30 min task
+to a 3 min task.)  If anyone else happens to find this useful or
+interesting, have at it.
+
+
+Basically, it takes a PLM ID number as its single argument, then:
+
+   * Grabs the PLM patchinfo web page for the patch
+   * Parses the patch to figure out what the base patch id is
+   * Extracts the filter id's for both patches
+   * For each pair of filter id's, calls plmdiff to get the warnings and
+     errors that differ between the two patches.
+   * If multiple cross compilers are showing the exact same
+     set of warnings/errors (which happens commonly), it will combine
+     them together into a single listing.
+
+crosscompile_report assumes that plmdiff and wwwdiff (also attached) are
+all together in the same directory.
+
+Sample output:
+
+$ ./crosscompile_report 4294
+Patch: PLM-4294
+Baseline: PLM-4241
+./plmdiff 32601 33265
+./plmdiff 32599 33263
+./plmdiff 32947 33267
+=== PPC64, SPARC64, IA64 CROSS-COMPILATION ===
+NEW WARNINGS:  2
++7f27b7ee92a62b4938ca8a2b2cb4feb3  plm-4294.patch
++fs/nfsd/nfs4recover.c:167: warning: int format, different type arg (arg 3)
++fs/nfsd/nfs4state.c:670: warning: field precision is not type int (arg 2)
+
+
+Contributed by Bryce Harrington. ( bryce at osdl dot org )

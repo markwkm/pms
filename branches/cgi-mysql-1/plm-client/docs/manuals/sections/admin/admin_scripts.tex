@@ -1,0 +1,17 @@
+\section {Adminstrative Scripts}
+\index{Admin!Scripts}
+These administrative scripts mostly query the database directly, by-passing the web interface and PLM methods except for the getCoonfig.  The exception to this is the plm\_source\_sync.pl which uses the ASP calls.  Most of these are little helper scripts so that an admin does not have to re-write queries or access the database.  Make sure they are not runable by all users, because they access the passwords in the plm.cfg file.  These scripts should give help if run with no options. 
+
+\begin{itemize}
+\item plm\_add\_filter.pl:  Add new filter.
+\item plm\_add\_filter\_type.pl:  Add new filter type.
+\item plm\_user:  Administer user accounts
+\item plm\_source\_sync.pl:  Update PLM database from a source repository which is configured in tables 'plm\_source' and 'plm\_source\_sync'.  This requires its own configuration file for each source repository to be synchronised.  Can run manually, but usually will be a cron job.
+\item plm\_request\_filter.pl: PLM automatically requests filters for a patch only when it is added to the system.  This script is intended to be used to request filters for a patch when the filter has been added to the system after a patch has.
+\item plm\_status.pl:
+\item plm\_filter\_check.pl:
+\item plm\_filter\_output.pl:
+\item plm\_report.pl:
+\item plm\_reset\_request.pl: This is intended as a simple tool to reset a particular filter request for a patch or all filter requests for a patch to the queued state.
+\item plm\_version\_sync.pl:  (replaced by plm\_source\_sync.pl)  This script updated PLM database from an archive which was on the host where was run.
+\end{itemize}

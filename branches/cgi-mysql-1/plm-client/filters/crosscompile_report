@@ -1,0 +1,136 @@
+#!/usr/bin/perl
+
+# Script to return pairs of filter id's for different cross compilers
+# for a given patch, against its base applies tree.
+
+use strict;
+use LWP::Simple;
+
+use vars qw($VERSION);
+$VERSION = '1.00';
+our $opt_debug         = 1;
+our $opt_patchinfo_url = "http://osdl.org/plm-cgi/plm?module=patch_info&patch_id";
+
+exit main();
+
+sub main {
+    my $id = shift @ARGV;
+    print "Patch: PLM-$id\n";
+        
+    if (! -e "./plmdiff") {
+        die "Error:  program plmdiff must be in current directory\n";
+    }
+
+    # Retrieve the patchinfo page for the patch
+    my $patchinfo_1 = get("$opt_patchinfo_url=$id")
+        or die "Couldn't get Patchinfo page for patch id '$id'!\n";
+
+    my %Results;
+    my $base_id;
+    foreach my $line (split "<tr", $patchinfo_1) {
+        if ($line =~ m|Applies Tree:|) {
+            if ($line =~ m|none\s-\sbaseline|) {
+                print "Error: baseline patch (Nothing to diff against)\n";
+                exit 1;
+            } elsif ($line =~ m|patch_id=(\w+)|) {
+                $base_id = $1;
+                print "Baseline: PLM-$base_id\n";
+            }
+        } elsif ($line =~ m|filter_output|) {
+            my %filt = parse_row($line);
+            $Results{$filt{'name'}}->{$id} = \%filt;
+        }
+    }
+
+    my $patchinfo_2 = get("$opt_patchinfo_url=$base_id")
+        or die "Couldn't get Patchinfo page for patch id '$base_id'!\n";
+
+    foreach my $line (split "<tr", $patchinfo_2) {
+        if ($line =~ m|filter_output|) {
+            my %filt = parse_row($line);
+            $Results{$filt{'name'}}->{$base_id} = \%filt;
+        }
+    }
+
+    # Now do a diff between each filter in $patchinfo_1 and $patchinfo_2
+    print crosscompile_report(\%Results, $base_id, $id);
+}
+
+
+# Parses a row of data and returns a hash containing the data items
+sub parse_row {
+    my $text = shift;
+
+    $text =~ m|<td>([\w-\s]+)</td>
+<td>(\d+) warnings, (\d+) errors</td>
+<td><center><a href="/plm-cgi/plm\?module=filter_output&id=(\d+)"><font color="\w+">(\w+)</font>|;
+
+    my %filt = (
+                'name'       => $1,
+                'warn'       => $2,
+                'err'        => $3,
+                'filter_id'  => $4,
+                'status'     => $5,
+                );
+
+    return %filt;
+}
+
+
+sub crosscompile_report {
+    my $r = shift;
+    my $id1 = shift;
+    my $id2 = shift;
+
+    my %report;
+    foreach my $filter (sort keys %$r) {
+        next unless $filter;
+        my $f1 = $r->{$filter}->{$id1};
+        my $f2 = $r->{$filter}->{$id2};
+        my $noteworthy = 0;
+        my $text = '';
+
+        next unless $f1->{status} and $f2->{status};
+        if ($f1->{status} ne $f2->{status}) {
+            $text .= "STATUS CHANGED:  '$f1->{status}' --> '$f2->{status}'\n";
+            $noteworthy = 1;
+        }
+
+        if ($f1->{err} != $f2->{err}) {
+            $text .= "NEW ERRORS:  " . ($f2->{err} - $f1->{err}) . "\n";
+            $noteworthy = 1;
+        }
+
+        if ($f1->{warn} != $f2->{warn}) {
+            $text .= "NEW WARNINGS:  " . ($f2->{warn} - $f1->{warn}) . "\n";
+            $noteworthy = 1;
+        }
+
+        if ($noteworthy) {
+            print "./plmdiff $f1->{filter_id} $f2->{filter_id}\n";
+            $text .= `./plmdiff $f1->{filter_id} $f2->{filter_id}`;
+
+            my $tag = $filter;
+            $tag =~ s/cross compile//i;
+            $tag =~ s/^\s+//;
+            $tag =~ s/\s+$//;
+            if (! defined $report{$text}) {
+                $report{$text} = $tag;
+            } else {
+                $report{$text} .= ", $tag";
+            }
+        }
+    }
+
+    # Munge up the report so that if multiple cross compilers are giving
+    # the same results, we don't repeat the same thing over and over.
+    
+
+    while (my ($text, $tag) = each %report) {
+        print "=== \U$tag CROSS-COMPILATION ===\n";
+        print "$text\n";
+    }
+
+    return;
+}
+
