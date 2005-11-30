@@ -1,0 +1,5 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+linux_software:
+  id: 1
+  name: linux
+  description: Linux kernel source code, available from http://www.kernel.org.

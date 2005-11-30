@@ -1,0 +1,17 @@
+<tr>
+  <td><%= list[:id] %></td>
+  <td><%= link_to list[:name], :action => 'show', :id => list[:id] %></td>
+<% if list['patch_id'].nil? then %>
+  <td>[ none - baseline ]</td>
+<% else %>
+  <td>
+    <% patch = Patch.find_by_sql(
+        'SELECT name ' +
+        'FROM patches ' +
+        "WHERE id = #{list['patch_id']} " +
+        'LIMIT 1')[0] %>
+    <%= link_to patch['name'], :action => 'show', :id => list['patch_id'] unless patch.nil? %>
+  </td>
+<% end %>
+  <td><%= list[:created_on] %></td>
+</tr>

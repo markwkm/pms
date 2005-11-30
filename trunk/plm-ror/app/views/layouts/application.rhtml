@@ -1,0 +1,66 @@
+<html>
+<head>
+  <title>PLM : <%= @title %></title>
+  <%= stylesheet_link_tag 'scaffold' %>
+  <%= javascript_include_tag 'prototype' %>
+</head>
+<body>
+
+<div class="top">
+  <h1><%= link_to 'Patch Lifecycle Manager', '/', :class => "logo" %></h1>
+</div>
+
+<div id="menu">
+  <ul>
+    <li class="sub"><div class="title">Menu</div></li>
+    <ul class="sub">
+      <li class="sub">
+        <a href="http://plm.osdl.org/plm/PLM-HOWTO.html">PLM How-to</a>
+      </li>
+      <li class="sub">
+        <%= link_to 'User Page', :controller => 'patches', :action => 'user' %>
+      </li>
+      <li class="sub">
+        <%= link_to 'Search', :controller => 'patches', :action => 'search' %>
+      </li>
+      <li class="sub">
+        <%= link_to 'Add Patch', :controller => 'patches', :action => 'new' %>
+      </li>
+    <% unless @session['user'].nil? then %>
+      <li class="sub"><%= link_to 'Logout', {:controller => 'login',
+          :action => 'logout'} %></li>
+    <% else %>
+      <li class="sub">
+        <%= link_to 'Login', :controller => 'login', :action => 'index' %>
+      </li>
+    <% end %>
+      <li class="sub">
+        <a href="http://developer.osdl.org/dev/plm">PLM Development</a>
+      </li>
+    </ul>
+  </ul>
+</div>
+
+<div class="content">
+  <p style="color: green">
+    <%= flash[:notice] %>
+  </p>
+
+  <%= @content_for_layout %>
+</div>
+
+<div id="footer">
+  <p>
+    Copyright &copy; 2003-2005 Open Source Development Labs, Inc.;<br />
+    All rights reserved except where otherwise noted.
+  </p>
+
+  <p>
+    <%= link_to 'Privacy', 'http://www.osdl.org/docs/osdl_privacy_policy.pdf' %> |
+    <%= link_to 'Legal', 'http://www.osdl.org/about_osdl/legal' %> |
+    <%= link_to 'Contact OSDL Corporate', 'http://www.osdl.org/about_osdl/contact_osdl.html' %> |
+  </p>
+</div>
+
+</body>
+</html>

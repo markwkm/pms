@@ -1,0 +1,22 @@
+<h1>Recent Patch Activity</h1>
+
+<p>
+  <table border="1">
+    <tr>
+      <th>PLM ID</th>
+      <th>Patch Name</th>
+      <th>Applies Tree</th>
+      <th>Created Date</th>
+    </tr>
+    <%= render_collection_of_partials 'list', @patches %>
+  </table>
+</p>
+
+<p>
+  <%= link_to 'Previous',
+      @pagination_link_options.merge({ :page => @patch_pages.current.previous }) if @patch_pages.current.previous %>
+  <%= pagination_links @patch_pages,
+      :params => @pagination_link_options.merge({ :action => @params['action'] || 'index' }) if @patch_pages.page_count > 1 %>
+  <%= link_to 'Next',
+      @pagination_link_options.merge({ :page => @patch_pages.current.next }) if @patch_pages.current.next %> 
+</p>
