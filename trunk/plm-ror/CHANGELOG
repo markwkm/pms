@@ -1,3 +1,7 @@
+*0.9*
+
+* Removed use of the diffless_patch view and select columns appropriately.
+
 *0.8*
 
 * Store session data in the database by default.
