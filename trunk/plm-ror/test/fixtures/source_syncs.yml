@@ -1,20 +1,5 @@
 # Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
-v2.6_source_sync:
-  id: 3
-  source_id: 1
-  search_location: v2.6
-  depth: 0
-  wanted_regex: linux-2.6.\d+
-  not_wanted_regex: (^linux-)?!|prerelease
-  baseline: true
-  descriptor: Base 2.6 kernel
-v2.6-mm_source_sync:
-  id: 8
-  source_id: 1
-  search_location: people/akpm/patches/2.6
-  depth: 2
-  wanted_regex: 2.6.\d+(.*)-(mm|mc)\d+
-  not_wanted_regex: (broken-out)
-  baseline: false
-  applies_regex: ^(\d+\.\d+\.\d+(\.\d+){0,1}-rc\d+|\d+\.\d+\.\d+(\.\d+){0,1}-test\d+|\d+\.\d+\.\d+(\.\d+){0,1})
-  descriptor: Andrew Morton Patches
+first_source_sync:
+  id: 1
+another_source_sync:
+  id: 2
