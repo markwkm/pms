@@ -106,7 +106,8 @@ class PatchesController < ApplicationController
 
   def list
     @pagination_link_options = Hash.new
-    @patch_pages, @patches = paginate :diffless_patch, :per_page => 10,
+    @patch_pages, @patches = paginate :patches, :per_page => 10,
+        :select => 'id, name, md5sum, software_id, user_id, patch_id',
         :order_by => 'id DESC'
   end
 
@@ -149,7 +150,7 @@ class PatchesController < ApplicationController
     select1 =
         'SELECT COUNT(*) AS id '
     select2 =
-        'SELECT * '
+        'SELECT p.id, p.name, p.md5sum, p.name, p.software_id, p.user_id, p.patch_id '
 
     if patch['software_id'].to_i > 0 then
       condition << "p.software_id = #{patch['software_id']}"
@@ -178,7 +179,7 @@ class PatchesController < ApplicationController
     end unless user['login'].nil? unless user.nil?
 
     sql =
-        'FROM diffless_patches p'
+        'FROM patches p'
 
     table.each {
       |from|
@@ -196,20 +197,25 @@ class PatchesController < ApplicationController
     }
 
     limit = 10
-    p = DifflessPatch.find_by_sql(select1 + sql)
+    p = Patch.find_by_sql(select1 + sql)
     count = p[0]['id']
     @patch_pages = Paginator.new self, count, limit, @params['page']
     limit_offset =
         'ORDER BY p.id DESC ' +
         "LIMIT #{limit} " +
         "OFFSET #{@patch_pages.current.to_sql[1]}"
-    @patches = DifflessPatch.find_by_sql(select2 + sql + limit_offset)
+    @patches = Patch.find_by_sql(select2 + sql + limit_offset)
 
     render :action => 'list'
   end
 
   def show
-    @patch = DifflessPatch.find(params[:id])
+    #
+    # Specify :select so we don't grab the actual patch out of the database so
+    # that the query will execute faster.
+    #
+    @patch = Patch.find(params[:id],
+        :select => 'id, name, md5sum, name, software_id, user_id, patch_id')
     @filter_requests = FilterRequest.find_by_sql(
         'SELECT fr.* ' +
         'FROM filter_requests fr, filters f ' +
@@ -231,7 +237,8 @@ class PatchesController < ApplicationController
   def user
     @pagination_link_options = Hash.new
 
-    @patch_pages, @patches = paginate :diffless_patch, :per_page => 10,
+    @patch_pages, @patches = paginate :patches, :per_page => 10,
+        :select => 'id, name, md5sum, software_id, user_id, patch_id',
         :conditions => ['user_id = ?', @session['user']['id']],
         :order_by => 'id DESC'
     render :action => 'list'
