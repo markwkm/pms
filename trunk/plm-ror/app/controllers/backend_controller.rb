@@ -79,6 +79,15 @@ class BackendController < ApplicationController
     return applies_tree
   end
 
+  def get_name(id)
+    begin
+      patch = Patch.find(id, :select => 'name')
+    rescue
+      return nil
+    end
+    return patch['name']
+  end
+
   def get_patch(id)
     result = Array.new
     p = Patch.find(id)
