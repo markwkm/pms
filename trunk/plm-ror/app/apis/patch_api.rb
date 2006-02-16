@@ -12,6 +12,9 @@ class PatchApi < ActionWebService::API::Base
   api_method :get_applies_tree,
       :expects => [:int],
       :returns => [[:int]]
+  api_method :get_name,
+      :expects => [{ :plm_id => :int }],
+      :returns => [:string]
   api_method :get_patch,
       :expects => [:int],
       :returns => [[:string]]
