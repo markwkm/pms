@@ -67,7 +67,7 @@
     <td>
       <%= text_field_tag 'name', nil, :size => 20, :maxlength => 254 %></td>
       <%= observe_field 'name', :frequency => 0.5,
-          :update =>'applies_name_div',
+          :update => 'applies_name_div',
           :url => { :action => 'check_applies_name' },
           :with => "'name=' + escape(value)" %>
     </td>
