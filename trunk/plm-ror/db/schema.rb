@@ -27,15 +27,15 @@ ActiveRecord::Schema.define() do
   end
 
   create_table "filter_request_states", :force => true do |t|
-    t.column "created_on", :datetime, :default => Tue Nov 08 09:00:25 PST 2005
-    t.column "updated_on", :datetime, :default => Tue Nov 08 09:00:25 PST 2005
+    t.column "created_on", :datetime, :default => Tue Jan 31 10:21:18 PST 2006
+    t.column "updated_on", :datetime, :default => Tue Jan 31 10:21:18 PST 2006
     t.column "code", :text
     t.column "detail", :text
   end
 
   create_table "filter_requests", :force => true do |t|
-    t.column "created_on", :datetime, :default => Tue Nov 08 09:00:25 PST 2005
-    t.column "updated_on", :datetime, :default => Tue Nov 08 09:00:25 PST 2005
+    t.column "created_on", :datetime, :default => Tue Jan 31 10:21:18 PST 2006
+    t.column "updated_on", :datetime, :default => Tue Jan 31 10:21:18 PST 2006
     t.column "filter_id", :integer, :null => false
     t.column "patch_id", :integer, :null => false
     t.column "filter_request_state_id", :integer, :default => 1, :null => false
@@ -48,15 +48,15 @@ ActiveRecord::Schema.define() do
   end
 
   create_table "filter_types", :force => true do |t|
-    t.column "created_on", :datetime, :default => Tue Nov 08 09:00:25 PST 2005, :null => false
-    t.column "updated_on", :datetime, :default => Tue Nov 08 09:00:25 PST 2005, :null => false
+    t.column "created_on", :datetime, :default => Tue Jan 31 10:21:18 PST 2006, :null => false
+    t.column "updated_on", :datetime, :default => Tue Jan 31 10:21:18 PST 2006, :null => false
     t.column "code", :text, :null => false
     t.column "software_id", :integer
   end
 
   create_table "filters", :force => true do |t|
-    t.column "created_on", :datetime, :default => Tue Nov 08 09:00:25 PST 2005
-    t.column "updated_on", :datetime, :default => Tue Nov 08 09:00:25 PST 2005
+    t.column "created_on", :datetime, :default => Tue Jan 31 10:21:18 PST 2006
+    t.column "updated_on", :datetime, :default => Tue Jan 31 10:21:18 PST 2006
     t.column "software_id", :integer, :null => false
     t.column "name", :text, :null => false
     t.column "command", :text
@@ -67,34 +67,20 @@ ActiveRecord::Schema.define() do
 
   add_index "filters", ["name"], :name => "filters_name_key", :unique => true
 
-  create_table "patch_acls", :force => true do |t|
-    t.column "software_id", :integer, :null => false
-    t.column "name", :text, :null => false
-    t.column "reason", :text
-    t.column "regex", :text, :null => false
-  end
-
-  add_index "patch_acls", ["software_id", "regex"], :name => "patch_acls_software_id_key", :unique => true
-
-  create_table "patch_acls_users", :id => false, :force => true do |t|
-    t.column "patch_acl_id", :integer, :null => false
-    t.column "user_id", :integer, :null => false
-  end
-
   create_table "patches", :force => true do |t|
-    t.column "created_on", :datetime, :default => Tue Nov 08 09:00:25 PST 2005
-    t.column "updated_on", :datetime, :default => Tue Nov 08 09:00:25 PST 2005
+    t.column "created_on", :datetime, :default => Tue Jan 31 10:21:18 PST 2006
+    t.column "updated_on", :datetime, :default => Tue Jan 31 10:21:18 PST 2006
     t.column "software_id", :integer, :null => false
     t.column "md5sum", :string, :limit => 40
     t.column "patch_id", :integer
     t.column "name", :text, :null => false
     t.column "diff", :binary
     t.column "user_id", :integer, :null => false
-    t.column "strip_level", :integer
-    t.column "remote_identifier", :text
-    t.column "path", :text
+    t.column "p", :integer, :null => false
     t.column "source_id", :integer
     t.column "reverse", :boolean, :default => false, :null => false
+    t.column "remote_identifier", :text
+    t.column "path", :text
   end
 
   add_index "patches", ["name"], :name => "patches_name_key", :unique => true
@@ -108,44 +94,32 @@ ActiveRecord::Schema.define() do
   add_index "sessions", ["session_id"], :name => "sessions_session_id_index"
 
   create_table "softwares", :force => true do |t|
-    t.column "created_on", :datetime, :default => Tue Nov 08 09:00:25 PST 2005
-    t.column "updated_on", :datetime, :default => Tue Nov 08 09:00:25 PST 2005
+    t.column "created_on", :datetime, :default => Tue Jan 31 10:21:18 PST 2006
+    t.column "updated_on", :datetime, :default => Tue Jan 31 10:21:18 PST 2006
     t.column "name", :text, :null => false
     t.column "description", :text
-    t.column "default_strip_level", :integer, :null => false
   end
 
   add_index "softwares", ["name"], :name => "softwares_name_key", :unique => true
 
-  create_table "source_syncs", :force => true do |t|
-    t.column "created_on", :datetime, :default => Tue Nov 08 09:00:25 PST 2005, :null => false
-    t.column "updated_on", :datetime, :default => Tue Nov 08 09:00:25 PST 2005, :null => false
-    t.column "source_id", :integer, :null => false
-    t.column "search_location", :text
-    t.column "depth", :integer, :null => false
-    t.column "wanted_regex", :text
-    t.column "not_wanted_regex", :text
-    t.column "baseline", :boolean, :null => false
-    t.column "applies_regex", :text
-    t.column "descriptor", :text
-  end
-
   create_table "sources", :force => true do |t|
-    t.column "created_on", :datetime, :default => Tue Nov 08 09:00:25 PST 2005, :null => false
-    t.column "updated_on", :datetime, :default => Tue Nov 08 09:00:25 PST 2005, :null => false
+    t.column "created_on", :datetime, :default => Tue Jan 31 10:21:18 PST 2006, :null => false
+    t.column "updated_on", :datetime, :default => Tue Jan 31 10:21:18 PST 2006, :null => false
     t.column "software_id", :integer, :null => false
     t.column "root_location", :text, :null => false
     t.column "source_type", :text, :null => false
   end
 
   create_table "users", :force => true do |t|
-    t.column "created_on", :datetime, :default => Tue Nov 08 09:00:25 PST 2005
-    t.column "updated_on", :datetime, :default => Tue Nov 08 09:00:25 PST 2005
+    t.column "created_on", :datetime, :default => Tue Jan 31 10:21:18 PST 2006
+    t.column "updated_on", :datetime, :default => Tue Jan 31 10:21:18 PST 2006
     t.column "login", :text, :null => false
     t.column "first", :text
     t.column "last", :text
     t.column "email", :text
     t.column "password", :text
   end
+
+  add_index "users", ["login"], :name => "users_login_key", :unique => true
 
 end

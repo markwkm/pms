@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-SET client_encoding = 'UNICODE';
+SET client_encoding = 'SQL_ASCII';
 SET check_function_bodies = false;
 SET client_min_messages = warning;
 
@@ -54,36 +54,6 @@ CREATE TABLE commands (
     command_type text NOT NULL,
     expected_result text
 );
-
-
---
--- Name: patches; Type: TABLE; Schema: public; Owner: plm; Tablespace: 
---
-
-CREATE TABLE patches (
-    id bigserial NOT NULL,
-    created_on timestamp without time zone DEFAULT now(),
-    updated_on timestamp without time zone DEFAULT now(),
-    software_id bigint NOT NULL,
-    md5sum character(40),
-    patch_id bigint,
-    name text NOT NULL,
-    diff bytea,
-    user_id bigint NOT NULL,
-    strip_level smallint,
-    remote_identifier text,
-    path text,
-    source_id bigint,
-    reverse boolean DEFAULT false NOT NULL
-);
-
-
---
--- Name: diffless_patches; Type: VIEW; Schema: public; Owner: plm
---
-
-CREATE VIEW diffless_patches AS
-    SELECT patches.id, patches.created_on, patches.updated_on, patches.software_id, patches.md5sum, patches.patch_id, patches.name, patches.user_id, patches.strip_level AS p, patches.remote_identifier, patches.path, patches.source_id, patches.reverse FROM patches;
 
 
 --
@@ -150,25 +120,24 @@ CREATE TABLE filters (
 
 
 --
--- Name: patch_acls; Type: TABLE; Schema: public; Owner: plm; Tablespace: 
+-- Name: patches; Type: TABLE; Schema: public; Owner: plm; Tablespace: 
 --
 
-CREATE TABLE patch_acls (
+CREATE TABLE patches (
     id bigserial NOT NULL,
+    created_on timestamp without time zone DEFAULT now(),
+    updated_on timestamp without time zone DEFAULT now(),
     software_id bigint NOT NULL,
+    md5sum character(40),
+    patch_id bigint,
     name text NOT NULL,
-    reason text,
-    regex text NOT NULL
-);
-
-
---
--- Name: patch_acls_users; Type: TABLE; Schema: public; Owner: plm; Tablespace: 
---
-
-CREATE TABLE patch_acls_users (
-    patch_acl_id bigint NOT NULL,
-    user_id bigint NOT NULL
+    diff bytea,
+    user_id bigint NOT NULL,
+    p smallint NOT NULL,
+    source_id bigint,
+    reverse boolean DEFAULT false NOT NULL,
+    remote_identifier text,
+    path text
 );
 
 
@@ -197,27 +166,7 @@ CREATE TABLE softwares (
     created_on timestamp without time zone DEFAULT now(),
     updated_on timestamp without time zone DEFAULT now(),
     name text NOT NULL,
-    description text,
-    default_strip_level smallint NOT NULL
-);
-
-
---
--- Name: source_syncs; Type: TABLE; Schema: public; Owner: plm; Tablespace: 
---
-
-CREATE TABLE source_syncs (
-    id bigserial NOT NULL,
-    created_on timestamp with time zone DEFAULT now() NOT NULL,
-    updated_on timestamp with time zone DEFAULT now() NOT NULL,
-    source_id bigint NOT NULL,
-    search_location text,
-    depth smallint NOT NULL,
-    wanted_regex text,
-    not_wanted_regex text,
-    baseline boolean NOT NULL,
-    applies_regex text,
-    descriptor text
+    description text
 );
 
 
@@ -324,30 +273,6 @@ ALTER TABLE ONLY filters
 
 
 --
--- Name: patch_acls_pkey; Type: CONSTRAINT; Schema: public; Owner: plm; Tablespace: 
---
-
-ALTER TABLE ONLY patch_acls
-    ADD CONSTRAINT patch_acls_pkey PRIMARY KEY (id);
-
-
---
--- Name: patch_acls_software_id_key; Type: CONSTRAINT; Schema: public; Owner: plm; Tablespace: 
---
-
-ALTER TABLE ONLY patch_acls
-    ADD CONSTRAINT patch_acls_software_id_key UNIQUE (software_id, regex);
-
-
---
--- Name: patch_acls_users_pkey; Type: CONSTRAINT; Schema: public; Owner: plm; Tablespace: 
---
-
-ALTER TABLE ONLY patch_acls_users
-    ADD CONSTRAINT patch_acls_users_pkey PRIMARY KEY (patch_acl_id, user_id);
-
-
---
 -- Name: patches_name_key; Type: CONSTRAINT; Schema: public; Owner: plm; Tablespace: 
 --
 
@@ -388,19 +313,19 @@ ALTER TABLE ONLY softwares
 
 
 --
--- Name: source_syncs_pkey; Type: CONSTRAINT; Schema: public; Owner: plm; Tablespace: 
---
-
-ALTER TABLE ONLY source_syncs
-    ADD CONSTRAINT source_syncs_pkey PRIMARY KEY (id);
-
-
---
 -- Name: sources_pkey; Type: CONSTRAINT; Schema: public; Owner: plm; Tablespace: 
 --
 
 ALTER TABLE ONLY sources
     ADD CONSTRAINT sources_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: users_login_key; Type: CONSTRAINT; Schema: public; Owner: plm; Tablespace: 
+--
+
+ALTER TABLE ONLY users
+    ADD CONSTRAINT users_login_key UNIQUE (login);
 
 
 --
@@ -459,14 +384,6 @@ ALTER TABLE ONLY filter_requests
 
 
 --
--- Name: filter_requests_patch_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: plm
---
-
-ALTER TABLE ONLY filter_requests
-    ADD CONSTRAINT filter_requests_patch_id_fkey FOREIGN KEY (patch_id) REFERENCES patches(id) ON UPDATE RESTRICT ON DELETE RESTRICT;
-
-
---
 -- Name: filter_types_software_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: plm
 --
 
@@ -491,59 +408,11 @@ ALTER TABLE ONLY filters
 
 
 --
--- Name: patch_acls_software_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: plm
---
-
-ALTER TABLE ONLY patch_acls
-    ADD CONSTRAINT patch_acls_software_id_fkey FOREIGN KEY (software_id) REFERENCES softwares(id) ON UPDATE RESTRICT ON DELETE RESTRICT;
-
-
---
--- Name: patch_acls_users_patch_acl_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: plm
---
-
-ALTER TABLE ONLY patch_acls_users
-    ADD CONSTRAINT patch_acls_users_patch_acl_id_fkey FOREIGN KEY (patch_acl_id) REFERENCES patch_acls(id) ON UPDATE RESTRICT ON DELETE RESTRICT;
-
-
---
--- Name: patch_acls_users_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: plm
---
-
-ALTER TABLE ONLY patch_acls_users
-    ADD CONSTRAINT patch_acls_users_user_id_fkey FOREIGN KEY (user_id) REFERENCES users(id) ON UPDATE RESTRICT ON DELETE RESTRICT;
-
-
---
--- Name: patches_software_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: plm
---
-
-ALTER TABLE ONLY patches
-    ADD CONSTRAINT patches_software_id_fkey FOREIGN KEY (software_id) REFERENCES softwares(id) ON UPDATE RESTRICT ON DELETE RESTRICT;
-
-
---
--- Name: patches_source_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: plm
---
-
-ALTER TABLE ONLY patches
-    ADD CONSTRAINT patches_source_id_fkey FOREIGN KEY (source_id) REFERENCES sources(id) ON UPDATE RESTRICT ON DELETE RESTRICT;
-
-
---
 -- Name: patches_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: plm
 --
 
 ALTER TABLE ONLY patches
     ADD CONSTRAINT patches_user_id_fkey FOREIGN KEY (user_id) REFERENCES users(id) ON UPDATE RESTRICT ON DELETE RESTRICT;
-
-
---
--- Name: source_syncs_source_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: plm
---
-
-ALTER TABLE ONLY source_syncs
-    ADD CONSTRAINT source_syncs_source_id_fkey FOREIGN KEY (source_id) REFERENCES sources(id) ON UPDATE RESTRICT ON DELETE RESTRICT;
 
 
 --
