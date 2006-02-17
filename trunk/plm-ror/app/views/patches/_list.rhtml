@@ -1,5 +1,4 @@
 <tr>
-  <td><%= list[:id] %></td>
   <td><%= link_to list[:name], :action => 'show', :id => list[:id] %></td>
 <% if list['patch_id'].nil? then %>
   <td>[ none - baseline ]</td>

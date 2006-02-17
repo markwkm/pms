@@ -48,20 +48,9 @@
   The patch file can be in plaintext, gzip or bzip2 format.  [autodetected]<br/>
 </P>
 
-<h3>Fill in the ID or Name of the dependent patch or dependent baseline</h3>
+<h3>Fill in the Name of the dependent patch or dependent baseline</h3>
 
 <table>
-  <tr>
-    <td>Patch ID to apply to:</td>
-    <td>
-      <%= text_field 'patch', 'patch_id', :size => 5, :maxlength => 254 %>
-      <%= observe_field 'patch_patch_id', :frequency => 0.5,
-          :update =>'applies_id_div',
-          :url => { :action => 'check_applies_id' },
-          :with => "'id=' + escape(value)" %>
-    </td>
-    <td><div id="applies_id_div"></div></td>
-  </tr>
   <tr>
     <td>Patch Name to apply to:</td>
     <td>
