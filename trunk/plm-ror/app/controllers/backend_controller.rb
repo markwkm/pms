@@ -301,4 +301,27 @@ class BackendController < ApplicationController
     end
     0
   end
+
+  def verify_patch(name, software=nil)
+    begin
+      #
+      # I don't think we can really set default values for web service calls
+      # so this should cover all of our bases.
+      #
+      if software.nil? or software.empty?
+        patch = Patch.find(:first,
+            :select => 'id',
+            :conditions => ['name = ?', name.strip])
+      else
+        patch = Patch.find(:first,
+            :select => 'id',
+            :conditions => ['patches.name = ? AND softwares.name = ?',
+                name.strip, software.strip])
+      end
+    rescue
+      return false
+    end
+    return false if patch.nil?
+    return true
+  end
 end

@@ -12,6 +12,10 @@ class PatchApi < ActionWebService::API::Base
   api_method :get_applies_tree,
       :expects => [:int],
       :returns => [[:int]]
+  #
+  # Remove this in favor verify_patch(), we're trying to get rid of all
+  # references by id.
+  #
   api_method :get_name,
       :expects => [{ :plm_id => :int }],
       :returns => [:string]
@@ -28,6 +32,9 @@ class PatchApi < ActionWebService::API::Base
           { :applies_id => :int }, { :content => :base64 },
           { :file_type => :string}],
       :returns => [:int]
+  #
+  # Remove this in favor verify_patch().
+  #
   api_method :patch_find_by_name,
       :expects => [:string],
       :returns => [:int]
@@ -40,6 +47,10 @@ class PatchApi < ActionWebService::API::Base
   api_method :set_filter_request_state,
       :expects => [:int, :int],
       :returns => [:int]
+  #
+  # Remove this in favor verify_patch().  Where do we need to verify software
+  # by itself?
+  #
   api_method :software_verify,
       :expects => [:string],
       :returns => [:int]
@@ -54,4 +65,7 @@ class PatchApi < ActionWebService::API::Base
   api_method :user_verify,
       :expects => [:string, :string],
       :returns => [:int]
+  api_method :verify_patch,
+      :expects => [{ :patch_name => :string}, { :software_name => :string }],
+      :returns => [:bool]
 end
