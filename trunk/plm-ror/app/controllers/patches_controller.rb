@@ -47,6 +47,19 @@ class PatchesController < ApplicationController
   end
 
   def create
+    #
+    # Check to see if the patch we're applying to exists.
+    #
+    base_patch = Patch.find(:first, :select => 'id',
+        :conditions => ['name = ?', params[:name]])
+    unless base_patch
+      flash[:notice] = 'Patch to apply to was not found.'
+      render :action => 'new'
+      return
+    end
+    #
+    # Get the text into plain text before encoding it into base64.
+    #
     case params[:patch][:diff].content_type.strip
       when 'application/x-tar'
         params[:patch][:diff] =
@@ -60,6 +73,7 @@ class PatchesController < ApplicationController
     params[:patch][:md5sum] = Digest::MD5.hexdigest(params[:patch][:diff])
     @patch = Patch.new(params[:patch])
     @patch['user_id'] = @session['user']['id']
+    @patch['patch_id'] = base_patch['id']
     Patch.transaction do
       if @patch.check_acl and @patch.save
         flash[:notice] = 'Patch was successfully created.'
