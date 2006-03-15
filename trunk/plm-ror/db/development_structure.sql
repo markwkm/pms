@@ -120,6 +120,29 @@ CREATE TABLE filters (
 
 
 --
+-- Name: patch_acls; Type: TABLE; Schema: public; Owner: plm; Tablespace: 
+--
+
+CREATE TABLE patch_acls (
+    id bigserial NOT NULL,
+    software_id bigint NOT NULL,
+    name text NOT NULL,
+    reason text,
+    regex text NOT NULL
+);
+
+
+--
+-- Name: patch_acls_users; Type: TABLE; Schema: public; Owner: plm; Tablespace: 
+--
+
+CREATE TABLE patch_acls_users (
+    patch_acl_id bigint NOT NULL,
+    user_id bigint NOT NULL
+);
+
+
+--
 -- Name: patches; Type: TABLE; Schema: public; Owner: plm; Tablespace: 
 --
 
@@ -133,7 +156,7 @@ CREATE TABLE patches (
     name text NOT NULL,
     diff bytea,
     user_id bigint NOT NULL,
-    p smallint NOT NULL,
+    strip_level smallint NOT NULL,
     source_id bigint,
     reverse boolean DEFAULT false NOT NULL,
     remote_identifier text,
@@ -273,6 +296,22 @@ ALTER TABLE ONLY filters
 
 
 --
+-- Name: patch_acls_pkey; Type: CONSTRAINT; Schema: public; Owner: plm; Tablespace: 
+--
+
+ALTER TABLE ONLY patch_acls
+    ADD CONSTRAINT patch_acls_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: patch_acls_users_pkey; Type: CONSTRAINT; Schema: public; Owner: plm; Tablespace: 
+--
+
+ALTER TABLE ONLY patch_acls_users
+    ADD CONSTRAINT patch_acls_users_pkey PRIMARY KEY (patch_acl_id, user_id);
+
+
+--
 -- Name: patches_name_key; Type: CONSTRAINT; Schema: public; Owner: plm; Tablespace: 
 --
 
@@ -405,6 +444,30 @@ ALTER TABLE ONLY filters
 
 ALTER TABLE ONLY filters
     ADD CONSTRAINT filters_software_id_fkey FOREIGN KEY (software_id) REFERENCES softwares(id) ON UPDATE RESTRICT ON DELETE RESTRICT;
+
+
+--
+-- Name: patch_acls_software_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: plm
+--
+
+ALTER TABLE ONLY patch_acls
+    ADD CONSTRAINT patch_acls_software_id_fkey FOREIGN KEY (software_id) REFERENCES softwares(id) ON UPDATE RESTRICT ON DELETE RESTRICT;
+
+
+--
+-- Name: patch_acls_users_patch_acl_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: plm
+--
+
+ALTER TABLE ONLY patch_acls_users
+    ADD CONSTRAINT patch_acls_users_patch_acl_id_fkey FOREIGN KEY (patch_acl_id) REFERENCES patch_acls(id) ON UPDATE RESTRICT ON DELETE RESTRICT;
+
+
+--
+-- Name: patch_acls_users_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: plm
+--
+
+ALTER TABLE ONLY patch_acls_users
+    ADD CONSTRAINT patch_acls_users_user_id_fkey FOREIGN KEY (user_id) REFERENCES users(id) ON UPDATE RESTRICT ON DELETE RESTRICT;
 
 
 --
