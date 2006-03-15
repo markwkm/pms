@@ -65,8 +65,18 @@ class PatchesController < ApplicationController
         params[:patch][:diff] =
             Base64.encode64(Zlib::GzipReader.new(params[:patch][:diff]).read)
       when 'application/octet-stream'
-        params[:patch][:diff] =
-            Base64.encode64(BZ2::Reader.new(params[:patch][:diff]).read)
+        #
+        # Plain text and bzip2 files fall into this bucket.  Check the first 2
+        # characters to see if it's a BZ file.
+        #
+        type = params[:patch][:diff].read(2)
+        params[:patch][:diff].rewind
+        if type == 'BZ'
+          params[:patch][:diff] =
+              Base64.encode64(BZ2::Reader.new(params[:patch][:diff]).read)
+        else
+          params[:patch][:diff] = Base64.encode64(params[:patch][:diff].read)
+        end
       else
         params[:patch][:diff] = Base64.encode64(params[:patch][:diff].read)
     end
@@ -77,6 +87,9 @@ class PatchesController < ApplicationController
     Patch.transaction do
       if @patch.check_acl and @patch.save
         flash[:notice] = 'Patch was successfully created.'
+        #
+        # Queue all filter requests.
+        #
         @patch.queue_filters
         redirect_to :action => 'show', :id => @patch
       else
@@ -230,12 +243,6 @@ class PatchesController < ApplicationController
     #
     @patch = Patch.find(params[:id],
         :select => 'id, name, md5sum, name, software_id, user_id, patch_id')
-    @filter_requests = FilterRequest.find_by_sql(
-        'SELECT fr.* ' +
-        'FROM filter_requests fr, filters f ' +
-        'WHERE fr.filter_id = f.id ' +
-        "  AND fr.patch_id = #{params[:id]} " +
-        'ORDER BY f.name')
   end
 
   def update
