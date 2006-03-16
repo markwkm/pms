@@ -99,25 +99,22 @@ class BackendController < ApplicationController
     filter_type_list = my_type.gsub(/:/, "', '")
     fr = nil;
     FilterRequest.transaction do
-      fr = FilterRequest.find_by_sql(
-          'SELECT pfr.id, pfr.patch_id, pfr.filter_id ' +
-          'FROM filter_types pft, filters pf, filter_requests pfr, ' +
-          '     patches pp ' +
-          "WHERE pft.code IN ('#{filter_type_list}') " +
-          '  AND (pft.id = pf.filter_type_id ' +
-          '       OR pf.filter_type_id = 0) ' +
-          '  AND pf.id = pfr.filter_id ' +
-          "  AND pfr.filter_request_state_id = #{STATE_QUEUED} " +
-          '  AND pfr.patch_id = pp.id ' +
-          'ORDER BY pfr.priority, pfr.id ' +
-          'LIMIT 1')[0]
+      filter_type = FilterType.find(:first,
+          :conditions => ["code IN ('#{filter_type_list}')"])
+      filters = filter_type.filters
+      for filter in filters
+        fr = filter.filter_requests.find(:first,
+            :conditions => ["state = '#{STATE_QUEUED}'" ],
+            :order => 'priority')
+        break unless fr.nil?
+      end
       return [] if fr.nil?
-      fr[:filter_request_state_id] = STATE_PENDING
-      fr[:started] = Time.now
+      fr['state'] = STATE_PENDING
       return [] unless fr.save
     end
-    return [fr[:id], fr[:patch_id], fr.filter[:location], fr.filter[:command],
-        fr.filter[:runtime], fr.patch.software[:name]]
+    return [fr['id'], fr.patch['id'], fr.filter['location'],
+        fr.filter['command'], fr.filter['runtime'],
+        fr.patch.software['name']]
   end
 
   def patch_add(user, password, name, path, remote_identifier,

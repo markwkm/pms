@@ -71,7 +71,8 @@
     <th>Filter Name</th>
     <th>Detailed Result</th>
     <th>Status</th>
-    <%= render_collection_of_partials 'filter', @patch.filters %>
+    <%= render_collection_of_partials 'filter_request',
+        @patch.filter_requests %>
   </table>
 </p>
 

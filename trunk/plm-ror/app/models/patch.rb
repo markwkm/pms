@@ -4,11 +4,8 @@ class Patch < ActiveRecord::Base
   belongs_to :source
   belongs_to :user
 
-  #
-  # User the UPPER function so that the filter names are ordered reglardless of
-  # case (i.e. case-insensitive ordering).
-  #
-  has_and_belongs_to_many :filters, :order => 'UPPER(name)'
+  has_many :filter_requests
+  #has_many :filter_requests, :finder_sql => 'SELECT filter_requests.* FROM filter_requests fr, filters f WHERE patch_id = #{self.id} AND fr.filter_id = f.id ORDER BY UPPER(f.name)'
 
   validates_uniqueness_of :name
   validates_presence_of :diff, :name
@@ -38,7 +35,11 @@ class Patch < ActiveRecord::Base
     filters = Filter.find(:all,
         :conditions => ['software_id = 0 OR software_id = ?', self.software_id])
     for filter in filters
-      self.filters << filter
+      fr = FilterRequest.new
+      fr['filter_id'] = filter['id']
+      fr['patch_id'] = self.id
+      fr['state'] = STATE_QUEUED
+      return false unless fr.save
     end
     true
   end

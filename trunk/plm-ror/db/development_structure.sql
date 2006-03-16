@@ -67,6 +67,24 @@ CREATE TABLE filter_request_states (
 
 
 --
+-- Name: filter_requests; Type: TABLE; Schema: public; Owner: plm; Tablespace: 
+--
+
+CREATE TABLE filter_requests (
+    filter_id bigint NOT NULL,
+    patch_id bigint NOT NULL,
+    priority smallint DEFAULT 1 NOT NULL,
+    result text,
+    result_detail text,
+    output bytea,
+    created_on timestamp with time zone DEFAULT now() NOT NULL,
+    updated_on timestamp with time zone DEFAULT now() NOT NULL,
+    id bigserial NOT NULL,
+    state text
+);
+
+
+--
 -- Name: filter_types; Type: TABLE; Schema: public; Owner: plm; Tablespace: 
 --
 
@@ -93,23 +111,6 @@ CREATE TABLE filters (
     "location" text,
     runtime bigint,
     filter_type_id bigint NOT NULL
-);
-
-
---
--- Name: filters_patches; Type: TABLE; Schema: public; Owner: plm; Tablespace: 
---
-
-CREATE TABLE filters_patches (
-    filter_id bigint NOT NULL,
-    patch_id bigint NOT NULL,
-    priority smallint DEFAULT 1 NOT NULL,
-    result text,
-    result_detail text,
-    output bytea,
-    started timestamp with time zone,
-    completed timestamp with time zone,
-    state text NOT NULL
 );
 
 
@@ -258,6 +259,22 @@ ALTER TABLE ONLY filter_request_states
 
 
 --
+-- Name: filter_requests_filter_id_key; Type: CONSTRAINT; Schema: public; Owner: plm; Tablespace: 
+--
+
+ALTER TABLE ONLY filter_requests
+    ADD CONSTRAINT filter_requests_filter_id_key UNIQUE (filter_id, patch_id);
+
+
+--
+-- Name: filter_requests_pkey; Type: CONSTRAINT; Schema: public; Owner: plm; Tablespace: 
+--
+
+ALTER TABLE ONLY filter_requests
+    ADD CONSTRAINT filter_requests_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: filter_types_pkey; Type: CONSTRAINT; Schema: public; Owner: plm; Tablespace: 
 --
 
@@ -271,14 +288,6 @@ ALTER TABLE ONLY filter_types
 
 ALTER TABLE ONLY filters
     ADD CONSTRAINT filters_name_key UNIQUE (name);
-
-
---
--- Name: filters_patches_pkey; Type: CONSTRAINT; Schema: public; Owner: plm; Tablespace: 
---
-
-ALTER TABLE ONLY filters_patches
-    ADD CONSTRAINT filters_patches_pkey PRIMARY KEY (filter_id, patch_id);
 
 
 --
@@ -401,6 +410,14 @@ ALTER TABLE ONLY commands
 
 
 --
+-- Name: filter_requests_state_fkey; Type: FK CONSTRAINT; Schema: public; Owner: plm
+--
+
+ALTER TABLE ONLY filter_requests
+    ADD CONSTRAINT filter_requests_state_fkey FOREIGN KEY (state) REFERENCES filter_request_states(code) ON UPDATE RESTRICT ON DELETE RESTRICT;
+
+
+--
 -- Name: filter_types_software_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: plm
 --
 
@@ -420,7 +437,7 @@ ALTER TABLE ONLY filters
 -- Name: filters_patches_filter_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: plm
 --
 
-ALTER TABLE ONLY filters_patches
+ALTER TABLE ONLY filter_requests
     ADD CONSTRAINT filters_patches_filter_id_fkey FOREIGN KEY (filter_id) REFERENCES filters(id) ON UPDATE RESTRICT ON DELETE RESTRICT;
 
 
@@ -428,16 +445,8 @@ ALTER TABLE ONLY filters_patches
 -- Name: filters_patches_patch_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: plm
 --
 
-ALTER TABLE ONLY filters_patches
+ALTER TABLE ONLY filter_requests
     ADD CONSTRAINT filters_patches_patch_id_fkey FOREIGN KEY (patch_id) REFERENCES patches(id) ON UPDATE RESTRICT ON DELETE RESTRICT;
-
-
---
--- Name: filters_patches_state_fkey; Type: FK CONSTRAINT; Schema: public; Owner: plm
---
-
-ALTER TABLE ONLY filters_patches
-    ADD CONSTRAINT filters_patches_state_fkey FOREIGN KEY (state) REFERENCES filter_request_states(code) ON UPDATE RESTRICT ON DELETE RESTRICT;
 
 
 --

@@ -1,14 +1,14 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-class FilterTypesTest < Test::Unit::TestCase
+class FilterTypeTest < Test::Unit::TestCase
   fixtures :filter_types
 
   def setup
-    @filter_types = FilterTypes.find(1)
+    @filter_type = FilterType.find(1)
   end
 
   # Replace this with your real tests.
   def test_truth
-    assert_kind_of FilterTypes,  @filter_types
+    assert_kind_of FilterType,  @filter_type
   end
 end

@@ -54,8 +54,8 @@ end
 ActionController::CgiRequest::DEFAULT_SESSION_OPTIONS[:session_key] = 'plm'
 ActionController::CgiRequest::DEFAULT_SESSION_OPTIONS[:prefix] = 'plm_session.'
 
-STATE_QUEUED = 1
-STATE_PENDING = 2
+STATE_QUEUED = 'Queued'
+STATE_PENDING = 'Pending'
 STATE_RUNNING = 3
 STATE_COMPLETED = 4
 STATE_CANCELED = 5

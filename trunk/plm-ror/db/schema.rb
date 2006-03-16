@@ -31,16 +31,30 @@ ActiveRecord::Schema.define() do
     t.column "detail", :text
   end
 
+  create_table "filter_requests", :force => true do |t|
+    t.column "filter_id", :integer, :null => false
+    t.column "patch_id", :integer, :null => false
+    t.column "priority", :integer, :default => 1, :null => false
+    t.column "result", :text
+    t.column "result_detail", :text
+    t.column "output", :binary
+    t.column "created_on", :datetime, :default => Thu Mar 16 12:25:25 PST 2006, :null => false
+    t.column "updated_on", :datetime, :default => Thu Mar 16 12:25:25 PST 2006, :null => false
+    t.column "state", :text
+  end
+
+  add_index "filter_requests", ["filter_id", "patch_id"], :name => "filter_requests_filter_id_key", :unique => true
+
   create_table "filter_types", :force => true do |t|
-    t.column "created_on", :datetime, :default => Wed Mar 15 14:27:12 PST 2006, :null => false
-    t.column "updated_on", :datetime, :default => Wed Mar 15 14:27:12 PST 2006, :null => false
+    t.column "created_on", :datetime, :default => Thu Mar 16 12:25:25 PST 2006, :null => false
+    t.column "updated_on", :datetime, :default => Thu Mar 16 12:25:25 PST 2006, :null => false
     t.column "code", :text, :null => false
     t.column "software_id", :integer
   end
 
   create_table "filters", :force => true do |t|
-    t.column "created_on", :datetime, :default => Wed Mar 15 14:27:12 PST 2006
-    t.column "updated_on", :datetime, :default => Wed Mar 15 14:27:12 PST 2006
+    t.column "created_on", :datetime, :default => Thu Mar 16 12:25:25 PST 2006
+    t.column "updated_on", :datetime, :default => Thu Mar 16 12:25:25 PST 2006
     t.column "software_id", :integer, :null => false
     t.column "name", :text, :null => false
     t.column "command", :text
@@ -50,18 +64,6 @@ ActiveRecord::Schema.define() do
   end
 
   add_index "filters", ["name"], :name => "filters_name_key", :unique => true
-
-  create_table "filters_patches", :id => false, :force => true do |t|
-    t.column "filter_id", :integer, :null => false
-    t.column "patch_id", :integer, :null => false
-    t.column "priority", :integer, :default => 1, :null => false
-    t.column "result", :text
-    t.column "result_detail", :text
-    t.column "output", :binary
-    t.column "started", :datetime
-    t.column "completed", :datetime
-    t.column "state", :text, :null => false
-  end
 
   create_table "patch_acls", :force => true do |t|
     t.column "software_id", :integer, :null => false
@@ -76,8 +78,8 @@ ActiveRecord::Schema.define() do
   end
 
   create_table "patches", :force => true do |t|
-    t.column "created_on", :datetime, :default => Wed Mar 15 14:27:12 PST 2006
-    t.column "updated_on", :datetime, :default => Wed Mar 15 14:27:12 PST 2006
+    t.column "created_on", :datetime, :default => Thu Mar 16 12:25:25 PST 2006
+    t.column "updated_on", :datetime, :default => Thu Mar 16 12:25:25 PST 2006
     t.column "software_id", :integer, :null => false
     t.column "md5sum", :string, :limit => 40
     t.column "patch_id", :integer
@@ -102,8 +104,8 @@ ActiveRecord::Schema.define() do
   add_index "sessions", ["session_id"], :name => "sessions_session_id_index"
 
   create_table "softwares", :force => true do |t|
-    t.column "created_on", :datetime, :default => Wed Mar 15 14:27:12 PST 2006
-    t.column "updated_on", :datetime, :default => Wed Mar 15 14:27:12 PST 2006
+    t.column "created_on", :datetime, :default => Thu Mar 16 12:25:25 PST 2006
+    t.column "updated_on", :datetime, :default => Thu Mar 16 12:25:25 PST 2006
     t.column "name", :text, :null => false
     t.column "description", :text
   end
@@ -111,16 +113,16 @@ ActiveRecord::Schema.define() do
   add_index "softwares", ["name"], :name => "softwares_name_key", :unique => true
 
   create_table "sources", :force => true do |t|
-    t.column "created_on", :datetime, :default => Wed Mar 15 14:27:12 PST 2006, :null => false
-    t.column "updated_on", :datetime, :default => Wed Mar 15 14:27:12 PST 2006, :null => false
+    t.column "created_on", :datetime, :default => Thu Mar 16 12:25:25 PST 2006, :null => false
+    t.column "updated_on", :datetime, :default => Thu Mar 16 12:25:25 PST 2006, :null => false
     t.column "software_id", :integer, :null => false
     t.column "root_location", :text, :null => false
     t.column "source_type", :text, :null => false
   end
 
   create_table "users", :force => true do |t|
-    t.column "created_on", :datetime, :default => Wed Mar 15 14:27:12 PST 2006
-    t.column "updated_on", :datetime, :default => Wed Mar 15 14:27:12 PST 2006
+    t.column "created_on", :datetime, :default => Thu Mar 16 12:25:25 PST 2006
+    t.column "updated_on", :datetime, :default => Thu Mar 16 12:25:25 PST 2006
     t.column "login", :text, :null => false
     t.column "first", :text
     t.column "last", :text
