@@ -285,7 +285,6 @@ class BackendController < ApplicationController
       fr['result'] = modified_result
       fr['result_detail'] = result_detail
       fr['output'] = output
-      fr['completed'] = Time.now
       fr['filter_request_state_id'] = state
       fr.save
     end
