@@ -105,7 +105,7 @@ class BackendController < ApplicationController
       for filter in filters
         fr = filter.filter_requests.find(:first,
             :conditions => ["state = '#{STATE_QUEUED}'" ],
-            :order => 'priority')
+            :order => 'priority, patch_id')
         break unless fr.nil?
       end
       return [] if fr.nil?
