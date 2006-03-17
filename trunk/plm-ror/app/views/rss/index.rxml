@@ -8,7 +8,7 @@ xml.rss(:version => '1.0') {
     for item in @patches
       xml.item do
         xml.title(item.name)
-        xml.link("#{request.protocol}#{request.host_with_port}#{request.path}/patches/show/#{item.id}")
+        xml.link("#{request.protocol}#{request.host_with_port}/patches/show/#{item.id}")
         xml.pubDate(item.created_on)
         xml.description("<p>Patch: #{item.name}<br />Software: #{item.software.name}<br />Submitted by: #{item.user.login}</p>")
       end
