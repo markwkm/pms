@@ -38,11 +38,8 @@
         <td>
         <% p = @patch %>
         <% loop do %>
-          <% p = Patch.find_by_sql(
-              'SELECT id, name, patch_id ' +
-              'FROM patches ' +
-              "WHERE id = #{p['patch_id']}")[0] %>
-          <%= link_to p[:name], :action => 'show', :id => p.id %><br />
+          <% p = Patch.find(p['patch_id'], :select => 'name, patch_id') %>
+          <%= link_to p[:name], :action => 'show', :id => url_encode(p.name) %><br />
           <% break if p['patch_id'].nil? %>
         <% end %>
         </td>
@@ -54,9 +51,10 @@
 <% unless @patch['patch_id'].nil? then %>
 <p>
   To <b>download</b> a bzip2 compressed copy of this patch, click
-  <%= link_to 'here', :action => 'download', :id => @patch.id %>.<br />
+  <%= link_to 'here', :action => 'download',
+      :id => url_encode(@patch['name']) %>.<br />
   To <b>view</b> this patch, click
-  <%= link_to 'here', :action => 'view', :id => @patch.id %>
+  <%= link_to 'here', :action => 'view', :id => url_encode(@patch['name']) %>
   once only. (May take a while for big patches.)<br />
   To <b>view</b> scripts for this patch, click build, install or validate.<br />
 </p>

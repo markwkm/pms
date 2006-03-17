@@ -107,7 +107,18 @@ class PatchesController < ApplicationController
   end
 
   def download
-    patch = Patch.find(params[:id])
+    patch = Patch.find(:first,
+        :select => 'name, diff',
+        :conditions => ['name = ?', params[:id]])
+    #
+    # Backwards compatible for downloading by plm id.
+    #
+    patch = Patch.find(params[:id],
+        :select => 'name, diff') if patch.nil? and params[:id].to_i > 0
+    if patch.nil?
+      render_text 'patch not found'
+      return
+    end
     p = BZ2::Writer.new
     p.write(Base64.decode64(patch.diff))
     pbz2 = p.flush
@@ -243,10 +254,18 @@ class PatchesController < ApplicationController
   def show
     #
     # Specify :select so we don't grab the actual patch out of the database so
-    # that the query will execute faster.
+    # that the query will execute faster.  Search for the name first, then by
+    # id for backward compatibility.
     #
+    @patch = Patch.find(:first,
+        :select => 'id, name, md5sum, name, software_id, user_id, patch_id',
+        :conditions => ['name = ?', params[:id]])
     @patch = Patch.find(params[:id],
-        :select => 'id, name, md5sum, name, software_id, user_id, patch_id')
+        :select => 'id, name, md5sum, name, software_id, user_id, patch_id') if @patch.nil? and params[:id].to_i > 0
+    if @patch.nil?
+      render_text 'patch not found'
+      return
+    end
   end
 
   def update
@@ -270,7 +289,18 @@ class PatchesController < ApplicationController
   end
 
   def view
-    @patch = Patch.find(params[:id])
+    @patch = Patch.find(:first,
+        :select => 'diff',
+        :conditions => ['name = ?', params[:id]])
+    #
+    # Backwards compatible for downloading by plm id.
+    #
+    @patch = Patch.find(params[:id],
+        :select => 'diff') if @patch.nil? and params[:id].to_i > 0
+    if @patch.nil?
+      render_text 'patch not found'
+      return
+    end
     @patch[:diff] = Base64.decode64(@patch[:diff])
     render :layout => false
   end
