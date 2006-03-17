@@ -102,19 +102,23 @@ class BackendController < ApplicationController
   def get_request(my_type)
     filter_type_list = my_type.gsub(/:/, "', '")
     fr = nil;
-    FilterRequest.transaction do
-      filter_type = FilterType.find(:first,
-          :conditions => ["code IN ('#{filter_type_list}')"])
-      filters = filter_type.filters
-      for filter in filters
-        fr = filter.filter_requests.find(:first,
-            :conditions => ["state = '#{STATE_QUEUED}'" ],
-            :order => 'priority, patch_id')
-        break unless fr.nil?
+    begin
+      FilterRequest.transaction do
+        filter_type = FilterType.find(:first,
+            :conditions => ["code IN ('#{filter_type_list}')"])
+        filters = filter_type.filters
+        for filter in filters
+          fr = filter.filter_requests.find(:first,
+              :conditions => ["state = '#{STATE_QUEUED}'" ],
+              :order => 'priority, patch_id')
+          break unless fr.nil?
+        end
+        return nil if fr.nil?
+        fr['state'] = STATE_PENDING
+        return nil unless fr.save
       end
-      return [] if fr.nil?
-      fr['state'] = STATE_PENDING
-      return [] unless fr.save
+    rescue
+      return nil
     end
     return [fr['id'], fr.patch['id'], fr.filter['location'],
         fr.filter['command'], fr.filter['runtime'],
