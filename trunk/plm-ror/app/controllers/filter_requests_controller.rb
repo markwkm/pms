@@ -1,3 +1,7 @@
+#
+# Copyright (C) 2006 Mark Wong & Open Source Development Lab, Inc.
+#
+
 require 'bz2'
 
 class FilterRequestsController < ApplicationController

@@ -1,3 +1,7 @@
+#
+# Copyright (C) 2006 Mark Wong & Open Source Development Lab, Inc.
+#
+
 require 'base64'
 require 'bz2'
 require 'md5'

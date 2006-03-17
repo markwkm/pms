@@ -1,3 +1,7 @@
+#
+# Copyright (C) 2006 Mark Wong & Open Source Development Lab, Inc.
+#
+
 class DifflessPatch < ActiveRecord::Base
   belongs_to :software
   belongs_to :user

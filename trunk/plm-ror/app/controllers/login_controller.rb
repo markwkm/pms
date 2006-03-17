@@ -1,3 +1,7 @@
+#
+# Copyright (C) 2006 Mark Wong & Open Source Development Lab, Inc.
+#
+
 class LoginController < ApplicationController
   def index
   end

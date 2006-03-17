@@ -1,4 +1,8 @@
 #
+# Copyright (C) 2006 Mark Wong & Open Source Development Lab, Inc.
+#
+#
+#
 # If you change any of the api_method parameters, the Web server needs to be
 # bounced, even in test mode.
 #
