@@ -1,9 +1,9 @@
 # Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
-first_filter:
+hello_filter:
   id: 1
-  software_id: 1
-  name: Apply Patch
-  command: apply_patch.sh
-  location: http://www.osdl.org/archive/plm/filters/apply_patch.sh
-  runtime: 300
+  name: hello
+  runtime: 1
+  filename: hi
   filter_type_id: 1
+  software_id: 1
+  file: aGVsbG8K\\012

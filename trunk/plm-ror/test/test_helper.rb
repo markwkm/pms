@@ -25,4 +25,25 @@ class Test::Unit::TestCase
   self.use_instantiated_fixtures  = false
 
   # Add more helper methods to be used by all tests here...
+  def login_authenticate(login, password)
+    controller = @controller
+    @controller = LoginController.new
+    post :authenticate,
+        :user => { :login => login, :password => password }
+    @controller = controller
+  end
+
+  # Copied from: http://manuals.rubyonrails.com/read/chapter/28#page237
+  # get us an object that represents an uploaded file
+  def uploaded_file(path, content_type="application/octet-stream", filename=nil)
+    filename ||= File.basename(path)
+    t = Tempfile.new(filename)
+    FileUtils.copy_file(path, t.path)
+    (class << t; self; end;).class_eval do
+      alias local_path path
+      define_method(:original_filename) { filename }
+      define_method(:content_type) { content_type }
+    end
+    return t
+  end
 end

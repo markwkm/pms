@@ -9,6 +9,10 @@ class Patch < ActiveRecord::Base
   belongs_to :user
 
   has_many :filter_requests
+  #
+  # This was an attempt to sort the filter requests by the filter name.  It
+  # wasn't quite successfull...
+  #
   #has_many :filter_requests, :finder_sql => 'SELECT filter_requests.* FROM filter_requests fr, filters f WHERE patch_id = #{self.id} AND fr.filter_id = f.id ORDER BY UPPER(f.name)'
 
   validates_uniqueness_of :name

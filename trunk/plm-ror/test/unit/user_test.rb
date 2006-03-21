@@ -1,10 +1,10 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
 class UserTest < Test::Unit::TestCase
-  fixtures :users
+  fixtures :users, :patches
 
   def setup
-    @user = User.find(1)
+    @user = users(:robot)
   end
 
   # Replace this with your real tests.

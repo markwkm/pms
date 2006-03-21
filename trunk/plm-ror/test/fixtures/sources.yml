@@ -1,5 +1,5 @@
 # Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
-first_source:
+kernel_org:
   id: 1
   software_id: 1
   root_location: http://kernel.mirrors.pdx.osdl.net/pub/linux/kernel/

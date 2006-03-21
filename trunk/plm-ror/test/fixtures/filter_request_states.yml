@@ -1,25 +1,19 @@
 # Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
 queued_filter_request_state:
-  id: 1
   code: Queued
   detail: The request is in the queue and no action has been taken.
 pending_filter_request_state:
-  id: 2
   code: Pending
   detail: The environment to handle the request is being prepared.
 running_filter_request_state:
-  id: 3
   code: Running
   detail: Execution of the filter request is in progress.
 completed_filter_request_state:
-  id: 4
   code: Completed
   detail: Execution of the filter request has been completed.
 canceled_filter_request_state:
-  id: 5
   code: Canceled
   detail: This filter request has been canceled.
 failed_filter_request_state:
-  id: 6
   code: Failed
   detail: An internal failure has kept the request from finishing.

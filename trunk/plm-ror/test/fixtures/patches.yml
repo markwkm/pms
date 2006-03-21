@@ -1,10 +1,10 @@
 # Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
-first_patch:
+linux_2_5_0:
   id: 1
   software_id: 1
   name: linux-2.5.0
-  user_id: 1728
+  user_id: 1
   remote_identifier: linux-2.5.0.tar.bz2
   path: v2.5
   source_id: 1
-  reverse: '0'
+  reverse: false

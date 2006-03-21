@@ -11,7 +11,7 @@ development:
 test:
   adapter: postgresql
   database: plm_test
-  host: testdev2-001.testdev.pdx.osdl.net
+  host: localhost
   username: plm
   password: plm
 

@@ -107,10 +107,10 @@ CREATE TABLE filters (
     updated_on timestamp without time zone DEFAULT now(),
     software_id bigint NOT NULL,
     name text NOT NULL,
-    command text,
-    "location" text,
+    filename text NOT NULL,
     runtime bigint,
-    filter_type_id bigint NOT NULL
+    filter_type_id bigint NOT NULL,
+    file bytea NOT NULL
 );
 
 
@@ -151,7 +151,7 @@ CREATE TABLE patches (
     name text NOT NULL,
     diff bytea,
     user_id bigint NOT NULL,
-    strip_level smallint NOT NULL,
+    strip_level smallint,
     source_id bigint,
     reverse boolean DEFAULT false NOT NULL,
     remote_identifier text,
@@ -214,7 +214,8 @@ CREATE TABLE users (
     "first" text,
     "last" text,
     email text,
-    "password" text
+    "password" text,
+    admin boolean DEFAULT false NOT NULL
 );
 
 

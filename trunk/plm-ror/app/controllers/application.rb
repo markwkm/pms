@@ -14,4 +14,22 @@ class ApplicationController < ActionController::Base
       return false
     end
   end
+
+  def authenticate_admin
+    #
+    # If no one is logged in, then prompt to login.
+    #
+    unless @session['user']
+      redirect_to :controller => 'login'
+      return false
+    end
+    #
+    # If logged in and not an admin, then just print some text.
+    #
+    unless @session['user']['admin']
+      @session['return_to'] = @request.request_uri
+      render_text 'You do not have administrative privileges.'
+      return false
+    end
+  end
 end

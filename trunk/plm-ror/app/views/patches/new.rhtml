@@ -26,7 +26,8 @@
     <td>
       <select id="patch_software_id" name="patch[software_id]">
         <%= options_from_collection_for_select(Software.find(:all,
-            :order => 'name', :conditions => 'id > 0'), "id", "name", 1) %>
+            :order => 'UPPER(name)',
+            :conditions => 'id > 0'), "id", "name", 1) %>
       </select>
       <%= observe_field 'patch_software_id', :frequency => 0.5,
           :update =>'strip_level_div',

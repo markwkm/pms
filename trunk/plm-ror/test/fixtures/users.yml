@@ -1,4 +1,6 @@
 # Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
-robot_user:
-  id: 1728
+robot:
+  id: 1
   login: robot
+  password: <%= 'robot'.crypt('ro') %>
+  admin: true
