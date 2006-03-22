@@ -92,6 +92,11 @@ class BackendController < ApplicationController
     return patch['name']
   end
 
+  def get_filter(id)
+    filter = Filter.find(id, :select => 'file')
+    return filter['file']
+  end
+
   def get_patch(id)
     result = Array.new
     p = Patch.find(id)
@@ -293,7 +298,7 @@ class BackendController < ApplicationController
       fr['result'] = modified_result
       fr['result_detail'] = result_detail
       fr['output'] = output
-      fr['filter_request_state_id'] = state
+      fr['state'] = state
       fr.save
     end
   end

@@ -3,5 +3,5 @@ first_filter_request:
   id: 1
   filter_id: 1
   patch_id: 1
-  filter_request_state_id: 1
+  state: Queued
   priority: 1

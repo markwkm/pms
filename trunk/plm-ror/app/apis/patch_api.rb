@@ -16,6 +16,9 @@ class PatchApi < ActionWebService::API::Base
   api_method :get_applies_tree,
       :expects => [:int],
       :returns => [[:int]]
+  api_method :get_filter,
+      :expects => [:int],
+      :returns => [:base64]
   #
   # Remove this in favor verify_patch(), we're trying to get rid of all
   # references by id.
