@@ -125,8 +125,8 @@ class BackendController < ApplicationController
     rescue
       return nil
     end
-    return [fr['id'], fr.patch['id'], fr.filter['location'],
-        fr.filter['command'], fr.filter['runtime'],
+    return [fr['id'], fr.patch['id'], fr.filter['id'],
+        fr.filter['filename'], fr.filter['runtime'],
         fr.patch.software['name']]
   end
 
