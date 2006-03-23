@@ -100,8 +100,10 @@ class BackendController < ApplicationController
   def get_patch(id)
     result = Array.new
     p = Patch.find(id)
-    return [p[:remote_identifier], p[:path], p[:source_id], p[:reverse],
-        p[:strip_level], p[:diff]]
+    PatchDetail.new({ :remote_identifier => p[:remote_identifier],
+        :path => p[:path], :source_id => p[:source_id],
+        :reverse => p[:reverse], :strip_level => p[:strip_level],
+        :diff => p[:diff] })
   end
 
   def get_request(my_type)

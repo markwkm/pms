@@ -28,7 +28,7 @@ class PatchApi < ActionWebService::API::Base
       :returns => [:string]
   api_method :get_patch,
       :expects => [:int],
-      :returns => [[:string]]
+      :returns => [PatchDetail]
   api_method :get_request,
       :expects => [:string],
       :returns => [[:string]]
