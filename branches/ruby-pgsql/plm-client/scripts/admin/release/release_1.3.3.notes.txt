@@ -1,0 +1,78 @@
+Release 1.3.3
+
+Database Updates
+      There are various database changes broken down into 
+scripts by purpose and run from 'release_1.3.3.sh'.
+       -plm_cvs_setup.part3.sql
+       -database_cleanup.sql
+       -plm_build_comm.part1.sql
+       -reverse_patches.sql
+       -software_description.sql
+
+
+RPM Updates
+The RPM must be distributed on all hosts:
+      STP test hosts
+      PLM Supervisors
+      PLM Server (fire)
+      PLM Admin (osdlab)
+
+Configuration Updates
+    /etc/plm.cfg changes:
+    # Soap server changes
+        PLMClient_uri = PLM/RPC/Server
+        PLMClient_proxy = http://testdev1-000.pdx.osdl.net/plm-cgi/plm_server.pl
+      or for supervisors:
+        PLMClient_uri = PLM/RPC/PrivateServer
+        PLMClient_proxy = http://testdev2-000.pdx.osdl.net/plm-asp-private/plm_private_server.pl
+
+    # Database changes -osdlab, fire
+        GW:1:driver:dsn = DBI:mysql:host=cl004;dbname=EIDETIC
+        patch_replication_target = <new database name>
+
+    # Web change (for web server only)
+        new_account_link =  ????
+    # Run filters in plm.cfg
+    filter_type = ia32-short:ia32-long:ia32:alpha-cross:sparc-cross:sparc64-cross:cross-single-thread
+    filter_type = regress:ia64-cross:ia32-regress
+
+    #stp hosts need
+    PLMClient_uri = PLM/RPC/PrivateServer
+
+    # Cron job edits
+    plm-000,plm-001 single (threaded start 4)
+    plm-002 to plm-005 use all CPUs (start 1)
+    
+    plm_source_sync config files
+    # PostgreSQL
+    #  One repository per config; config looks like (minus the #'s):
+    repository = postgresql
+    plm_user = robot
+    plm_password = robotrobot
+
+    # Sysstat
+    #  One repository per config; config looks like (minus the #'s):
+    repository = sysstat
+    plm_user = robot
+    plm_password = robotrobot
+
+Cron jobs, plm owns:
+    eidetic-sync.pl:  Check that correct version of script is running and it works.
+    plm_source_sync.pl:  Set up for new repositories
+        # PostgreSQL
+        # Sysstat
+
+Testing:
+    1. Check plm_build_tree.pl, plm_build_app.pl on Supervisor
+    2. Check plm_build_tree.pl, plm_build_app.pl on STP
+    3. Run plm_source_sync.pl on all repositories(linux, postgreSQL, sysstat)
+          Do the patches get made?
+          Do the filters get queued?
+          Do filters run?
+    4. Run eidetic-sync.pl- check that new repos 'sync'
+
+
+Notes:
+     *  CVS-will not work without CVS module, which needs newer version of Perl 
+        than on osdlab.
+

@@ -1,0 +1,9 @@
+This is a list of issues remaining before the next release [ 1.02 ] 
+  
+  - Script SQL upgrade from 1.01 => 1.02 database format
+
+This is a list of wish items that may or may not make the above release
+
+  - Missing: /var/www/images/captions/caption_patchinfo-over.jpg
+  - Web Search 'All' excludes first patch
+  - Insert INDEX & secondary key creation commands in mysql.SQL

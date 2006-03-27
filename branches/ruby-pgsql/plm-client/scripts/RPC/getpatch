@@ -1,0 +1,64 @@
+#!/usr/bin/perl -w
+
+use PLM::Util;
+use CGI qw( :standard escapeHTML );
+use CGI::Carp qw( fatalsToBrowser );
+
+$ENV{PATH} = "/bin:/usr/bin";
+delete @ENV{'IFS', 'CDPATH', 'ENV', 'BASH_ENV'};
+
+my $log = getLog( "getpatch" );
+my $config = getConfig();
+
+my $patchID = param( 'id' );
+my $target = "text";
+
+if ( $patchID =~ /\.bz2/ ) {
+    $target = "bzip2";
+    $patchID =~ s/\.bz2//;
+} elsif ( $patchID =~ /\.html/ ) {
+    $target = "html";
+    $patchID =~ s/\.html//;
+}
+
+unless ( defined $patchID  ) {
+    $log->msg( 0, "Missing patch Id" );
+    print header();
+    print "You forgot to include the patch number you want\n";
+    exit 1;
+}
+
+# 
+# Tell the browser what name to save the file as
+# 
+my $path = $config->get( "repository_path" );
+my $filename = "plm-$patchID.patch";
+if ( $target eq "bzip2" ) { $filename .= ".bz2" }
+
+if ( $target eq "html" ) {
+    print "Content-Type: text/html\n\n";
+} elsif ( $target eq "text" ) {
+    print "Content-Type: text/plain\n\n";
+} else {
+    print "Content-Disposition: attachment; filename=$filename\n";
+    print "Content-Type: application/octet-stream\n\n";
+}
+
+# Read the patch into memory.
+my $repo_filename = "patch-$patchID.bz2"; # Filename in repository.
+my $content;
+if ( $target eq "html" ) {
+    $content = `nice bunzip2 -c $path/$repo_filename`;
+    # This is no longer used.  Link is removed.  Brought down web site.
+    #$content = `bunzip2 -c $path/$repo_filename | code2html -n -l patch -`;
+} elsif ( $target eq "bzip2" ) {
+    $content = `cat $path/$repo_filename`;
+} else {
+    $content = `nice bunzip2 -c $path/$repo_filename`;
+}
+$log->msg( 0, "Serving patch [$patchID]" );
+
+# Serve the actual patch
+print $content;
+
+$log->msg( 0, "Done serving patch [$patchID]" );
