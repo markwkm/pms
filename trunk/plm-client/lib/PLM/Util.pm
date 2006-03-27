@@ -172,6 +172,10 @@ sub getConfig {
         $choice = "~/.plm.cfg";
     }
 
+    if ( !$choice && -r "/etc/plm/plm.cfg" ) {
+        $choice = "/etc/plm/plm.cfg";
+    }
+
     if ( !$choice && -r "/etc/plm.cfg" ) {
         $choice = "/etc/plm.cfg";
     }

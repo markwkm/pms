@@ -2,6 +2,7 @@
 
 use strict;
 use Fcntl;
+use MIME::Base64();
 
 use PLM::Util::Log;
 use PLM::Util::Config;
@@ -49,7 +50,7 @@ sub sanity_check {
     #    Is value of plm_software_id = to previous id from plm_filter by id.
     #
     my $patch_software_id;
-    ($patch_software_id) = $rpc->ASP("patch_get_value", $patch_id, "plm_software_id");
+    ($patch_software_id) = $rpc->ASP("patch_get_value", $patch_id, "software_id");
     if (! $patch_software_id or $software_id != $patch_software_id) {
         print "ERROR - the patch $patch_id is not in repository $repo\n";
         $log->msg( 0, "ERROR - the patch $patch_id is not in repository $repo");
@@ -67,19 +68,9 @@ sub build_tree {
 
     my $base_patch = pop @{$applies};
     handle_base( $base_patch );
-    # Get all the 'reverse_applies' values here in array then use 
-    # array later instead of many calls
-    my $reverse_array_ref = ();
-    if ( $#{$applies} > -1 ){
-        $reverse_array_ref = $rpc->ASP( "patch_get_list", "reverse", $applies );
-        if ( $#{$applies} != $#{$reverse_array_ref} ){
-            $log->msg( 0, "ERROR - there is a mismatch in number of 'reverse' values. Expected " . $#{$applies} .", got " . $#{$reverse_array_ref});
-            exit 1;
-        }
-    }
+
     for ( reverse @{$applies} ) {
-        my $reverse = pop @{$reverse_array_ref};
-        handle_patch( $_ , $reverse );
+        handle_patch( $_ );
     }
 }
 
@@ -88,9 +79,12 @@ sub handle_base {
 
     return if ( -d $repo );    # Another part of tree already expanded to base
 
-    my ( $remote_identifier ) = $rpc->ASP( "patch_get_value", $pid, "remote_identifier" );
-    my ( $base_location ) = $rpc->ASP( "patch_get_value", $pid, "patch_path" ) || "";
-    my ( $source_id ) = $rpc->ASP( "patch_get_value", $pid, "plm_source_id" );
+    my $patch = $rpc->ASP( 'get_patch', $pid );
+
+    my $remote_identifier = ${$patch}[0];
+    my $base_location = ${$patch}[1];
+    my $source_id = ${$patch}[2];
+
     panic( "Can't get filename or location from ASP server." )
       unless $remote_identifier;
     if ( -e $remote_identifier ){
@@ -102,7 +96,7 @@ sub handle_base {
     #  bless source object or it is "PLM::PLM::Source"
     bless $source_info, "PLM::Object::Source";
 
-    my $locType=$source_info->getValue('plm_source_type');
+    my $locType=$source_info->{'source_type'};
     panic( "Can't get repo type from database" ) unless $locType;
     $locType="\u\L$locType";
 
@@ -111,13 +105,12 @@ sub handle_base {
     eval "use $source_access_module" ;
     if ($@){ panic("Cannot load access module for $locType : $@"); }
     
-    print "Retrieving software base from [ \U${locType} ] " . $source_info->getValue('root_location') . ", $base_location, $remote_identifier\n";
+    print "Retrieving software base from [ \U${locType} ] " . $source_info->{'root_location'} . ", $base_location, $remote_identifier\n";
     my $source_access = new $source_access_module($source_info);
     my $rv=0;
     if ( !( -f $remote_identifier ) ) {
         my $retry = 3;
         while ( $retry && !( -e $remote_identifier ) ) {
-            #system "wget -nv -t50 --waitretry=50 $path";
             # Name the file the same thing locally. 
             $rv=$source_access->get_content_to_file($remote_identifier, $base_location);
             unless ( $rv ) {
@@ -141,31 +134,24 @@ sub handle_base {
 
 sub handle_patch {
     my $pid  = shift;
-    my $reverse = shift;
     my $file = "plm-$pid.patch";
     my $path;
 
-    $path = $cfg->get( "PLMClient_base_url" ) || "";
-    $path .= $cfg->get( "getpatch_url" ) || "";
-    $path = ( $cfg->get( "plm_http" ) . "/getpatch" ) unless ( $path );
+    my $patch = $rpc->ASP( 'get_patch', $pid );
+    my $reverse = ${$patch}[3];
+    my $p = ${$patch}[4];
 
-    panic( "Can't get getpatch path from config" ) unless $path;
-
-    unless ( -f "getpatch?id=$pid" || -d $file ) {
-        print "wget -nv -t5 --wait=30 $path?id=$pid\n";
-        system "wget -nv -t5 --wait=30 $path?id=$pid";
-        panic( "unable to download patch $pid" )
-          unless ( -f "getpatch?id=$pid" );
-        rename "getpatch\?id\=${pid}", $file;
-    }
+    open(PATCHFILE, "> ${file}");
+       print PATCHFILE MIME::Base64::encode(${$patch}[5]);
+    close PATCHFILE;
 
     chdir $repo;
 
     print "Patching source, placing output in: patch.$pid.out\n";
-    if ( $reverse ){
-        system "(patch -f -R -p1 < ../$file &> patch.$pid.out) || touch patch.error";
+    if ( $reverse eq "true" ){
+        system "(patch -f -R -p${p} < ../$file &> patch.$pid.out) || touch patch.error";
     } else {
-        system "(patch -f -p1 < ../$file &> patch.$pid.out) || touch patch.error";
+        system "(patch -f -p${p} < ../$file &> patch.$pid.out) || touch patch.error";
     }
     # this extra check was suggested as some patch programs do not error out.
     system "grep -e \"Hunk \\#[0-9]\\{1,\\} FAILED\" patch.$pid.out >/dev/null && touch patch.error";

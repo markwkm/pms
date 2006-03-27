@@ -31,7 +31,7 @@ sub new {
      my $source_sync_object=shift;    # This is the local XML Source Sync object, will not work remotely
      my $remote_path="";
      my $depth;
-     my $parent_URL = $source_object->getValue( 'root_location' );
+     my $parent_URL = $source_object->{ 'root_location' };
      my $top_URL="$parent_URL";
      if ( $source_sync_object ){
          $remote_path = $source_sync_object->getValue('search_location');
@@ -102,6 +102,11 @@ sub get_content_to_file{
        print "Check URL $url\n";
    }
 
+   #
+   # Something smarter needs to be done instead of throwing in "/"'s at the
+   # end of the url, at the beginning of the remote_patch and inbetween.  URL's
+   # are being generating with "///"'s in them.
+   #
    if ($remote_path){
        $url=$url . "/" . $remote_path;
    }

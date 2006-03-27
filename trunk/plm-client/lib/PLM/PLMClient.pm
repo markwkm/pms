@@ -35,6 +35,7 @@ BEGIN { }
 sub new {
     my ( $pkg, $cfg ) = @_;
     my $http = $cfg->get( "PLMClient_proxy" );
+    my $wsdl = $cfg->get( "wsdl" );
     my $client_base_url = $cfg->get( "PLMClient_base_url");
     if ( $client_base_url && $http){
         $http = $client_base_url . $http;
@@ -49,60 +50,48 @@ sub new {
         id       => "PLMClient"
       }
     );
+    my $service = SOAP::Lite -> service($wsdl);
 
     trace_configure( $log, $cfg );    # What is this ?
 
     $obj= { 
          proxy => $http,
+         service => $service,
          uri => $default_uri,
          log => $log
     };
+
     return bless $obj, $pkg;
 }
 
-
 sub ASP {
     my ( $obj, $command, @args ) = @_;
+    my $ret;
+    my $service = $obj->{'service'};
 
-    my $soap;
-    my $ent;
-    my @parts=();
-    if ($command =~ m/^patch_add$/){
-        $ent = attach_content($args[3]);
-        @args2=($args[0], $args[1], $args[2]);
-        push @parts, $ent;
-    }elsif ($command =~ m/^submit_result$/){
-        $ent = attach_content($args[2]);
-        @args2=($args[0], $args[1]);
-        push @parts, $ent;
+    if ( $command eq 'get_applies_tree' ) {
+        $ret = $service->GetAppliesTree( @args );
+    } elsif ( $command eq 'get_patch' ) {
+        $ret = $service->GetPatch( @args );
+    } elsif ( $command eq 'get_request' ) {
+        $ret = $service->GetRequest( @args );
+    } elsif ( $command eq 'patch_get_list' ) {
+        $ret = $service->PatchGetList( @args );
+    } elsif ( $command eq 'patch_get_value' ) {
+        $ret = $service->PatchGetValue( @args );
+    } elsif ( $command eq 'set_filter_request_state' ) {
+        $ret = $service->SetFilterRequestState( @args );
+    } elsif ( $command eq 'software_verify' ) {
+        $ret = $service->SoftwareVerify( @args );
+    } elsif ( $command eq 'source_get' ) {
+        $ret = $service->SourceGet( @args );
+    } elsif ( $command eq 'submit_result' ) {
+        $ret = $service->SubmitResult( @args );
+    } else {
+        panic('undefined ASP call');
     }
-
-    eval { 
-        if (@parts){
-            $soap = SOAP::Lite->readable(1)->uri( $obj->{'uri'}, timeout=>600 )->parts(@parts)->proxy( $obj->{'proxy'} )->$command( @args2 );
-        } else {
-            $soap = SOAP::Lite->uri( $obj->{'uri'} )->proxy( $obj->{'proxy'}, timeout=>1200 )->$command( @args );
-        }
-        if ( $soap->fault ) {
-            print STDERR "SOAP::Lite fault message:\n";
-            print STDERR $soap->faultcode . " " . $soap->faultstring . "\n";
-            return undef;
-        }
-    };
-
-    if ( $@ ) {
-        print STDERR "SOAP::Lite -> $@\n";
-        return undef;
-    }
-
-    my $ret = $soap->result();
-    $ret = '' unless ( defined $ret );
-
-    # Some clients apparently break the < character?
-    $ret =~ s/&lt;/</g;
 
     return $ret;
-
 }
 
 sub attach_content{
