@@ -51,7 +51,7 @@ class BackendController < ApplicationController
       #
       patch.queue_filters
     end
-    Notifier::deliver_patch_submission(user, patch)
+    Notifier::deliver_patch_submission(user, patch) if ENABLE_EMAIL
     return patch[:id]
   end
 
@@ -312,7 +312,7 @@ class BackendController < ApplicationController
     #
     count_all = FilterRequest.count("patch_id = #{fr['patch_id']}")
     count_done = FilterRequest.count("patch_id = #{fr['patch_id']} AND (state = '#{STATE_COMPLETED}' OR state = '#{STATE_FAILED}')")
-    if count_all == count_done
+    if ENABLE_EMAIL and count_all == count_done
       Notifier::deliver_filter_results(fr.patch.user, fr.patch)
     end
   end

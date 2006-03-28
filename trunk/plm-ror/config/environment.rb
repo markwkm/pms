@@ -66,3 +66,8 @@ STATE_FAILED = 'Fail'
 STATE_PENDING = 'Pending'
 STATE_QUEUED = 'Queued'
 STATE_RUNNING = 'Running'
+
+#
+# This is a flag to enable/disable email notifications.
+#
+ENABLE_EMAIL = false
