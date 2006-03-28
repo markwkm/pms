@@ -31,7 +31,7 @@ my %args = (
 # On gentoo, this will be the final location.
 
 my @pass_args;
-while (my $arg = shift @ARGV) {
+foreach my $arg (@ARGV) {
     my ($key, $value) = split /=/, $arg;
     if (exists $args{$key}) {
         $args{$key} = $value;
@@ -39,7 +39,6 @@ while (my $arg = shift @ARGV) {
         push @pass_args, $arg;
     }
 }
-@ARGV = @pass_args;
 
 die "This requires MakeMaker version > 5.45.  You have '$ExtUtils::MakeMaker::VERSION'.\n"
     unless ($ExtUtils::MakeMaker::VERSION > 5.45);
