@@ -6,7 +6,7 @@ class RssController < ApplicationController
   session :off, :only => :feed
 
   def index
-    @link = "#{request.protocol}#{request.host_with_port}#{request.path}"
+    @base_link = "#{request.protocol}#{request.host_with_port}"
     @patches = Patch.find(:all,
         :select => 'id, name, software_id, user_id, created_on',
         :order => 'id DESC',
