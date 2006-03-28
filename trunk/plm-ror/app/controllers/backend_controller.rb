@@ -51,6 +51,7 @@ class BackendController < ApplicationController
       #
       patch.queue_filters
     end
+    Notifier::deliver_patch_submission(user, patch)
     return patch[:id]
   end
 
@@ -295,6 +296,7 @@ class BackendController < ApplicationController
 #        warn "Missing required information from results (result-detail)"
     end
 
+    fr = nil
     FilterRequest.transaction do
       fr = FilterRequest.find(request_id)
       fr['result'] = modified_result
@@ -302,6 +304,16 @@ class BackendController < ApplicationController
       fr['output'] = output
       fr['state'] = state
       fr.save
+    end
+
+    #
+    # Send an email to the patch owner with a summary of all the filter
+    # request results only after all the filters have run.
+    #
+    count_all = FilterRequest.count("patch_id = #{fr['patch_id']}")
+    count_done = FilterRequest.count("patch_id = #{fr['patch_id']} AND (state = '#{STATE_COMPLETED}' OR state = '#{STATE_FAILED}')")
+    if count_all == count_done
+      Notifier::deliver_filter_results(fr.patch.user, fr.patch)
     end
   end
 

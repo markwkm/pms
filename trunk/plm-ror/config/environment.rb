@@ -54,6 +54,12 @@ end
 ActionController::CgiRequest::DEFAULT_SESSION_OPTIONS[:session_key] = 'plm'
 ActionController::CgiRequest::DEFAULT_SESSION_OPTIONS[:prefix] = 'plm_session.'
 
+ActionMailer::Base.server_settings = {
+    :address  => 'smtp.pdx.osdl.net',
+    :port  => 25, 
+    :domain  => "osdl.org"
+}
+
 STATE_CANCELED = 'Canceled'
 STATE_COMPLETED = 'Completed'
 STATE_FAILED = 'Fail'
