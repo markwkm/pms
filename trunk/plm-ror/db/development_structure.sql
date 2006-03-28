@@ -184,7 +184,8 @@ CREATE TABLE softwares (
     created_on timestamp without time zone DEFAULT now(),
     updated_on timestamp without time zone DEFAULT now(),
     name text NOT NULL,
-    description text
+    description text,
+    default_strip_level smallint NOT NULL
 );
 
 
