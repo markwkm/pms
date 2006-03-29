@@ -18,6 +18,31 @@ class Patch < ActiveRecord::Base
   validates_uniqueness_of :name
   validates_presence_of :diff, :name
 
+  def applies_tree(limit=0)
+    tree = Array.new
+    patch = self
+    count = 0
+    #
+    # We want to use patch['patch_id'] as opposed to patch.patch since the
+    # latter will execute a query against the database.
+    #
+    while !patch['patch_id'].nil?
+      patch = Patch.find(patch['patch_id'], :select => 'name, patch_id')
+      tree << patch['name']
+      break if patch['patch_id'].nil?
+      count += 1
+      if limit != 0 and count == limit
+        #
+        # Add an ellipsis to indicate there are more patches that are not
+        # listed.
+        #
+        tree << '...' unless patch['patch_id'].nil?
+        break
+      end
+    end
+    tree
+  end
+
   def check_acl
     patch_acl = PatchAcl.find(:all,
         :conditions => ['software_id = ?', self.software_id])

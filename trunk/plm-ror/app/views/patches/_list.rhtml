@@ -1,14 +1,19 @@
 <tr>
-  <td>
+  <td valign="top">
     <%= link_to list[:name], :action => 'show',
         :id => url_encode(list[:name]) %>
   </td>
 <% if list['patch_id'].nil? then %>
-  <td>[ none - baseline ]</td>
+  <td valign="top">[ none - baseline ]</td>
 <% else %>
-  <td>
-    <% patch = Patch.find(list['patch_id'], :select => 'name') %>
-    <%= link_to patch['name'], :action => 'show', :id => url_encode(patch['name']) unless patch.nil? %>
+  <td valign="top">
+  <% for patch_name in list.applies_tree(3) %>
+    <% if patch_name != '...' %>
+      <%= link_to patch_name, :action => 'show', :id => url_encode(patch_name) %><br/>
+    <% else %>
+      ...
+    <% end %>
+  <% end %>
   </td>
 <% end %>
   <td><%= list[:created_on] %></td>

@@ -3,3 +3,4 @@ linux:
   id: 1
   name: linux
   description: Linux kernel source code, available from http://www.kernel.org.
+  default_strip_level: 1

@@ -36,11 +36,8 @@
       <tr>
         <td align="right" valign="top">Applies Tree:</td>
         <td>
-        <% p = @patch %>
-        <% loop do %>
-          <% p = Patch.find(p['patch_id'], :select => 'name, patch_id') %>
-          <%= link_to p[:name], :action => 'show', :id => url_encode(p.name) %><br />
-          <% break if p['patch_id'].nil? %>
+        <% for patch_name in @patch.applies_tree %>
+          <%= link_to patch_name, :action => 'show', :id => url_encode(patch_name) %><br/>
         <% end %>
         </td>
       </tr>
