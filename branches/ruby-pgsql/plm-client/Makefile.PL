@@ -55,6 +55,7 @@ my %opts = (
                                      scripts/admin/plm_status.pl
                                      scripts/client/plm_build_tree.pl
                                      scripts/client/plm_build_app.pl
+                                     scripts/client/plm_information.pl
                                      scripts/client/plmsend
                                      scripts/client/server-dead.sh
                                      scripts/email-gateway/egate.pl

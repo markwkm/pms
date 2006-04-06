@@ -22,7 +22,7 @@ $output_file.="/$software.$patch_id.$command_type.log";
 open OUTFILE, ">$output_file" or panic "Cannot open file for logging output.";
 
 my $rpc = new PLM::PLMClient($cfg);
-my $ref = $rpc->ASP("command_set_get_content", $software, $patch_id, $command_type );
+my $ref = $rpc->ASP("ComandSetGetContent", $software, $patch_id, $command_type );
 
 if (ref $ref){
     chdir $software or panic("Cannot find directory $software to build in.");
