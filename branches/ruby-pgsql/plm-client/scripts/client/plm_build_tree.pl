@@ -22,7 +22,7 @@ my $rpc = new PLM::PLMClient($cfg);
 
 # get software_id for repo
 my $software_id; 
-($software_id) = $rpc->ASP("software_verify", $repo);
+($software_id) = $rpc->ASP("SoftwareVerify", $repo);
 
 sanity_check($repo, $software_id, $patch_id);
 
@@ -50,7 +50,7 @@ sub sanity_check {
     #    Is value of plm_software_id = to previous id from plm_filter by id.
     #
     my $patch_software_id;
-    ($patch_software_id) = $rpc->ASP("patch_get_value", $patch_id, "software_id");
+    ($patch_software_id) = $rpc->ASP("PatchGetValue", $patch_id, "software_id");
     if (! $patch_software_id or $software_id != $patch_software_id) {
         print "ERROR - the patch $patch_id is not in repository $repo\n";
         $log->msg( 0, "ERROR - the patch $patch_id is not in repository $repo");
@@ -59,7 +59,7 @@ sub sanity_check {
 }
 
 sub build_tree {
-    my $applies = $rpc->ASP( "get_applies_tree", $patch_id );
+    my $applies = $rpc->ASP( "GetAppliesTree", $patch_id );
     unless ( scalar @{$applies} ) {
         print "[$patch_id] is an invalid patch ID.\n";
         exit 1;
@@ -79,11 +79,13 @@ sub handle_base {
 
     return if ( -d $repo );    # Another part of tree already expanded to base
 
-    my $patch = $rpc->ASP( 'get_patch', $pid );
+    my $patch = $rpc->ASP( 'GetPatch', $pid );
 
     my $remote_identifier = ${$patch}[0];
     my $base_location = ${$patch}[1];
     my $source_id = ${$patch}[2];
+
+    $base_location = '' unless ( $base_location );
 
     panic( "Can't get filename or location from ASP server." )
       unless $remote_identifier;
@@ -92,7 +94,7 @@ sub handle_base {
       exit;
     }
 
-    my ( $source_info ) = $rpc->ASP("source_get", $source_id);
+    my ( $source_info ) = $rpc->ASP("SourceGet", $source_id);
     #  bless source object or it is "PLM::PLM::Source"
     bless $source_info, "PLM::Object::Source";
 
@@ -137,12 +139,12 @@ sub handle_patch {
     my $file = "plm-$pid.patch";
     my $path;
 
-    my $patch = $rpc->ASP( 'get_patch', $pid );
+    my $patch = $rpc->ASP( 'GetPatch', $pid );
     my $reverse = ${$patch}[3];
     my $p = ${$patch}[4];
 
     open(PATCHFILE, "> ${file}");
-       print PATCHFILE MIME::Base64::encode(${$patch}[5]);
+       print PATCHFILE MIME::Base64::decode(${$patch}[5]);
     close PATCHFILE;
 
     chdir $repo;
@@ -164,7 +166,7 @@ sub deposit_build_scripts{
     my @command_type = qw( build install validate );
     my $command_type;
     for $command_type ( @command_type ){
-        my $commands = $rpc->ASP("command_set_get_content", $software, $patch_id, $command_type );
+        my $commands = $rpc->ASP("CommandSetGetContent", $software, $patch_id, $command_type );
         if (ref $commands){
             my $filename=$software . "-" . $patch_id . "-" . $command_type ; 
             commands_to_file( $commands, $filename );
