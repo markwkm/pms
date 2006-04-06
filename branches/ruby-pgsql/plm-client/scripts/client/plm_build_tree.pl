@@ -81,9 +81,9 @@ sub handle_base {
 
     my $patch = $rpc->ASP( 'GetPatch', $pid );
 
-    my $remote_identifier = ${$patch}[0];
-    my $base_location = ${$patch}[1];
-    my $source_id = ${$patch}[2];
+    my $remote_identifier = $patch->{ 'remote_identifier' };
+    my $base_location = $patch->{ 'path' };
+    my $source_id = $patch->{ 'source_id' };
 
     $base_location = '' unless ( $base_location );
 
@@ -140,11 +140,11 @@ sub handle_patch {
     my $path;
 
     my $patch = $rpc->ASP( 'GetPatch', $pid );
-    my $reverse = ${$patch}[3];
-    my $p = ${$patch}[4];
+    my $reverse = $patch->{ 'reverse' };
+    my $p = $patch->{ 'strip_level' };
 
     open(PATCHFILE, "> ${file}");
-       print PATCHFILE MIME::Base64::decode(${$patch}[5]);
+       print PATCHFILE MIME::Base64::decode( $patch->{ 'diff' } );
     close PATCHFILE;
 
     chdir $repo;
