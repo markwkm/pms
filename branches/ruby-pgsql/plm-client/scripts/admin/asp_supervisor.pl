@@ -34,7 +34,7 @@ use PLM::Util::Log;
 use PLM::Util::Config;
 use PLM::PLMClient;
 
-my $config = new PLM::Util::Config( "/etc/plm.cfg" );
+my $config = new PLM::Util::Config( "/etc/plm/plm.cfg" );
 my $log = new PLM::Util::Log(
     {
         filename => $config->get( "log_file" ),
@@ -49,8 +49,7 @@ my $rpc = new PLM::PLMClient( $config );
 my $request   = 0;
 my $patch_id  = 0;
 my $filter_id = 0;
-my $location;
-my $command;
+my $filename;
 my $timeout;
 my $software;
 
@@ -58,7 +57,7 @@ $ENV{ PATH } = "/usr/local/bin/:/bin:/usr/bin";    # Required for ccache support
 $ENV{ CCACHE_DIR } = $config->get( "ccache_dir" ) || "/tmp/plm-ccache";
 
 sub cleanup_old_files {
-    system "rm -rf $software" . "* plm-* result.filter *.sh";
+    system "rm -rf $software" . "* plm-* result.filter $filename";
 }
 
 while ( check_run_file() ) {
@@ -69,15 +68,15 @@ while ( check_run_file() ) {
         check_run_file();
 
         my $type = $config->get( "filter_type" );
-        my $data = $rpc->ASP( "get_request", $type );
+        my $data = $rpc->ASP( "GetRequest", $type );
 
         unless ( ref $data ) {
 	    $patch_id = 0;
 	    sleep( $sleep_delay );
 	} else {
-            ( $request, $patch_id, $location, $command, $timeout, $software ) = @{$data};
+            ( $request, $patch_id, $filter_id, $filename, $timeout, $software ) = @{$data};
 
-            $log->msg( 2, "ASP( get_request($type) ) returned: [ ",
+            $log->msg( 2, "ASP( GetRequest($type) ) returned: [ ",
                    join ( ":", @{$data} ), " ]" );
 
         # Fork here on 'else'
@@ -107,7 +106,7 @@ while ( check_run_file() ) {
                  if (! waitpid ($pid, WNOHANG) ) {
                      # If we get here the filter has run too long.
                      #    Kill child 
-                     $log->msg( 0, "Filter timed out for patch $patch_id, Request: $request, Command $command.  Killing.");
+                     $log->msg( 0, "Filter timed out for patch $patch_id, Request: $request, Filename $filename.  Killing.");
                      system "kill -9 $pid";
                      sleep( 5 );
                      waitpid ($pid, WNOHANG);
@@ -127,8 +126,8 @@ while ( check_run_file() ) {
     # Sanity Check
     panic( "\$software variable invalid" ) unless ( $software );
     panic( "\$patch_id variable invalid" ) unless ( $patch_id );
-    panic( "\$command variable invalid" )  unless ( $command );
-    panic( "\$location variable invalid" ) unless ( $location );
+    panic( "\$filename variable invalid" ) unless ( $filename );
+    panic( "\$filter_id variable invalid" ) unless ( $filter_id );
 
     # Get the kernel source and patch.
     system "rm -rf $software" . "*";
@@ -137,31 +136,24 @@ while ( check_run_file() ) {
          $log->msg( 0, "The patch $patch_id had an error building, check plm_build_tree.pl output." );
          my $result = "RESULT: FAIL\nRESULT-DETAIL: PLM build (plm_build__tree.pl )  failed for $patch_id.  Check LOG.\n";
          my $output = "";
-         $rpc->ASP( "submit_result", $request, $result, $output );
+         $rpc->ASP( "SubmitResult", $request, $result, $output );
          exit 1;
     }
     check_run_file();
 
     # Get the filter.
-    # We need to remove all the files... format of $location is like:
-    # http://www.osdl.org/archive/plm/filters/compile_default_count.sh http://www.osdl.org/archive/plm/filters/cross_ppc_default.sh"
-    # -f is because file may not be there legitimately.
-    #
-    # system "rm -f $command";
-    my @script_names = split / / , $location;
-    my $script_name;
-    foreach $script_name ( @script_names ) {
-        ($script_name) = $script_name =~ m/.*\/(.+?)$/;
-	`rm -f $script_name`;
-    }
-    system "wget -nv -t50 --waitretry=50 " . $location;
+    my $filter = $rpc->ASP( "GetFilter", $filter_id );
+    open( FILTERFILE, "> ${filename}" );
+    print FILTERFILE MIME::Base64::decode( $filter );
+    close FILTERFILE;
+
     check_run_file();
 
     # Execute the filter.
-    my ( $rc) = $rpc->ASP( "set_filter_request_state", $request, $state_running );
+    my ( $rc ) = $rpc->ASP( "SetFilterRequestState", $request, $state_running );
     panic( "could not set filter request state to running" ) unless ( $rc );
-    system "chmod +x $command";
-    my $output = `./$command $patch_id $software | bzip2`;
+    system "chmod +x $filename";
+    my $output = `./$filename $patch_id $software | bzip2`;
     check_run_file();
 
     # Sanity check, somebody should see this down the road...
@@ -174,7 +166,7 @@ while ( check_run_file() ) {
     my $result = `cat result.filter`;
     check_run_file();
     $output = MIME::Base64::encode( $output );
-    $rpc->ASP( "submit_result", $request, $result, $output );
+    $rpc->ASP( "SubmitResult", $request, $result, $output );
 
     cleanup_old_files();
     # Child Process exits

@@ -21,7 +21,6 @@ use PLM::Util::Log;
 use PLM::Util::Trace;
 
 use SOAP::Lite;
-use MIME::Entity;
 
 require Exporter;
 
@@ -87,24 +86,14 @@ sub ASP {
         $ret = $service->SourceGet( @args );
     } elsif ( $command eq 'submit_result' ) {
         $ret = $service->SubmitResult( @args );
+    } elsif ( $command eq 'get_name' ) {
+        $ret = $service->GetName( @args );
     } else {
         panic('undefined ASP call');
     }
 
     return $ret;
 }
-
-sub attach_content{
-    my $content=shift;
-    my $ent;
-    # If SOAP encodes it is slower than PLM doing the encoding.
-    $ent = MIME::Entity->build(Type =>  'text/plain',
-                                  Encoding    => "binary",
-                                  Data        => $content);
-    return $ent;
-
-}
-
 
 END { }
 

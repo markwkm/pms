@@ -29,7 +29,7 @@ sub new {
 sub fix_name{
    my $ref=shift;
    my $name=shift;
-   my $tmp=$ref->getValue('name_substitution');
+   my $tmp=$ref->{ 'name_substitution' };
    if ( $tmp ) {
         my $expression = '$name =~ s' . "$tmp";
         eval $expression;
@@ -57,7 +57,7 @@ sub name_checks{
 sub _patch_wanted{
     my $ref=shift;
     my $patch_name=shift;
-    my $match_pattern=$ref->getElementValue('wanted_regex');
+    my $match_pattern=$ref->{ 'wanted_regex' };
     if ( $patch_name !~ m/$match_pattern/ ){
         return( $FALSE );
     } else {
@@ -73,7 +73,7 @@ sub _patch_not_wanted{
     if($patch_name =~ m/dontuse/){
         return( $TRUE );
     }
-    my $match_pattern=$ref->getElementValue('not_wanted_regex');
+    my $match_pattern=$ref->{ 'not_wanted_regex' };
     if ( $patch_name =~ m/$match_pattern/ ){
         return( $TRUE );
     }
@@ -103,7 +103,7 @@ sub get_file_type{
 
 sub isa_base{
     my $ref=shift;
-    if ($ref->getValue('baseline') =~ m/Y/i){
+    if ($ref->{ 'baseline' } =~ m/Y/i){
         return $TRUE;
     } 
     return $FALSE;
@@ -113,7 +113,7 @@ sub get_applies_version {
         my $ref=shift;
         my $file = shift;
         my $repository = shift;
-        my $applies_regex=$ref->getValue('applies_regex');
+        my $applies_regex=$ref->{ 'applies_regex' };
         my $applies;
 
         if ( $applies_regex ){

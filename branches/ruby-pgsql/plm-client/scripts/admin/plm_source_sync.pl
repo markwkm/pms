@@ -67,12 +67,12 @@ my $softwareID;
 my $plm_user_ID;
 
 # Check the user and repository
-(($softwareID) = $rpc->ASP( "software_verify", $repository )) || panic( "Bad Repository" );
-(($plm_user_ID) = $rpc->ASP( "user_verify", $plm_user, $plm_password )) || panic( "Bad Username" );
+(($softwareID) = $rpc->ASP( "SoftwareVerify", $repository )) || panic( "Bad Repository" );
+(($plm_user_ID) = $rpc->ASP( "UserVerify", $plm_user, $plm_password )) || panic( "Bad Username" );
 
 # This needs to be done through table plm_source now
 my $source_info_ref;
-$source_info_ref = $rpc->ASP( "source_get_by_software", $softwareID );
+$source_info_ref = $rpc->ASP( "SourceGetBySoftware", $softwareID );
 
 #
 #  This loops through all the source types set for a software
@@ -81,9 +81,9 @@ my $source_info;
 foreach $source_info(@{$source_info_ref}){
   bless $source_info, 'PLM::Object::Source'; 
   my $root_location;
-  (($root_location)=$source_info->getElementValue('root_location')) || panic( "No location");
+  (($root_location)=$source_info->{ 'root_location' }) || panic( "No location");
   my $plm_source_type;
-  (( $plm_source_type )=$source_info->getElementValue('plm_source_type')) || panic("No Source type: CVS, TAR etc");
+  (( $plm_source_type )=$source_info->{ 'source_type' }) || panic("No Source type: CVS, TAR etc");
   # All source types are only first char upper case due to 'make manifest' filtering out 'CVS'.
   $plm_source_type="\u\L$plm_source_type";
 
@@ -103,10 +103,10 @@ foreach $source_info(@{$source_info_ref}){
   # Get source sync information from database
   # This only works for 'CVS', 'TAR'
   my $source_sync_data;
-  ($source_sync_data = $rpc->ASP( "source_sync_by_source", $source_info->getElementValue('id'))) || panic( "No Source Syncing information");
+  ($source_sync_data = $rpc->ASP( "SourceSyncBySource", $source_info->{ 'id' })) || panic( "No Source Syncing information");
   my $source_sync_info;
 
-  print "Syncing '$repository' repository located at [ " . $source_info->getElementValue('root_location') . "]\n";
+  print "    Syncing '$repository' repository located at [ " . $source_info->{ 'root_location' } . " ]\n";
   foreach $source_sync_info ( @{$source_sync_data} ) {
     bless $source_sync_info, $source_sync_module;
     $source_sync_info->addElement( 'softwareID', "");
@@ -116,21 +116,15 @@ foreach $source_info(@{$source_info_ref}){
 
     system "rm -f /tmp/plm-not.wanted.txt";
 
-    print "    Syncing '$repository' directory [ " . $source_sync_info->getElementValue('search_location') . "]\n";
+    print "    Syncing '$repository' directory [ " . $source_sync_info->{ 'search_location' } . " ]\n";
 
-    #  This is where we retrieve the file list through Source Sync
+    # This is where we retrieve the file list through Source Sync
     my $my_archive;
     $my_archive = new $source_access_module( $source_info, $source_sync_info );
     my $files = $my_archive->get_files();
     my $file;
     foreach $file (@{$files}){
-            handle_source_item( $file->[1], $file->[0], $repository, $source_sync_info, $source_info );
-    }
-    # For CVS we rdiff against the last patch submitted.
-    if ( $my_archive->{'last_remote_identifier'} and ! $LIST_ONLY){
-        if ($source_sync_info->getElementValue('last_timestamp') ne $my_archive->{'last_remote_identifier'}){
-            my $rv = $rpc->ASP('source_sync_set_value', $source_sync_info->getElementValue('id'),'last_timestamp', $my_archive->{'last_remote_identifier'});
-        }
+        handle_source_item( $file->[1], $file->[0], $repository, $source_sync_info, $source_info );
     }
   }
 }
@@ -167,7 +161,7 @@ sub handle_source_item {
     my $filename = $file;
     $file =~ s/(\.tar){0,1}\.(gz|bz2|dif)$//;    # Strip the file extensions
     my $name = $file;
-    unless($name=$source_sync_info->fix_name($name, $source_info->getElementValue('sc_module'))){
+    unless($name=$source_sync_info->fix_name($name, $source_info->{ 'sc_module' })){
          $log->msg( 0, "Software [ $repository] [ $name ] name match error [ $source_sync_info->getValue('name_substitution') ]." );
          return 0;
     }
@@ -181,14 +175,13 @@ sub handle_source_item {
     return not_wanted( "", $file, "" ) if ($source_sync_info->name_checks($name));
 
     # Check if these exist in db already
-    my ($patch_id) = $rpc->ASP("patch_find_by_name", "$name" );
+    my ($patch_id) = $rpc->ASP("PatchFindByName", "$name" );
     if ( $patch_id ) {    # Already exists, expected for those we've already synced
         $log->msg( 4, "Patch $name already exists as PLM ID $patch_id" );
         return 0;
     }
-    print "        patch: $filename    \t[ $name ] \t[ $dir ]\n";
 
-    $log->msg( 4, "File [$file] passed phase 2 selection [ $repository ] [ $source_sync_info->getElementValue('descriptor') ]" );
+    $log->msg( 4, "File [$file] passed phase 2 selection [ $repository ] [ $source_sync_info->{ 'descriptor' } ]" );
 
     # Can file type retrieved properly, from mime type, BEFORE the download?
     # This also is only for type 'TAR', and should be rolled into SourceSync.
@@ -201,13 +194,15 @@ sub handle_source_item {
     my $appliesID=0;
     my $source_access="";
     if ( $source_sync_info->isa_base() ){
-        $content="-redirect-";
+        print "        baseline: $filename    \t[ $name ] \t[ $dir ]\n";
+        $content='';
     } else {
+        print "        patch: $filename    \t[ $name ] \t[ $dir ]\n";
         # Get applies value
         $applies = $source_sync_info->get_applies_version($file, $repository);
         if (! $applies){
             $log->msg( 0, "Failed adding $name, no value for applies!" );
-            print "Failed adding: $filename    \t[ $name ] \t[ $dir ] no applies.\nCheck applies regex [ " . $source_sync_info->getElementValue('applies_regex') . " ]\n";
+            print "Failed adding: $filename    \t[ $name ] \t[ $dir ] no applies.\nCheck applies regex [ " . $source_sync_info->{ 'applies_regex' } . " ]\n";
             return 0;
         }
 
@@ -217,8 +212,7 @@ sub handle_source_item {
             my $error;
             $source_access = new $source_access_module($source_info, $source_sync_info);
             if ( $source_access->get_top_page_content($filename, $dir) ) {
-                $content=$source_access->base64();
-                #$content=$source_access->{page_content};
+                $content=$source_access->base64($file_type);
             } else {
                 $log->msg( 0, "Failed retrieve for $dir/$filename." );
                 print "            Failed retrieve for $dir/$filename.\n";
@@ -230,12 +224,12 @@ sub handle_source_item {
         }
         #  This check is late to get the printout for list_only option
         if ( ! $appliesID ){
-            print "            Did not retrieve $dir/$filename, no applies $applies.\n";
+            print "            Did not retrieve '$dir/$filename', no applies '$applies'.\n";
             return 0;
         }
     }
    
-    my $res = submit_patch( $name, $appliesID, $content, $source_sync_info, $file_type, $dir, $filename, $source_info->getElementValue("id") );
+    my $res = submit_patch( $name, $appliesID, $content, $source_sync_info, $file_type, $dir, $filename, $source_info->{ "id" } );
 }
 
 sub get_appliesID {
@@ -243,13 +237,14 @@ sub get_appliesID {
     my $applies = ${$applies_ref};
     my $appliesID = 0;
 
-    ($appliesID) = $rpc->ASP("patch_find_by_name", "$applies" );
-    if ( ! $appliesID ) {    # Target missing
+    ($appliesID) = $rpc->ASP("PatchFindByName", "$applies" );
+    if ( ! $appliesID ) {
+            # Target missing
             # try again with 'patch' for linux kernels
             my $second_applies = $applies;
             $second_applies =~ s/^$repository-/patch-/;
             $log->msg( 2, "Failed adding $name, [ $applies ] trying [ $second_applies ]" );
-            ($appliesID) = $rpc->ASP("patch_find_by_name", "$second_applies" );
+            ($appliesID) = $rpc->ASP("PatchFindByName", "$second_applies" );
 
             if ( ! $appliesID ) {    # Target missing
                 $log->msg( 0, "Failed adding $name, [ $applies ] missing!" );
@@ -262,51 +257,22 @@ sub get_appliesID {
 }
 
 sub submit_patch {
-    my ( $name, $appliesID, $content, $archive_info, $file_type, $dir, $filename,$plm_source_id) = @_;
-    my $XML       = new PLM::Object::Patch();
+    my ( $name, $appliesID, $content, $archive_info, $file_type, $dir, $filename, $plm_source_id) = @_;
     my $patch_id  = 0;
     my $sql;
-
-    $XML->setElementValue( "name",            $name );
-    $XML->setElementValue( "plm_user_id",     $archive_info->getElementValue('plm_user_ID'));
-    $XML->setElementValue( "plm_software_id", $archive_info->getElementValue('softwareID'));
-    $XML->setElementValue( "private_flag",    0 );
-    $XML->setElementValue( "submit_flag",     0 );
-    $XML->setElementValue( "patch_path",      $dir );
-    $XML->setElementValue( "remote_identifier",     $filename );
-    $XML->setElementValue( "plm_source_id",   $plm_source_id );
-    $XML->setElementValue( "plm_applies_id",  $appliesID );
-
-    # Take care of the content format for the patch
-    if ( $file_type =~ m/gzip|bzip2/ ){
-        $XML->setElementValue( "content_format",  "plaintext:$file_type:base64" );
-    } elsif ( $file_type =~ m/plaintext/ ) {
-        $XML->setElementValue( "content_format",  "plaintext:base64" );
-    }else {
-            $log->msg( 0, "Failed adding $name, [ $file_type ] not a file_type!" );
-            return -1;
-    }    
-    if ( ! $appliesID ) {
-        $XML->setElementValue( "content_format", "VOID" );
-    }
-
-    # Content is passed as an attachment now.
-    #$XML->setElementValue( "content",         $content );
 
     if ( $LIST_ONLY ){
         print ( "          Would fetch Item:  $name  AppliesID: $appliesID\n" );
         return 0;
     }
          
-    #my $xml = $XML->toString();
-
     # Add the patch.
-    my ( $res ) = $rpc->ASP( "patch_add", $plm_user, $plm_password, $XML, $content);
-    if ( $res ) {
+    my ( $res ) = $rpc->ASP( "PatchAdd", $plm_user, $plm_password, $name, $dir, $filename, $plm_source_id, $appliesID, $content, $file_type);
+    if ( $res > 0 ) {
         $log->msg( 0, "patch accepted as ID# $res" );
         print ( "          Patch accepted as ID# $res\n" );
     } else {
-        panic( "patch add failed for unknown reason" );
+        panic( "patch add failed for unknown reason: $res" );
     }
 
 }

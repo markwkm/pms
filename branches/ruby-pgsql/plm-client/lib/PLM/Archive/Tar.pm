@@ -15,7 +15,6 @@ package PLM::Archive::Tar;
 use LWP::UserAgent;
 # For base64 encoding
 use MIME::Base64();
-#use PLM::XML::Source;
 our $DEBUG = 0;
 
 if ($DEBUG){
@@ -34,9 +33,9 @@ sub new {
      my $parent_URL = $source_object->{ 'root_location' };
      my $top_URL="$parent_URL";
      if ( $source_sync_object ){
-         $remote_path = $source_sync_object->getValue('search_location');
+         $remote_path = $source_sync_object->{ 'search_location' };
          if ($remote_path){$top_URL.="/" . "$remote_path";}
-         $depth = $source_sync_object->getValue('depth');
+         $depth = $source_sync_object->{ 'depth' };
      }
      if (! $depth){
         $depth=0;
@@ -54,7 +53,6 @@ sub new {
                  'archive_files' => ( [ ] ),
                  'parent_URL' => $parent_URL 
                };
-                 #'active_urls' => ( [ [ "$url", 0 ] , [ "http://developer.osdl.org/judith", 0] ] ),
      if ($DEBUG){
          print Data::Dumper::Dumper(%{$ref});
      }
@@ -76,11 +74,11 @@ sub get_files {
         }
         if ($ref->_deeper()){
             $ref->get_top_page_content();
-            #print "Page Content:\n$ref->{'page_content'}\n";
+            print "----------\n$ref->{'page_content'}\n----------\n" if ($DEBUG > 1);
             $ref->_grep_files();
             shift @{$ref->{'active_urls'}};
          } else {
-            print "Do not need $ref->{'active_urls'}->[0][0]\n";
+            print "Do not need '$ref->{'active_urls'}->[0][0]'\n";
             shift @{$ref->{'active_urls'}};
          }
     }
@@ -172,44 +170,40 @@ sub _grep_files {
     my $quote;
 
     while ( ($quote, $match) = $ref->{ 'page_content' } =~ m/\<\s*A\s*HREF\s*\=\s*(\'|\")(.*?)(\'|\")\s*\>/gsi ) {
-         $ref->{ 'page_content' } =~ s/\<\s*A\s*HREF\s*\=\s*(\'|\")(.*?)(\'|\")\s*\>//si;
-	 if ( $match =~ m/\.gz$|\.bz2$|\.tgz$|\.dif$/ ) {
-              my $directory := $ref->{'active_urls'}->[0][0];
-              $directory =~ s/$ref->{'parent_URL'}\/?//;
-              # Account for index pages being on the same level
-              if ($directory =~ m/htm$|html$/) {
-                  $directory.='/..';
-              }
-	      push @{$ref->{'archive_files'}} , [ $match, $directory ];
-	 } elsif ($match =~ m/\.gz\.sign|\.bz2\.sign|\.txt|\?\w\=\w/) {
-	      #print "Do not need $match\n";
-	 } else {
-	      # Is this a directory?
-              # We need to get rid of parent directory.
-              #  Explicit and relative urls.
-              my $active_url=${$ref->{'active_urls'}}[0][0];
-              if ( $active_url =~ m/(http\:\/\/[a-zA-Z_0-9\.]\/)?${match}\/?\w+\/?/ or $match =~ /\.\./ ){
-                  if ($DEBUG){
-                      print "Do not need parent $match\n";
-                  }
-                  next;
-              }
-              my $new_depth=$ref->{'active_urls'}->[0][1] + 1;
-              if ($DEBUG){
-                  print "Directory: $match, $active_url  Depth:  $new_depth\n";
-              }
-              if ( $ref->_deeper($new_depth) ){
-                  if ( $active_url =~ m/\/$/ or $match =~ m/^\//){
-                      push @{$ref->{'active_urls'}}, ([ "$active_url" . "$match", $new_depth ]);
-                  } elsif ( $active_url =~ m/htm$|html$/ ) {
-                      push @{$ref->{'active_urls'}}, ([ "$active_url". "/../". "$match", $new_depth ]);
-                  } else {
-	              push @{$ref->{'active_urls'}}, ([ "$active_url". "/". "$match", $new_depth ]);
-                  }
-              }
-         }
+        print "----------\npage_content = $ref->{ 'page_content' }\n----------\n" if ($DEBUG > 1);
+        $ref->{ 'page_content' } =~ s/\<\s*A\s*HREF\s*\=\s*(\'|\")(.*?)(\'|\")\s*\>//si;
+	     if ( $match =~ m/\.gz$|\.bz2$|\.tgz$|\.dif$/ ) {
+            my $directory := $ref->{'active_urls'}->[0][0];
+            $directory =~ s/$ref->{'parent_URL'}\/?//;
+            # Account for index pages being on the same level
+            if ($directory =~ m/htm$|html$/) {
+                $directory.='/..';
+            }
+            push @{$ref->{'archive_files'}} , [ $match, $directory ];
+	     } elsif ($match =~ m/\.gz\.sign|\.bz2\.sign|\.txt|\?\w\=\w/) {
+	        print "Do not need '$match'\n" if ($DEBUG);
+	     } else {
+	        # Is this a directory?
+            # We need to get rid of parent directory.
+            # Explicit and relative urls.
+            my $active_url=${$ref->{'active_urls'}}[0][0];
+            if ( $active_url =~ m/(http\:\/\/[a-zA-Z_0-9\.]\/)?${match}\/?\w+\/?/ or $match =~ /\.\./ ){
+                print "Do not need parent '$match'\n" if ($DEBUG);
+                next;
+            }
+            my $new_depth=$ref->{'active_urls'}->[0][1] + 1;
+            print "Directory: $match, $active_url  Depth:  $new_depth\n" if ($DEBUG);
+            if ( $ref->_deeper($new_depth) ){
+                if ( $active_url =~ m/\/$/ or $match =~ m/^\//){
+                    push @{$ref->{'active_urls'}}, ([ "$active_url" . "$match", $new_depth ]);
+                } elsif ( $active_url =~ m/htm$|html$/ ) {
+                    push @{$ref->{'active_urls'}}, ([ "$active_url". "/../". "$match", $new_depth ]);
+                } else {
+	                push @{$ref->{'active_urls'}}, ([ "$active_url". "/". "$match", $new_depth ]);
+                }
+            }
+        }
     }
-
 }
 
 #
@@ -220,6 +214,7 @@ sub _deeper {
      my $new_depth = shift;
      if (! $new_depth) {
         # then check current URL
+        print "new_depth = $ref->{'active_urls'}->[0][1]\n" if ($DEBUG);
         $new_depth = $ref->{'active_urls'}->[0][1];
      }
      if ( $new_depth < $ref->{'depth'} + 1 ){

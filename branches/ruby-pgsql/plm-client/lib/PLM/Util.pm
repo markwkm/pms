@@ -4,7 +4,7 @@
 #
 # Base module for PLM class objects
 
-# Copyright (C) 2002 Open Source Development Lab 
+# Copyright (C) 2002-2006 Open Source Development Labs, Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -41,7 +41,7 @@ our( $LICENSE, $VERSION, @ISA, @EXPORT );
   db_echeck
 );
 
-$VERSION = "Patch Lifecycle Manager V1.3.0";
+$VERSION = "2.0.0";
 $LICENSE = "Copyright (c) 2002 Open Source Development Lab";
 $LICENSE .= ", See COPYING for details";
 

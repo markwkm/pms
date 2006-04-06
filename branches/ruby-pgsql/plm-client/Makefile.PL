@@ -14,14 +14,6 @@ use Config;
 my %args = (
             pkg_name        => 'plm',
             name            => 'plm',
-            web_user        => 'www', # 'apache',
-            web_group       => 'www', # 'apache',
-            httpd_dir       => '/etc/httpd/conf',
-            html_dir        => '/var/www/plm/html',
-            img_dir         => '/var/www/plm/html/images',
-            cgi_dir         => '/var/www/plm/cgi-bin',
-            private_cgi_dir => '/var/www/plm/asp-private',
-            branding_dir    => '/var/www/plm/template',
             DESTDIR         => undef
             );
 
@@ -47,7 +39,7 @@ my %opts = (
             'INSTALLDIRS'   => 'site',
             'NAME'          => $args{name},
             'VERSION_FROM'  => 'lib/PLM/Util.pm',
-            'AUTHOR'        => 'Open Source Development Lab',
+            'AUTHOR'        => 'Open Source Development Labs, Inc.',
             'EXE_FILES'     => [ qw(
                                      scripts/admin/asp_supervisor.pl
                                      scripts/admin/plm_add_software.pl
@@ -56,7 +48,6 @@ my %opts = (
                                      scripts/admin/plm_user
                                      scripts/admin/plm_add_filter.pl
                                      scripts/admin/plm_filter_check.pl
-                                     scripts/admin/plm_report.pl
                                      scripts/admin/plm_source_sync.pl
                                      scripts/admin/plm_add_filter_type.pl
                                      scripts/admin/plm_filter_output.pl
@@ -67,43 +58,21 @@ my %opts = (
                                      scripts/client/plmsend
                                      scripts/client/server-dead.sh
                                      scripts/email-gateway/egate.pl
-                                     scripts/RPC/plm_report.pl
-                                     scripts/RPC/plm_report_results.pl
                                      scripts/tests/call_rpc.pl
                                      contrib/eidetic-sync.pl
                                      ) ],
             'PREREQ_FATAL' => 0,
             'PREREQ_PM' => {
                 'SOAP::Lite' => 0,
-                'DBI' => 0,
-                'DBD::mysql' => 0,
                 'Carp'           => 0,
                 'File::Spec'     => 0.82,
-                'DBI'            => 1.21,
                 'Config::Simple' => 0,
                 'File::Temp'     => 0.12,
-                'CGI'            => 2.81,
                 'Compress::Zlib' => 1.33,
                 'MailTools'      => 1.58,
                 'SOAP::Lite'     => 0.55,
-                'SOAP::MIME'     => 0.55,
-                'XML::Simple'    => 2.12,
             },
             );
-
-
-# This puts us in the site_perl directory, not dependant on any version
-# of perl.
-if (defined($Config{'sitelib_stem'}) && $Config{'sitelib_stem'} ne "") {
-    print "stem is: $Config{'sitelib_stem'}\n";
-    $opts{'INSTALLSITELIB'} = "";
-    $opts{'INSTALLSITELIB'} = $args{'DESTDIR'}
-                if (($] >= 5.008 && $] < 5.008005) ||
-                    $ExtUtils::MakeMaker::VERSION =~ /5\.9[1-6]|6\.0[0-5]/);
-    #if ($] >= 5.008 ||
-    #    $ExtUtils::MakeMaker::VERSION =~ /5\.9[1-6]|6\.0[0-5]/);
-        $opts{'INSTALLSITELIB'} .= $Config{'sitelib_stem'};
-}
 
 WriteMakefile( %opts );
 
@@ -164,28 +133,6 @@ sub MY::postamble {
 
     my $etcdir   = catdir( $destdir,  'etc', $args{pkg_name} );
     $text .= install_clause(catfile('config', 'plm.cfg'),  $etcdir, 0);
-    $text .= install_clause(catfile('config', 'plm_get_header.cfg'),  $etcdir, 0);
-
-    # Install cgi-bin files
-    my $cgi_dir = catdir( $destdir, $args{cgi_dir} );
-    $text .= install_clause(catfile('scripts', 'RPC', 'getpatch'),  $cgi_dir, 1);
-    $text .= install_clause(catfile('scripts', 'RPC', 'plm'),  $cgi_dir, 1);
-    $text .= install_clause(catfile('scripts', 'RPC', 'plm_server.pl'),  $cgi_dir, 1);
-    $text .= install_clause(catfile('scripts', 'RPC', 'plm_report.pl'),  $cgi_dir, 1);
-    $text .= install_clause(catfile('scripts', 'RPC', 'plm_report_results.pl'),  $cgi_dir, 1);
-
-    my $private_cgi_dir = catdir( $destdir, $args{private_cgi_dir} );
-    $text .= install_clause(catfile('scripts', 'RPC', 'plm_private_server.pl'),  $private_cgi_dir, 1);
-
-    # Install Web header and footer
-    my $html_dir = catdir( $destdir, $args{html_dir} );
-    $text .= install_clause(catfile('docs', 'PLM-HOWTO.html'), $html_dir);
-
-    # Install Web header and footer
-    my $branding_dir = catdir( $destdir, $args{branding_dir} );
-    $text .= install_clause(catfile('branding', 'default_header.html'), $branding_dir);
-    $text .= install_clause(catfile('branding', 'default_footer.html'), $branding_dir);
-    $text .= install_clause(catfile('branding', 'home.html'), $branding_dir);
 
     return $text;
 }
