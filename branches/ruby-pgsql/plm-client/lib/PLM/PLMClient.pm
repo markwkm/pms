@@ -33,14 +33,7 @@ BEGIN { }
 
 sub new {
     my ( $pkg, $cfg ) = @_;
-    my $http = $cfg->get( "PLMClient_proxy" );
     my $wsdl = $cfg->get( "wsdl" );
-    my $client_base_url = $cfg->get( "PLMClient_base_url");
-    if ( $client_base_url && $http){
-        $http = $client_base_url . $http;
-    }
-    $http ||= $cfg->get( "plm_http" ) . "/plm_server.pl";
-    my $default_uri   = $cfg->get( "PLMClient_uri" );  # Use this for SOAP
     my $log = new PLM::Util::Log(
       {
         filename => $cfg->get( "log_file" ),
@@ -54,9 +47,8 @@ sub new {
     trace_configure( $log, $cfg );    # What is this ?
 
     $obj= { 
-         proxy => $http,
          service => $service,
-         uri => $default_uri,
+         wsdl => $wsdl,
          log => $log
     };
 
@@ -65,34 +57,7 @@ sub new {
 
 sub ASP {
     my ( $obj, $command, @args ) = @_;
-    my $ret;
-    my $service = $obj->{'service'};
-
-    if ( $command eq 'get_applies_tree' ) {
-        $ret = $service->GetAppliesTree( @args );
-    } elsif ( $command eq 'get_patch' ) {
-        $ret = $service->GetPatch( @args );
-    } elsif ( $command eq 'get_request' ) {
-        $ret = $service->GetRequest( @args );
-    } elsif ( $command eq 'patch_get_list' ) {
-        $ret = $service->PatchGetList( @args );
-    } elsif ( $command eq 'patch_get_value' ) {
-        $ret = $service->PatchGetValue( @args );
-    } elsif ( $command eq 'set_filter_request_state' ) {
-        $ret = $service->SetFilterRequestState( @args );
-    } elsif ( $command eq 'software_verify' ) {
-        $ret = $service->SoftwareVerify( @args );
-    } elsif ( $command eq 'source_get' ) {
-        $ret = $service->SourceGet( @args );
-    } elsif ( $command eq 'submit_result' ) {
-        $ret = $service->SubmitResult( @args );
-    } elsif ( $command eq 'get_name' ) {
-        $ret = $service->GetName( @args );
-    } else {
-        panic('undefined ASP call');
-    }
-
-    return $ret;
+    return $obj->{'service'}->$command( @args );
 }
 
 END { }
