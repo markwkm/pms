@@ -24,7 +24,7 @@ my $rpc = new PLM::PLMClient($cfg);
 my $software_id; 
 ($software_id) = $rpc->ASP("SoftwareVerify", $repo);
 
-sanity_check($repo, $software_id, $patch_id);
+$patch_id = sanity_check($repo, $software_id, $patch_id);
 
 build_tree( $_ );
 
@@ -49,6 +49,9 @@ sub sanity_check {
     }
     #    Is value of plm_software_id = to previous id from plm_filter by id.
     #
+    if ( $patch_id =~ m/.*\D.*/){
+        ($patch_id) = $rpc->ASP("PatchFindByName", $patch_id );
+    }
     my $patch_software_id;
     ($patch_software_id) = $rpc->ASP("PatchGetValue", $patch_id, "software_id");
     if (! $patch_software_id or $software_id != $patch_software_id) {
@@ -56,6 +59,7 @@ sub sanity_check {
         $log->msg( 0, "ERROR - the patch $patch_id is not in repository $repo");
         exit 1;
     }
+    return $patch_id;
 }
 
 sub build_tree {
