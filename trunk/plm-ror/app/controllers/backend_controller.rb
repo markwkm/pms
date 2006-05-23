@@ -272,6 +272,10 @@ class BackendController < ApplicationController
     Source.find(:all, :conditions => ['software_id = ?', software_id])
   end
 
+  def source_sync_by_source(source_id)
+    SourceSync.find(:all, :conditions => ['source_id = ?', source_id])
+  end
+
   def submit_result(request_id, filter_result, output)
     modified_result = nil
     if filter_result =~ /RESULT: (\w+)/ then

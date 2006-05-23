@@ -67,6 +67,9 @@ class PatchApi < ActionWebService::API::Base
   api_method :source_get_by_software,
       :expects => [:int],
       :returns => [[Source]]
+  api_method :source_sync_by_source,
+      :expects => [:int],
+      :returns => [[SourceSync]]
   api_method :submit_result,
       :expects => [:int, :string, :base64]
   api_method :user_verify,
