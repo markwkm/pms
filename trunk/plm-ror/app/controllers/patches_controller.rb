@@ -192,7 +192,7 @@ class PatchesController < ApplicationController
     select1 =
         'SELECT COUNT(*) AS id '
     select2 =
-        'SELECT p.id, p.name, p.md5sum, p.name, p.software_id, p.user_id, p.patch_id '
+        'SELECT p.id, p.name, p.md5sum, p.name, p.software_id, p.user_id, p.patch_id, p.created_on '
 
     if patch['software_id'].to_i > 0 then
       condition << "p.software_id = #{patch['software_id']}"
