@@ -204,6 +204,26 @@ CREATE TABLE sources (
 
 
 --
+-- Name: sources; Type: TABLE; Schema: public; Owner: plm; Tablespace: 
+--
+
+CREATE TABLE source_syncs (
+    id bigserial NOT NULL,
+    created_on timestamp with time zone DEFAULT now() NOT NULL,
+    updated_on timestamp with time zone DEFAULT now() NOT NULL,
+    source_id bigint NOT NULL,
+    search_location text,
+    depth integer NOT NULL,
+    wanted_regex text,
+    not_wanted_regex text,
+    baseline boolean NOT NULL,
+    applies_regex text,
+    name_substitution text,
+    descriptor text,
+    last_timestamp text
+);
+
+--
 -- Name: users; Type: TABLE; Schema: public; Owner: plm; Tablespace: 
 --
 
