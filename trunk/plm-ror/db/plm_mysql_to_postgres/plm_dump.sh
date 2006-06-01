@@ -72,7 +72,7 @@ echo exporting plm_source
 print_data sources "SELECT id, created, deleted, plm_software_id, root_location, plm_source_type FROM plm_source;"
 # plm_source_sync
 echo exporting plm_source_sync
-print_data sources_syncs "SELECT id, created, modified, plm_source_id, search_location, depth, wanted_regex, not_wanted_regex, baseline, applies_regex, name_substitution, descriptor, last_timestamp FROM plm_source_sync;"
+print_data source_syncs "SELECT id, created, modified, plm_source_id, search_location, depth, wanted_regex, not_wanted_regex, baseline, applies_regex, name_substitution, descriptor, last_timestamp FROM plm_source_sync;"
 # plm_user
 echo exporting plm_user
 print_data users "SELECT id, created, modified, name, email, pass, admin_flag FROM plm_user;"
@@ -92,7 +92,7 @@ patches_id_seq
 patch_acls_id_seq
 softwares_id_seq
 sources_id_seq
-sources_syncs_id_seq
+source_syncs_id_seq
 users_id_seq
 )
 

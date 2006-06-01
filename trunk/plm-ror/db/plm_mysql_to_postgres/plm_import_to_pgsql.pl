@@ -20,7 +20,7 @@ foreach $file ( readdir DH ) {
         if ( $table eq 'patches' ) { $line_data = patches( $line_data ); }
         if ( $table eq 'softwares' ) { $line_data = softwares( $line_data ); }
         if ( $table eq 'sources' ) { $line_data = sources( $line_data ); }
-        if ( $table eq 'sources_syncs' ) { $line_data = sources_syncs( $line_data ); }
+        if ( $table eq 'source_syncs' ) { $line_data = source_syncs( $line_data ); }
         if ( $table eq 'users' ) { $line_data = users( $line_data ); }
         $line_data =~ s/\'/\\'/g;
         $line_data =~ s/	/\',\'/g;
@@ -146,7 +146,7 @@ sub sources {
     return $line;
 }
 
-sub sources_syncs {
+sub source_syncs {
     $line = shift;
     my @array = split'	', $line;
     $array[1] = convert( $array[1] );

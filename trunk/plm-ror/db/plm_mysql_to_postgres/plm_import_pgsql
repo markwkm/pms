@@ -11,5 +11,5 @@
 \i patch_acls_users.sql
 \i command_sets_softwares.sql
 \i sources.sql
-\i sources_syncs.sql
+\i source_syncs.sql
 \i z_sequences.sql
