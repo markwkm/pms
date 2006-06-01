@@ -22,6 +22,9 @@ $output_file.="/$software.$patch_id.$command_type.log";
 open OUTFILE, ">$output_file" or panic "Cannot open file for logging output.";
 
 my $rpc = new PLM::PLMClient($cfg);
+if ( $patch_id =~ m/.*\D.*/){
+    ($patch_id) = $rpc->ASP("PatchFindByName", $patch_id );
+}
 my $ref = $rpc->ASP("ComandSetGetContent", $software, $patch_id, $command_type );
 
 if (ref $ref){
