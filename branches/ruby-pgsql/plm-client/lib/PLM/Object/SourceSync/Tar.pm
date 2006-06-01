@@ -103,10 +103,7 @@ sub get_file_type{
 
 sub isa_base{
     my $ref=shift;
-    if ($ref->{ 'baseline' } =~ m/Y/i){
-        return $TRUE;
-    } 
-    return $FALSE;
+    return $ref->{ 'baseline' };
 }
 
 sub get_applies_version {
