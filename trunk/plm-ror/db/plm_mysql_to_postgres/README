@@ -1,0 +1,31 @@
+Title:    Convert PLM MySQL database to PostgresSQL
+
+Contents:
+* plm_dump.sh
+* plm_export.sh
+* plm_import_pgsql
+* plm_import_to_pgsql.pl
+* plm_import_patches.pl
+
+Dependencies:
+DBI
+DBD:Pg
+postgres-dev
+mysql client
+psql client
+perl
+bzip2
+
+Directions:
+Edit plm_export.sh script to match usernames, databases and passwords for both databases and the path for the
+patch files. Be prepared to enter passwords manually for both postgres database and to download the patch files.
+Importing the path files is by default commented out in plm_export.sh, uncomment to use and make sure you have the
+dependencies.
+
+NOTE: depending on database size and the amount of patch files these scripts could require a lot of space!!!
+      ( like 10 Gig, it will take a while too, go get yourself a coffee. )
+
+Then run:
+./plm_export.sh
+
+View run.err and run.out to determine if there were any errors.

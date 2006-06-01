@@ -1,0 +1,15 @@
+\i users.sql
+\i command_sets.sql
+\i commands.sql
+\i filter_request_states.sql
+\i softwares.sql
+\i filter_types.sql
+\i filters.sql
+\i patches.sql
+\i filter_requests.sql
+\i patch_acls.sql
+\i patch_acls_users.sql
+\i command_sets_softwares.sql
+\i sources.sql
+\i sources_syncs.sql
+\i z_sequences.sql
