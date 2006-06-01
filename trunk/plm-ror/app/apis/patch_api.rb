@@ -12,7 +12,7 @@ class PatchApi < ActionWebService::API::Base
       :returns => [:int]
   api_method :command_set_get_content,
       :expects => [:string, :int, :string],
-      :returns => [[Command]]
+      :returns => [[CommandSetDetail]]
   api_method :get_applies_tree,
       :expects => [:int],
       :returns => [[:int]]
