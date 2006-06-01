@@ -25,7 +25,7 @@ my $rpc = new PLM::PLMClient($cfg);
 if ( $patch_id =~ m/.*\D.*/){
     ($patch_id) = $rpc->ASP("PatchFindByName", $patch_id );
 }
-my $ref = $rpc->ASP("ComandSetGetContent", $software, $patch_id, $command_type );
+my $ref = $rpc->ASP("CommandSetGetContent", $software, $patch_id, $command_type );
 
 if (ref $ref){
     chdir $software or panic("Cannot find directory $software to build in.");
