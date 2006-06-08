@@ -22,4 +22,4 @@ psql --user="$pg_user" --host="$pg_host" --password $pg_db <plm_import_pgsql >ru
 # get the patch files to insert as eu 64 bit into the patches field (Comment out to not import patch files)
 echo Enter the password to get the patch files:
 scp -r $patch_path ./
-./plm_import_patches.pl
+./plm_import_patches.pl  $pg_db $pg_host $pg_user

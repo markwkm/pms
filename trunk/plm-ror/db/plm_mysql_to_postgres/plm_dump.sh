@@ -24,7 +24,7 @@ echo exporting plm_command_set
 print_data command_sets "SELECT id, name, command_set_type FROM plm_command_set;"
 # plm_filter
 echo exporting plm_filter
-print_data filters "SELECT id, created, modified, plm_software_id, name, location, runtime, plm_filter_type_id, location FROM plm_filter;"
+print_data filters "SELECT id, created, modified, plm_software_id, name, command, runtime, plm_filter_type_id, location FROM plm_filter;"
 # plm_filter_request
 echo exporting plm_filter_request
 print_data filter_requests "SELECT plm_filter_id, plm_patch_id, priority, result, result_detail, output, created, modified, id, plm_filter_request_state_id FROM plm_filter_request;"
@@ -120,3 +120,5 @@ do
     echo ALTER SEQUENCE ${tables_seqs[$index]} RESTART $seq_val';' >> z_sequences.sql
     let "index = $index + 1"
 done
+
+echo update patches set strip_level=1 where strip_level IS NULL ';' >>z_sequences.sql

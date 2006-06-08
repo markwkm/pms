@@ -5,9 +5,9 @@ use DBI;
 #use DBD::Pg;
 
 
-my $database = plm_production;
-my $host = 'testdb';
-my $user = plm;
+my $database = shift;
+my $host = shift;
+my $user = shift;
 my $conn = DBI->connect( "dbi:Pg:dbname=$database;host=$host", "$user" );
 
 opendir DH, './patch';
