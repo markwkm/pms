@@ -4,11 +4,11 @@ use strict;
 use POSIX ":sys_wait_h";
 use MIME::Base64();
 
-my $state_queued    = 1;
-my $state_pending   = 2;
-my $state_running   = 3;
-my $state_completed = 4;
-my $state_failed    = 6;
+my $state_queued    = 'Queued';
+my $state_pending   = 'Pending';
+my $state_running   = 'Running';
+my $state_completed = 'Completed';
+my $state_failed    = 'Failed';
 
 my $uniq_id = rand() . time();
 
