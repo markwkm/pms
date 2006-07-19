@@ -149,7 +149,7 @@ class PatchesController < ApplicationController
   def list
     @pagination_link_options = Hash.new
     @patch_pages, @patches = paginate :patches, :per_page => 10,
-        :select => 'id, name, md5sum, software_id, user_id, patch_id',
+        :select => 'id, name, md5sum, software_id, user_id, patch_id, created_on',
         :order_by => 'id DESC'
   end
 
@@ -282,7 +282,7 @@ class PatchesController < ApplicationController
     @pagination_link_options = Hash.new
 
     @patch_pages, @patches = paginate :patches, :per_page => 10,
-        :select => 'id, name, md5sum, software_id, user_id, patch_id',
+        :select => 'id, name, md5sum, software_id, user_id, patch_id, created_on',
         :conditions => ['user_id = ?', @session['user']['id']],
         :order_by => 'id DESC'
     render :action => 'list'
