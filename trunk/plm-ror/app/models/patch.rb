@@ -8,7 +8,7 @@ class Patch < ActiveRecord::Base
   belongs_to :source
   belongs_to :user
 
-  has_many :filter_requests
+  has_many :filter_requests, :order => 'id'
   #
   # This was an attempt to sort the filter requests by the filter name.  It
   # wasn't quite successfull...
