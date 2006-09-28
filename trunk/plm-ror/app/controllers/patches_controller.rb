@@ -205,7 +205,7 @@ class PatchesController < ApplicationController
 
     unless @params['identifier'].empty? then
       name = @params['identifier'].gsub(/\*/, '%')
-      if @params['identifier'].to_i == 0 then
+      if @params['identifier'] !~ /^\d+$/ then
         condition << "p.name SIMILAR TO '#{name}'"
       else
         condition <<
