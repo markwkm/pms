@@ -57,7 +57,7 @@ $ENV{ PATH } = "/usr/local/bin/:/bin:/usr/bin";    # Required for ccache support
 $ENV{ CCACHE_DIR } = $config->get( "ccache_dir" ) || "/tmp/plm-ccache";
 
 sub cleanup_old_files {
-    system "rm -rf $software" . "* plm-* result.filter $filename";
+    system "rm -rf $software" . "* plm-* result.filter patch.error $filename";
 }
 
 while ( check_run_file() ) {
@@ -75,6 +75,8 @@ while ( check_run_file() ) {
 	    sleep( $sleep_delay );
 	} else {
             ( $request, $patch_id, $filter_id, $filename, $timeout, $software ) = @{$data};
+            # Just to be sure clean again
+            cleanup_old_files();
 
             $log->msg( 2, "ASP( GetRequest($type) ) returned: [ ",
                    join ( ":", @{$data} ), " ]" );

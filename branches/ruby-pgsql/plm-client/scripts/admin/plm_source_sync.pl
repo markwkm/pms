@@ -14,6 +14,26 @@ my $cfg = getConfig();
 my $log = getLog( "plm_source_sync" );
 my $rpc = new PLM::PLMClient( $cfg );
 
+my $LOCKFILE = "/var/lock/plm/cron";
+
+exit( 0 ) if ( -f "/var/lock/plm/stop" );
+
+if ( !-f $LOCKFILE ) {
+   # Here we  create the lockfile
+   `touch $LOCKFILE`;
+} else {
+   print STDERR "Lockfile found, exiting.\n";
+   exit 0;
+}
+
+sub END {
+   if ( -f $LOCKFILE ) {
+      print STDERR "Deleting the lockfile\n";
+      `rm -f $LOCKFILE`;
+   }
+   print STDERR "stp_cron exiting\n";
+}
+
 # Options:
 # --config
 # This script should take an argument for the config file.
