@@ -77,7 +77,7 @@ class BackendController < ApplicationController
           'SELECT patch_id ' +
           'FROM patches ' +
           "WHERE id = #{id}")[0]
-      break if p['patch_id'].nil?
+      break if ( p['patch_id'].nil? or p['patch_id'] == 0 )
       id = p['patch_id']
       applies_tree << id
     end
@@ -112,14 +112,16 @@ class BackendController < ApplicationController
     fr = nil;
     begin
       FilterRequest.transaction do
-        filter_type = FilterType.find(:first,
+        filter_type = FilterType.find(:all,
             :conditions => ["code IN ('#{filter_type_list}')"])
-        filters = filter_type.filters
-        for filter in filters
-          fr = filter.filter_requests.find(:first,
-              :conditions => ["state = '#{STATE_QUEUED}'" ],
-              :order => 'priority, patch_id')
-          break unless fr.nil?
+        for filter_typ in filter_type
+          filters = filter_typ.filters
+          for filter in filters
+            fr = filter.filter_requests.find(:first,
+                :conditions => ["state = '#{STATE_QUEUED}'" ],
+                :order => 'priority, patch_id')
+            break unless fr.nil?
+          end
         end
         return nil if fr.nil?
         fr['state'] = STATE_PENDING
@@ -188,7 +190,12 @@ class BackendController < ApplicationController
     #
     patch[:name] = name
     return -4 unless patch.check_acl
-    patch[:path] = path
+    # This is a patch, I am not sure where it is failing
+    if path =~ /^#<SOAP::Mapping::Object/ then
+        patch[:path] = nil
+    else
+        patch[:path] = path
+    end
     patch[:remote_identifier] = remote_identifier
     #
     # For some bizarre reason, the patch.save is not attempting an insert.
