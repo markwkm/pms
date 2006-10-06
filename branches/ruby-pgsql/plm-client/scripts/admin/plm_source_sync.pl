@@ -31,7 +31,7 @@ sub END {
       print STDERR "Deleting the lockfile\n";
       `rm -f $LOCKFILE`;
    }
-   print STDERR "stp_cron exiting\n";
+   print STDERR "$0 exiting\n";
 }
 
 # Options:
