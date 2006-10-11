@@ -31,6 +31,7 @@ class BackendController < ApplicationController
     # Check for valid patch to apply to.
     #
     patch.patch = Patch.find(:first,
+        :select => 'id',
         :conditions => ['name = ? AND software_id = ?', applies_patch_name,
         patch.software['id']])
     return -4 if patch.patch.nil?
@@ -158,6 +159,7 @@ class BackendController < ApplicationController
       # Check for valid patch to apply to if not a baseline.
       #
       patch.patch = Patch.find(:first,
+          :select => 'id',
           :conditions => ['id = ? AND software_id = ?', applies_id,
           patch.software['id']])
       return -3 if patch.patch.nil?
@@ -214,7 +216,7 @@ class BackendController < ApplicationController
           "        #{patch['diff'].nil? ? 'NULL' : "'" + patch['diff'] + "'"}, " +
           "        '#{patch['name']}', '#{patch['path']}', " +
           "        '#{patch['remote_identifier']}')")
-      patch = Patch.find(:first, :conditions => ['name = ?', patch['name']])
+      patch = Patch.find(:first, :select => 'id, software_id', :conditions => ['name = ?', patch['name']])
       #
       # Queue new filter requests.
       #
