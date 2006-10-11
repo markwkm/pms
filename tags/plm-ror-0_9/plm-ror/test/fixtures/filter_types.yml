@@ -1,0 +1,5 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+first_filter_type:
+  id: 1
+  code: ia32
+  software_id: 1

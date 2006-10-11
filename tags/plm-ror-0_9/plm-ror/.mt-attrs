@@ -1,0 +1,32 @@
+   file "public/dispatch.cgi"
+execute "true"
+
+   file "public/dispatch.fcgi"
+execute "true"
+
+   file "public/dispatch.rb"
+execute "true"
+
+   file "script/benchmarker"
+execute "true"
+
+   file "script/breakpointer"
+execute "true"
+
+   file "script/console"
+execute "true"
+
+   file "script/destroy"
+execute "true"
+
+   file "script/generate"
+execute "true"
+
+   file "script/profiler"
+execute "true"
+
+   file "script/runner"
+execute "true"
+
+   file "script/server"
+execute "true"

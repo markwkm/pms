@@ -1,0 +1,76 @@
+<h1>Patch Info</h1>
+
+<p>
+  <table>
+    <tr>
+      <td align="right">Patch Name:</td>
+      <td><%= @patch[:name] %></td>
+    </tr>
+    <tr>
+      <td align="right">md5sum:</td>
+      <td><%= @patch[:md5sum] %></td>
+    </tr>
+    <tr>
+      <td align="right">Repository:</td>
+      <td><%= @patch.software[:name] %></td>
+    </tr>
+  </table>
+</p>
+
+<p>
+  <table>
+    <tr>
+      <td align="right">Created By:</td>
+      <td><%= @patch.user.login %></td>
+    </tr>
+    <tr>
+      <td align="right">Created On:</td>
+      <td><%= @patch.software[:created_on] %></td>
+    </tr>
+  </table>
+</p>
+
+<p>
+  <table>
+    <% unless @patch['patch_id'].nil? then %>
+      <tr>
+        <td align="right" valign="top">Applies Tree:</td>
+        <td>
+        <% for patch_name in @patch.applies_tree %>
+          <%= link_to patch_name, :action => 'show', :id => url_encode(patch_name) %><br/>
+        <% end %>
+        </td>
+      </tr>
+    <% end %>
+  </table>
+</p>
+
+<% unless @patch['patch_id'].nil? then %>
+<p>
+  To <b>download</b> a bzip2 compressed copy of this patch, click
+  <%= link_to 'here', :action => 'download',
+      :id => url_encode(@patch['name']) %>.<br />
+  To <b>view</b> this patch, click
+  <%= link_to 'here', :action => 'view', :id => url_encode(@patch['name']) %>
+  once only. (May take a while for big patches.)<br />
+  To <b>view</b> scripts for this patch, click build, install or validate.<br />
+</p>
+
+<p>
+  To <b>delete</b> this patch from the system, click here.
+</p>
+<% end %>
+
+<p>
+  <table border="1">
+    <th>Filter Name</th>
+    <th>Detailed Result</th>
+    <th>Status</th>
+    <%= render_collection_of_partials 'filter_request',
+        @patch.filter_requests %>
+  </table>
+</p>
+
+<p>
+Select a completed filter's Status to view the output of the run log.
+</p>

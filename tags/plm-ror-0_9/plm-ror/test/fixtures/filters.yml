@@ -1,0 +1,9 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+hello_filter:
+  id: 1
+  name: hello
+  runtime: 1
+  filename: hi
+  filter_type_id: 1
+  software_id: 1
+  file: aGVsbG8K\\012

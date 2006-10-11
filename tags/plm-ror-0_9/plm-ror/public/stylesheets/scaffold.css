@@ -1,0 +1,209 @@
+body { background-color: #fff; color: #333; }
+
+body, p, ol, ul, td {
+  font-family: verdana, arial, helvetica, sans-serif;
+  font-size:   13px;
+  line-height: 18px;
+}
+
+td.PASS {
+  font-weight: bold;
+  background-color: green;
+}
+
+td.FAIL {
+  font-weight: bold;
+  background-color: red;
+}
+
+pre {
+  background-color: #eee;
+  padding: 10px;
+  font-size: 11px;
+}
+
+a { color: #000; }
+a:visited {
+  color: #666;
+}
+a:hover {
+  color: #fff;
+  background-color:#000;
+}
+
+.fieldWithErrors {
+  padding: 2px;
+  background-color: red;
+  display: table;
+}
+
+#ErrorExplanation {
+  width: 400px;
+  border: 2px solid 'red';
+  padding: 7px;
+  padding-bottom: 12px;
+  margin-bottom: 20px;
+  background-color: #f0f0f0;
+}
+
+#ErrorExplanation h2 {
+  text-align: left;
+  font-weight: bold;
+  padding: 5px 5px 5px 15px;
+  font-size: 12px;
+  margin: -7px;
+  background-color: #c00;
+  color: #fff;
+}
+
+#ErrorExplanation p {
+  color: #333;
+  margin-bottom: 0;
+  padding: 5px;
+}
+
+#ErrorExplanation ul li {
+  font-size: 12px;
+  list-style: square;
+}
+
+div.uploadStatus {
+  margin: 5px;
+}
+
+div.progressBar {
+  margin: 5px;
+}
+
+div.progressBar div.border {
+  background-color: #e8a645;
+  border: 1px solid grey;
+  width: 100%;
+}
+
+div.progressBar div.background {
+  background-color: #e8a645;
+  height: 18px;
+  width: 0%;
+}
+
+div.content {
+  float: left;
+  padding: 0 2em;
+  margin-left: 1em;
+  margin-right: 20px;
+}
+
+div.top {
+  background: #e8a645;
+  width: 100%;
+  height: 100px;
+  border-bottom: 1px black solid;
+}
+
+div.top h1 {
+  color: #faf0e6;
+  background: transparent;
+  font-size: 40px;
+  font-family: arial;
+  margin: 0px;
+  padding: 20px;
+  float: left;
+}
+
+div.top a.logo,
+div.top a.logo:link,
+div.top a.logo:hover,
+div.top a.logo:visited
+{
+  color: #faf0e6;
+  background: transparent;
+  border: none;
+  text-decoration: none;
+}   
+
+div.menu { border-bottom: none; }
+div.menu a:link { text-decoration: none; }
+
+#menu {
+  float: left;
+  border: 1px #999999 solid;
+  width: 150px;
+  margin: 1em;
+}
+
+#menu ul {
+  list-style: none;
+  padding: 0px;
+  margin: 0px;
+}
+
+#menu li.sub {
+  color: #000000;
+  background: #d6d6d6;
+  font-weight: bold;
+  padding: 0px;
+}
+
+#menu .title {
+  padding: 4px;
+  text-align: center;
+}
+
+#menu ul.sub {
+  padding: 0px;
+  margin: 0px;
+  border-top: 1px #999999 solid;
+  border-bottom: 1px #999999 solid;
+  list-style: none;
+}
+
+#menu li a {
+  display: block;
+  background: #e8a645;
+  color: #faf0e6;
+  border-top: 1px #d6d6d6 solid;
+  border-bottom: 1px #d6d6d6 solid;
+  margin: 0px;
+  padding: 4px;
+  padding-left: 10px;
+  width: 100%;
+}
+
+#menu li a:visited {
+  color: #faf0e6;
+  text-decoration: none;
+}
+
+html>body #menu li a {
+  width: auto;
+}
+
+#menu li.item a:hover, ul.sub li.item a:hover {
+  display: block;
+  background: #ac0011;
+  color: #faf0e6;
+  border-top: 1px #6F000B solid;
+  border-bottom: 1px #6F000B solid;
+  text-decoration: none;
+}
+
+#footer {
+  text-align: center;
+  width: 100%;
+  border-top: 1px #000000 solid;
+  border-bottom: 1px #000000 solid;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  background: #e8a645;
+  color: #faf0e6;
+  clear: both;
+}
+
+#footer img {
+  border: none;
+}
+
+#footer a {
+  color: #faf0e6;
+}

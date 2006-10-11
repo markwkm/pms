@@ -1,0 +1,28 @@
+<%= error_messages_for 'filter' %>
+
+<!--[form:filter]-->
+<p><label for="filter_name">Name</label><br/>
+<%= text_field 'filter', 'name'  %></p>
+
+<p><label for="filter_software_id">Software</label><br/>
+<select id="filter_software_id" name="filter[software_id]">
+  <%= options_from_collection_for_select(Software.find(:all,
+      :order => 'UPPER(name)', :conditions => 'id > 0'), "id", "name", 1) %>
+</select></p>
+
+<p><label for="filter_filter_type_id">Type</label><br/>
+<select id="filter_filter_type_id" name="filter[filter_type_id]">
+  <%= options_from_collection_for_select(FilterType.find(:all,
+      :order => 'UPPER(code)', :conditions => 'id > 0'), "id", "code", 1) %>
+</select></p>
+
+<p><label for="filter_filename">Filename</label><br/>
+<%= text_field 'filter', 'filename'  %></p>
+
+<p><label for="filter_runtime">Runtime</label><br/>
+<%= text_field 'filter', 'runtime'  %></p>
+
+<p><label for="filter_file">File</label><br/>
+<%= file_field 'filter', 'file' %></p>
+<!--[eoform:filter]-->
+

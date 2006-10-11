@@ -1,0 +1,6 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+robot:
+  id: 1
+  login: robot
+  password: <%= 'robot'.crypt('ro') %>
+  admin: true

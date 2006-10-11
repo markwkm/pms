@@ -1,0 +1,7 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+first_filter_request:
+  id: 1
+  filter_id: 1
+  patch_id: 1
+  state: Queued
+  priority: 1

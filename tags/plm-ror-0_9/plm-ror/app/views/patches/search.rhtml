@@ -1,0 +1,51 @@
+<h1>Search</h1>
+
+<%= start_form_tag :action => 'search_result' %>
+
+<p>
+  <table>
+    <tr>
+      <td>Software Repository</td>
+      <td>
+        <%= select 'patch', 'software_id', Software.find(:all,
+            :order => 'name').collect { |s| [s.name, s.id] } %>
+        </select>
+      </td>
+    </tr>
+    <tr>
+      <td>Patch Name</td>
+      <td><%= text_field_tag 'identifier', nil, :maxlength => 254 %></td>
+    </tr>
+    <tr>
+      <td>User Name</td>
+      <td>
+        <%= text_field 'user', 'login', :maxlength => '254', :size => 20 %>
+      </td>
+    </tr>
+    <tr>
+      <td>Created</td>
+      <td>
+        <select name="search_created">
+          <option selected="selected" value=""></option>
+          <option value="24 hours">Last 24 Hours</option>
+          <option value="7 days">Last 7 Days</option>
+          <option value="30 days">Last 30 Days</option>
+          <option value="3 months">Last 3 Months</option>
+          <option value="6 months">Last 6 Months</option>
+          <option value="12 months">Last 12 Months</option>
+        </select>
+      </td>
+    </tr>
+  </table>
+</p>
+
+<p>
+  <%= submit_tag 'Submit Query' %>
+</p>
+
+<%= end_form_tag %>
+
+<p>
+  Patch Name searches support * to match any.<br/ >
+  Example: linux-2.4.*-ac
+</p>
