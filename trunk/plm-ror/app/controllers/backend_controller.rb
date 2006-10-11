@@ -224,7 +224,7 @@ class BackendController < ApplicationController
   end
 
   def patch_find_by_name(name)
-    p = Patch.find(:first, :conditions => ['name = ?', name.strip])
+    p = Patch.find(:first, :select => 'id', :conditions => ['name = ?', name.strip])
     return 0 if p.nil?
     return p['id']
   end
