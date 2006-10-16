@@ -4,5 +4,5 @@
 
 class Source < ActiveRecord::Base
   belongs_to :software
-  belongs_to :source_syncs
+  belongs_to :source_sync
 end

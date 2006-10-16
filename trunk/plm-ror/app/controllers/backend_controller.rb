@@ -123,6 +123,7 @@ class BackendController < ApplicationController
                 :order => 'priority, patch_id')
             break unless fr.nil?
           end
+          break unless fr.nil?
         end
         return nil if fr.nil?
         fr['state'] = STATE_PENDING
