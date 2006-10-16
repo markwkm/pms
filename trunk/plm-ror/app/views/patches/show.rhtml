@@ -57,7 +57,7 @@
 </p>
 <% end %>
 
-<% unless @session['user']['login'] != @patch.user.login then %>
+<% unless @session['user'].nil? or @session['user']['login'] != @patch.user.login then %>
 <p>
   To <b>delete</b> this patch from the system, click 
     <%= link_to 'here.', { :action => 'patch_delete', :id => @patch['id']} , {:confirm => "Are your sure you want to delete " + @patch['name'] + "?"} %>
