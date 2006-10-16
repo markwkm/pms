@@ -26,7 +26,8 @@ class Patch < ActiveRecord::Base
     # We want to use patch['patch_id'] as opposed to patch.patch since the
     # latter will execute a query against the database.
     #
-    while !patch['patch_id'].nil?
+    while ( !patch['patch_id'].nil? and !patch['patch_id'].zero? )
+      break if patch['patch_id'].nil?
       patch = Patch.find(patch['patch_id'], :select => 'name, patch_id')
       tree << patch['name']
       break if patch['patch_id'].nil?
