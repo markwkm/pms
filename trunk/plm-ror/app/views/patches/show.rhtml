@@ -55,9 +55,12 @@
   once only. (May take a while for big patches.)<br />
   To <b>view</b> scripts for this patch, click build, install or validate.<br />
 </p>
+<% end %>
 
+<% unless @session['user']['login'] != @patch.user.login then %>
 <p>
-  To <b>delete</b> this patch from the system, click here.
+  To <b>delete</b> this patch from the system, click 
+    <%= link_to 'here.', { :action => 'patch_delete', :id => @patch['id']} , {:confirm => "Are your sure you want to delete " + @patch['name'] + "?"} %>
 </p>
 <% end %>
 

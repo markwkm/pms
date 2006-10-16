@@ -468,7 +468,7 @@ ALTER TABLE ONLY filter_requests
 --
 
 ALTER TABLE ONLY filter_requests
-    ADD CONSTRAINT filters_patches_patch_id_fkey FOREIGN KEY (patch_id) REFERENCES patches(id) ON UPDATE RESTRICT ON DELETE RESTRICT;
+    ADD CONSTRAINT filters_patches_patch_id_fkey FOREIGN KEY (patch_id) REFERENCES patches(id) ON UPDATE RESTRICT ON DELETE CASCADE;
 
 
 --

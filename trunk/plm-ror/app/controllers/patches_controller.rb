@@ -304,4 +304,18 @@ class PatchesController < ApplicationController
     @patch[:diff] = Base64.decode64(@patch[:diff])
     render :layout => false
   end
+
+  def patch_delete
+      user = User.find(:first, :conditions => ['login = ?', @session['user']['login']])
+      # We intentionally want invalid logins or passwords to be ambiguous for the user.
+      return -1 if user.nil?
+      return -1 if @session['user']['password'] != user['password']
+      patch = Patch.find(params[:id], :select => 'id, name, user_id', :limit => 1)
+      return -1 if patch['user_id'] != user['id']
+      # I set up the filter requests table to cascade.
+      #       patch.delete
+      patch.destroy
+      render_text 'Patch ' + patch['name'] + ' was deleted'
+      return patch['id']
+  end
 end

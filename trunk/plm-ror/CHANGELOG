@@ -1,3 +1,7 @@
+*0.10*
+*Add back patch delete from web form functionality.
+*Change filter_requests table to cascade on patch delete.
+
 *0.9*
 
 * Removed use of the diffless_patch view and select columns appropriately.
