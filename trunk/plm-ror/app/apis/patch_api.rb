@@ -78,7 +78,4 @@ class PatchApi < ActionWebService::API::Base
   api_method :verify_patch,
       :expects => [{ :patch_name => :string}, { :software_name => :string }],
       :returns => [:bool]
-  api_method :patch_delete,
-      :expects => [{ :id => :int }],
-      :returns => [:int]
 end
