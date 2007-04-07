@@ -79,4 +79,5 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.admin',
     'plm_dj.patch',
+    'plm_dj.xmlrpc',
 )
