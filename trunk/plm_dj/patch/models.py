@@ -1,3 +1,5 @@
 from django.db import models
 
-# Create your models here.
+class Patch(models.Model):
+	diff = models.TextField()
+	name = models.CharField(maxlength=1000)
