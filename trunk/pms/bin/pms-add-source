@@ -1,0 +1,13 @@
+#!/bin/sh
+
+# pms-add-source postgresql url://www.postresql.org/ tar.gz
+
+NAME=$1
+URL=$2
+TYPE=$3
+
+ID=`psql -t -c "SELECT id FROM software WHERE name = '${NAME}'"`
+
+echo "'$ID'"
+
+psql -c "INSERT INTO sources (software_id, url, source_type) VALUES (${ID}, '$URL}', '${TYPE}')"
