@@ -10,4 +10,4 @@ ID=`psql -t -c "SELECT id FROM software WHERE name = '${NAME}'"`
 
 echo "'$ID'"
 
-psql -c "INSERT INTO sources (software_id, url, source_type) VALUES (${ID}, '$URL}', '${TYPE}')"
+psql -c "INSERT INTO sources (software_id, url, source_type) VALUES (${ID}, '${URL}', '${TYPE}')"
