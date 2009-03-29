@@ -1,0 +1,16 @@
+PMS - Patch Management System From a Woman's Perspective
+
+   1. Goals
+         1. Test patch every day against the head of the CVS tree
+         2. Notify submitter when patch doesn't apply
+         3. Notify submitter when patch doesn't build
+         4. Status dashboard of patches and build results
+         5. Document well
+   2. Limitations
+         1. Doesn't manage series of patches well
+   3. Features
+         1. Delete a patch (actually mark as do not manage anymore.)
+         2. Fetch tarball releases from mirrors.
+         3. Stop testing patches when it doesn't apply cleanly.
+   4. Uncertainties
+         1. Patching against fixed dates vs CVS head at the time.
