@@ -1,0 +1,9 @@
+#!/bin/sh
+
+# pms-add-software postgresql "PostgreSQL" 1
+
+NAME=$1
+DESC=$2
+STRIP=$3 # patch -p level
+
+psql -c "INSERT INTO software (name, description, default_strip_level) VALUES ('${NAME}', '${DESC}', ${STRIP})"
