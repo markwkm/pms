@@ -102,6 +102,11 @@ CREATE TABLE sources (
     PRIMARY KEY (id)
 );
 
+ALTER TABLE sources
+ADD CONSTRAINT sources_software_id
+FOREIGN KEY (software_id)
+REFERENCES software (id);
+
 CREATE TABLE source_filters (
     id bigserial NOT NULL,
     created_on timestamp with time zone DEFAULT now() NOT NULL,
