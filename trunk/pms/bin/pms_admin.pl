@@ -7,8 +7,9 @@ use Data::Dumper;
 use File::Temp qw/tempfile tempdir/;
 File::Temp->safe_level( File::Temp::MEDIUM);
 use Cwd;
+use Carp;
 
-use vars qw/%opt $PSQL/;
+use vars qw/%opt $PSQL %info/;
 
 GetOptions( 
 		"help",
@@ -37,17 +38,17 @@ if ($NO_PSQL_OPTION) {
 if (! defined $PSQL or ! length $PSQL) {
     if (exists $opt{PSQL}) {
         $PSQL = $opt{PSQL};
-        $PSQL =~ m{^/[\w\d\/]*psql$} or die qq{Invalid psql argument: must be full path to a file named psql\n};
-        -e $PSQL or die qq{Cannot find given psql executable: $PSQL\n};
+        $PSQL =~ m{^/[\w\d\/]*psql$} or croak qq{Invalid psql argument: must be full path to a file named psql\n};
+        -e $PSQL or croak qq{Cannot find given psql executable: $PSQL\n};
     }
     else {
         chomp($PSQL = qx{which psql});
-        $PSQL or die qq{Could not find a suitable psql executable\n};
+        $PSQL or croak qq{Could not find a suitable psql executable\n};
     }
 }
--x $PSQL or die qq{The file "$PSQL" does not appear to be executable\n};
+-x $PSQL or croak qq{The file "$PSQL" does not appear to be executable\n};
 $res = qx{$PSQL --version};
-$res =~ /^psql \(PostgreSQL\) (\d+\.\d+)/ or die qq{Could not determine psql version\n};
+$res =~ /^psql \(PostgreSQL\) (\d+\.\d+)/ or croak qq{Could not determine psql version\n};
 our $psql_version = $1;
 
 $VERBOSE >= 1 and warn qq{psql=$PSQL version=$psql_version\n};
@@ -65,14 +66,24 @@ sub verify_sources {
 	## Verify ALL sources related to search param
 	## Hand off individual sources to verify_source() for checking
 	my $SQL = qq/SELECT sources.id,url,source_type FROM sources LEFT JOIN software ON sources.software_id = software.id WHERE software.name = '$software';/;
-	my $result = run_command($SQL);
-	for my $db (@{$result->{db}}) {
+	$info = run_command($SQL);
+	for my $db (@{$info->{db}}) {
 		my $s = $db->{slurp};
-		print $s, "\n";	
+		$VERBOSE >= 2 and print "Returned: $s";
+		for my $row (split /\n/ => $s) {
+			my @i = split /\s*\|\s*/ => $row;
+			my $id = int $i[0];
+			$info{node}{$id}{url} = $i[1];
+			$info{node}{$id}{source_type} = $i[2];
+			verify_source($info{node}{$id}{url},  $info{node}{$id}{source_type});
+		}
 	}
+
 }
 
 sub verify_source {
+
+	my ($url, $source_type) = @_;
 
 	## ?? source needs to be treated the same as patches
 	## Look in sources.url -
@@ -83,7 +94,16 @@ sub verify_source {
 	##    otherwise: raise error that no source filter is defined 
 	## if found, then apply filter to directory contents 
 	## create an entry in the patches table for every new item found return 
-
+	
+	if ($url =~ m/^http/) {
+		## test fetch of http
+		croak "http verification unimplemented for url $url\n";
+	} 
+	elsif ($url =~ m/^\//) {
+		## test local directory
+		-d $url and croak "FATAL can't find local directory $url\n";
+		$VERBOSE >=2 and "Success! Found local directory $url\n";
+	}		
 
 }
 
@@ -236,7 +256,7 @@ sub run_command {
     } ## end GROUP
 
     if (! @target) {
-        die qq{No target databases found\n};
+        croak qq{No target databases found\n};
     }
 
     ## Create a temp file to store our results
@@ -272,7 +292,7 @@ sub run_command {
                 $db->{host} eq '<none>' ? '*' : $db->{host},
                 $db->{port},   $db->{dbname},
                 $db->{dbuser}, $db->{dbpass};
-            close $passfh or die qq{Could not close $passfile: $!\n};
+            close $passfh or croak qq{Could not close $passfile: $!\n};
         }
 
 
@@ -293,27 +313,27 @@ sub run_command {
 
         $VERBOSE >= 3 and warn Dumper \@args;
 
-        local $SIG{ALRM} = sub { die 'Timed out' };
+        local $SIG{ALRM} = sub { croak 'Timed out' };
         my $timeout = $arg->{timeout} || $opt{timeout};
         alarm 0;
 
         my $start = $opt{showtime} ? [gettimeofday()] : 0;
-        open my $oldstderr, '>&', STDERR or die "Could not dupe STDERR\n";
-        open STDERR, '>', $errorfile or die qq{Could not open STDERR?!\n};
+        open my $oldstderr, '>&', STDERR or croak "Could not dupe STDERR\n";
+        open STDERR, '>', $errorfile or croak qq{Could not open STDERR?!\n};
         eval {
             alarm $timeout;
             $res = system $PSQL => @args;
         };
         my $err = $@;
         alarm 0;
-        open STDERR, '>&', $oldstderr or die "Could not recreate STDERR\n";
-        close $oldstderr or die qq{Could not close STDERR copy: $!\n};
+        open STDERR, '>&', $oldstderr or croak "Could not recreate STDERR\n";
+        close $oldstderr or croak qq{Could not close STDERR copy: $!\n};
         if ($err) {
             if ($err =~ /Timed out/) {
-                die qq{Command: "$string" timed out! Consider boosting --timeout higher than $timeout\n};
+                croak qq{Command: "$string" timed out! Consider boosting --timeout higher than $timeout\n};
             }
             else {
-                die q{Unknown error inside of the "run_command" function};
+                croak q{Unknown error inside of the "run_command" function};
             }
         }
 
@@ -332,7 +352,7 @@ sub run_command {
                 $ERROR = $db->{error};
             }
             if (!$db->{ok} and !$arg->{failok}) {
-                die "Query failed: $string\n";
+                croak "Query failed: $string\n";
             }
         }
         else {
@@ -349,7 +369,7 @@ sub run_command {
             ## If we were provided with a regex, check and bail if it fails
             elsif ($arg->{regex}) {
                 if ($db->{slurp} !~ $arg->{regex}) {
-                    die "Regex failed for query: $string\n";
+                    croak "Regex failed for query: $string\n";
                 }
             }
 
@@ -360,10 +380,10 @@ sub run_command {
         ## then re-run the command to this connection.
         if ($arg->{version}) {
             if ($db->{error}) {
-                die $db->{error};
+                croak $db->{error};
             }
             if ($db->{slurp} !~ /PostgreSQL (\d+\.\d+)/) {
-                die qq{Could not determine version of Postgres!\n};
+                croak qq{Could not determine version of Postgres!\n};
             }
             $db->{version} = $1;
             $string = $arg->{version}{$db->{version}} || $arg->{oldstring};
@@ -372,8 +392,8 @@ sub run_command {
         }
     } ## end each database
 
-    close $errfh or die qq{Could not close $errorfile: $!\n};
-    close $tempfh or die qq{Could not close $tempfile: $!\n};
+    close $errfh or croak qq{Could not close $errorfile: $!\n};
+    close $tempfh or croak qq{Could not close $tempfile: $!\n};
 
     $info->{hosts} = keys %host;
 
