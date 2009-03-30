@@ -1,0 +1,4 @@
+* Create shell script for adding software
+* Create shell script for adding sources
+* Create library for fetching sources
+* Create library for adding 'filters' (probably will rename -- maybe to 'actions')
