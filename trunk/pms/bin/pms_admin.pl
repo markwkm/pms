@@ -20,7 +20,7 @@ GetOptions(
 		"PSQL=s",
 );
 
-$VERBOSE = $opt{VERBOSE} || 2;
+$VERBOSE = $opt{VERBOSE} || 4;
 
 $PSQL = $opt{PSQL} || '/Users/markwkm/local/bin/psql';
 $opt{dbuser} = $opt{dbuser} || ['selena'];
@@ -56,13 +56,20 @@ $opt{defaultdb} = $psql_version >= 7.4 ? 'postgres' : 'template1';
 
 ####
 
+verify_sources('postgresql');
 
 exit;
 
 sub verify_sources {
+	my ($software) = @_;
 	## Verify ALL sources related to search param
 	## Hand off individual sources to verify_source() for checking
-	my $SQL = 'SELECT ';
+	my $SQL = qq/SELECT sources.id,url,source_type FROM sources LEFT JOIN software ON sources.software_id = software.id WHERE software.name = '$software';/;
+	my $result = run_command($SQL);
+	for my $db (@{$result->{db}}) {
+		my $s = $db->{slurp};
+		print $s, "\n";	
+	}
 }
 
 sub verify_source {
@@ -162,7 +169,7 @@ sub run_command {
         {
          host   => ['<none>'],
          port   => [5432],
-         dbname => [$opt{defaultdb}],
+         dbname => $opt{db} || [$opt{defaultdb}],
          dbuser => [$opt{defaultuser}],
          dbpass => [''],
          inputfile => [''],
