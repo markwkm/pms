@@ -8,6 +8,7 @@ use File::Temp qw/tempfile tempdir/;
 File::Temp->safe_level( File::Temp::MEDIUM);
 use Cwd;
 use Carp;
+use POSIX qw/opendir readdir/;
 
 use vars qw/%opt $PSQL %info/;
 
@@ -75,7 +76,7 @@ sub verify_sources {
 			my $id = int $i[0];
 			$info{node}{$id}{url} = $i[1];
 			$info{node}{$id}{source_type} = $i[2];
-			verify_source($info{node}{$id}{url},  $info{node}{$id}{source_type});
+			croak "Unable to verify source: ", $info{node}{$id}{url}, "\n" unless (verify_source($info{node}{$id}{url},  $info{node}{$id}{source_type}));
 		}
 	}
 
@@ -84,27 +85,49 @@ sub verify_sources {
 sub verify_source {
 
 	my ($url, $source_type) = @_;
+	my @found = ();
 
 	## ?? source needs to be treated the same as patches
 	## Look in sources.url -
 	## verify that source_type exists
-	## match whatever we find against source_filters
-	## grab source filters based on sources.id
-	##  - no source filters: case -- if HEAD from repo, then OK, 
-	##    otherwise: raise error that no source filter is defined 
-	## if found, then apply filter to directory contents 
-	## create an entry in the patches table for every new item found return 
 	
+	croak "FATAL Undefined source_type\n" unless (defined $source_type);
+
 	if ($url =~ m/^http/) {
 		## test fetch of http
 		croak "http verification unimplemented for url $url\n";
 	} 
 	elsif ($url =~ m/^\//) {
 		## test local directory
-		-d $url and croak "FATAL can't find local directory $url\n";
-		$VERBOSE >=2 and "Success! Found local directory $url\n";
+		-d $url or croak "FATAL can't read local directory $url\n";
+		$VERBOSE >= 2 and "Success\! Found local directory $url\n";
 	}		
 
+
+	return (scalar(@found) > 0 ? 1 : 0);
+}
+
+sub fetch_local_source_files {
+	my ($url) = @_;
+	my $dir = POSIX::opendir( $url );
+	my @files = POSIX::readdir( $dir ) if ($dir);
+	for (@files) {
+		if (m/$source_type/) {
+			$VERBOSE >= 2 and print "Found: ", $_, "\n"; 
+			push(@found, $_);
+		}
+	}
+
+}
+
+sub test_source_action {
+	## (renaming source_filters to source_actions) !!!
+	## match whatever we find against source_filters
+	## grab source filters based on sources.id
+	##  - no source filters: case -- if HEAD from repo, then OK, 
+	##    otherwise: raise error that no source filter is defined 
+	## if found, then apply filter to directory contents 
+	## create an entry in the patches table for every new item found return 
 }
 
 sub default_actions {
