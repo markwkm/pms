@@ -76,16 +76,15 @@ sub verify_sources {
 			my $id = int $i[0];
 			$info{node}{$id}{url} = $i[1];
 			$info{node}{$id}{source_type} = $i[2];
-			croak "Unable to verify source: ", $info{node}{$id}{url}, "\n" unless (verify_source($info{node}{$id}{url},  $info{node}{$id}{source_type}));
+			croak "Unable to verify source: ", $info{node}{$id}{url}, "\n" unless (verify_source_exists($info{node}{$id}{url},  $info{node}{$id}{source_type}));
 		}
 	}
 
 }
 
-sub verify_source {
+sub verify_source_exists {
 
 	my ($url, $source_type) = @_;
-	my @found = ();
 
 	## ?? source needs to be treated the same as patches
 	## Look in sources.url -
@@ -101,14 +100,15 @@ sub verify_source {
 		## test local directory
 		-d $url or croak "FATAL can't read local directory $url\n";
 		$VERBOSE >= 2 and "Success\! Found local directory $url\n";
+		return 1;
 	}		
 
-
-	return (scalar(@found) > 0 ? 1 : 0);
+	return 0;
 }
 
 sub fetch_local_source_files {
 	my ($url) = @_;
+	my @found = ();
 	my $dir = POSIX::opendir( $url );
 	my @files = POSIX::readdir( $dir ) if ($dir);
 	for (@files) {
@@ -117,7 +117,6 @@ sub fetch_local_source_files {
 			push(@found, $_);
 		}
 	}
-
 }
 
 sub test_source_action {
