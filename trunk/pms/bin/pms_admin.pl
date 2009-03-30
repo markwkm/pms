@@ -77,10 +77,11 @@ sub verify_sources {
 			$info{node}{$id}{url} = $i[1];
 			$info{node}{$id}{source_type} = $i[2];
 			croak "Unable to verify source: ", $info{node}{$id}{url}, "\n" unless (verify_source_exists($info{node}{$id}{url},  $info{node}{$id}{source_type}));
+			my (@files) = list_local_source_files($info{node}{$id}{url},  $info{node}{$id}{source_type});
+			croak "Unable to find source files: ", $info{node}{$id}{url}, ", source_type: ", $info{node}{$id}{source_type}, "\n" unless (scalar(@files) > 0);
 		}
 	}
-
-}
+} ## end verify_sources
 
 sub verify_source_exists {
 
@@ -104,10 +105,10 @@ sub verify_source_exists {
 	}		
 
 	return 0;
-}
+} ## end verify_source_exists
 
-sub fetch_local_source_files {
-	my ($url) = @_;
+sub list_local_source_files {
+	my ($url, $source_type) = @_;
 	my @found = ();
 	my $dir = POSIX::opendir( $url );
 	my @files = POSIX::readdir( $dir ) if ($dir);
@@ -117,7 +118,10 @@ sub fetch_local_source_files {
 			push(@found, $_);
 		}
 	}
-}
+
+	return @found;
+
+} ## end list_local_source_files
 
 sub test_source_action {
 	## (renaming source_filters to source_actions) !!!
