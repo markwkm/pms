@@ -78,11 +78,11 @@ sub verify_sources {
 			my $source_type = $info{node}{$id}{source_type} = $i[2];
 			croak "FATAL Undefined source_type\n" unless (defined $source_type);
 
-			croak "Unable to verify source: ", $url, "\n" 
+			croak "Unable to verify source: ", $url, "\n"
 				unless (verify_source_exists($url));
 
 			my (@files) = list_local_source_files($url, $source_type);
-			croak "Unable to find source files: ", $url, ", source_type: ", $source_type, "\n" 
+			croak "Unable to find source files: ", $url, ", source_type: ", $source_type, "\n"
 				unless (scalar(@files) > 0);
 			## XXX Probably need to push @files into some global data structure (in %info?)
 		}
@@ -96,8 +96,6 @@ sub verify_source_exists {
 	## ?? source needs to be treated the same as patches
 	## Look in sources.url -
 	## verify that source_type exists
-	
-	
 
 	if ($url =~ m/^http/) {
 		## test fetch of http
@@ -121,7 +119,7 @@ sub list_local_source_files {
 	my @files = POSIX::readdir( $dir ) if ($dir);
 	for (@files) {
 		if (m/$source_type/) {
-			$VERBOSE >= 2 and print "Found: ", $_, "\n"; 
+			$VERBOSE >= 2 and print "Found: ", $_, "\n";
 			push(@found, $_);
 		}
 	}
@@ -134,10 +132,10 @@ sub test_source_action {
 	## (renaming source_filters to source_actions) !!!
 	## match whatever we find against source_filters
 	## grab source filters based on sources.id
-	##  - no source filters: case -- if HEAD from repo, then OK, 
-	##    otherwise: raise error that no source filter is defined 
-	## if found, then apply filter to directory contents 
-	## create an entry in the patches table for every new item found return 
+	##  - no source filters: case -- if HEAD from repo, then OK,
+	##    otherwise: raise error that no source filter is defined
+	## if found, then apply filter to directory contents
+	## create an entry in the patches table for every new item found return
 }
 
 sub default_actions {
