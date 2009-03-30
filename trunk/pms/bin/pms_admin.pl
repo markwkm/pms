@@ -74,24 +74,30 @@ sub verify_sources {
 		for my $row (split /\n/ => $s) {
 			my @i = split /\s*\|\s*/ => $row;
 			my $id = int $i[0];
-			$info{node}{$id}{url} = $i[1];
-			$info{node}{$id}{source_type} = $i[2];
-			croak "Unable to verify source: ", $info{node}{$id}{url}, "\n" unless (verify_source_exists($info{node}{$id}{url},  $info{node}{$id}{source_type}));
-			my (@files) = list_local_source_files($info{node}{$id}{url},  $info{node}{$id}{source_type});
-			croak "Unable to find source files: ", $info{node}{$id}{url}, ", source_type: ", $info{node}{$id}{source_type}, "\n" unless (scalar(@files) > 0);
+			my $url = $info{node}{$id}{url} = $i[1];
+			my $source_type = $info{node}{$id}{source_type} = $i[2];
+			croak "FATAL Undefined source_type\n" unless (defined $source_type);
+
+			croak "Unable to verify source: ", $url, "\n" 
+				unless (verify_source_exists($url));
+
+			my (@files) = list_local_source_files($url, $source_type);
+			croak "Unable to find source files: ", $url, ", source_type: ", $source_type, "\n" 
+				unless (scalar(@files) > 0);
+			## XXX Probably need to push @files into some global data structure (in %info?)
 		}
 	}
 } ## end verify_sources
 
 sub verify_source_exists {
 
-	my ($url, $source_type) = @_;
+	my ($url) = @_;
 
 	## ?? source needs to be treated the same as patches
 	## Look in sources.url -
 	## verify that source_type exists
 	
-	croak "FATAL Undefined source_type\n" unless (defined $source_type);
+	
 
 	if ($url =~ m/^http/) {
 		## test fetch of http
@@ -109,6 +115,7 @@ sub verify_source_exists {
 
 sub list_local_source_files {
 	my ($url, $source_type) = @_;
+
 	my @found = ();
 	my $dir = POSIX::opendir( $url );
 	my @files = POSIX::readdir( $dir ) if ($dir);
