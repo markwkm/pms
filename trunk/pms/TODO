@@ -1,4 +1,11 @@
 * Create shell script for adding software
 * Create shell script for adding sources
 * Create library for fetching sources
+	-- verify source once it is on disk
+	-- pull latest tarballs (or whatever) from defined URLs
+	-- md5sum check (LOW PRIORITY)
 * Create library for adding 'filters' (probably will rename -- maybe to 'actions')
+	-- Establish default set of actions (unpack, apply patches, configure, make, test)
+	-- Create filters for patches applied to sources
+
+
