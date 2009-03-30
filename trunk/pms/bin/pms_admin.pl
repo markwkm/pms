@@ -56,19 +56,13 @@ $opt{defaultdb} = $psql_version >= 7.4 ? 'postgres' : 'template1';
 
 ####
 
-my $SQL = 'SELECT 1+1';
-my $res = run_command($SQL);
-
-for my $db (@{$res->{db}}) {
-	my $s = $db->{slurp};
-	print $s, "\n";	
-}
 
 exit;
 
 sub verify_sources {
 	## Verify ALL sources related to search param
 	## Hand off individual sources to verify_source() for checking
+	my $SQL = 'SELECT ';
 }
 
 sub verify_source {
@@ -109,6 +103,7 @@ sub fetch_source {
 	## Grab sources based on URL in sources table
 	## wget vs. curl (which one is installed?)o
 	## Configuration param for each
+	## Default is curl
 }
 
 sub fetch_with_wget {
