@@ -5,6 +5,8 @@ from pylons.controllers.util import abort, redirect_to
 
 from pms.lib.base import BaseController, render
 
+from pms import model
+
 log = logging.getLogger(__name__)
 
 class SoftwaresController(BaseController):
@@ -16,6 +18,9 @@ class SoftwaresController(BaseController):
     def index(self, format='html'):
         """GET /softwares: All items in the collection"""
         # url('softwares')
+        software_q = model.meta.Session.query(model.Software)
+        c.softwares = software_q.all()
+        return render('/softwares/index.html')
 
     def create(self):
         """POST /softwares: Create a new item"""
@@ -46,6 +51,9 @@ class SoftwaresController(BaseController):
     def show(self, id, format='html'):
         """GET /softwares/id: Show a specific item"""
         # url('software', id=ID)
+        software_q = model.meta.Session.query(model.Software)
+        c.software = software_q.filter(model.Software.name==id)[0]
+        return render('/softwares/show.html')
 
     def edit(self, id, format='html'):
         """GET /softwares/id/edit: Form to edit an existing item"""
