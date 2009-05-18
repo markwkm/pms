@@ -1,0 +1,3 @@
+include pms/config/deployment.ini_tmpl
+recursive-include pms/public *
+recursive-include pms/templates *
