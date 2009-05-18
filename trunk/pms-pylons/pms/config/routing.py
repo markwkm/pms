@@ -11,6 +11,9 @@ def make_map():
     """Create, configure and return the routes Mapper"""
     map = Mapper(directory=config['pylons.paths']['controllers'],
                  always_scan=config['debug'])
+
+    map.resource('software', 'softwares')
+
     map.minimization = False
 
     # The ErrorController route (handles 404/500 error pages); it should
