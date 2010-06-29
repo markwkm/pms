@@ -1,8 +1,0 @@
-This containes a list of things that need to be changed/checked/audited in the code.
-
-- RPC Level authentication needs to be session driven at the ASP level.
-
-- PLM::RPC::Patch->patch_search() 
-    - Needs to return only public or user patches (multiple searches?)
-    - Needs to force auto-limit on the number of results based on user level
-

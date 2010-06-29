@@ -1,1 +1,0 @@
-CONFIG_CPU_SH4=y

@@ -1,1 +1,0 @@
-ALTER TABLE plm_patch ADD COLUMN reverse INT NOT NULL DEFAULT 0;
