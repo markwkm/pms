@@ -1,6 +1,6 @@
 from pms.tests import *
 
-class TestSoftwaresController(TestController):
+class TestSoftwareController(TestController):
 
     def test_index(self):
         response = self.app.get(url('softwares'))
