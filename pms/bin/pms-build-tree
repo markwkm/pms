@@ -1,0 +1,154 @@
+#!/usr/bin/env python
+
+from httplib import HTTPConnection, HTTPSConnection
+from urllib import urlretrieve
+from mimetypes import guess_type
+import tarfile
+from os import chdir, rename, system
+import sys
+from optparse import OptionParser
+
+try:
+    import json
+except ImportError:
+    import simplejson as json
+
+# Handle command line arguments.
+parser = OptionParser(usage="usage: %prog [options]")
+parser.add_option('--host', help='server address')
+parser.add_option('--http', help='use http', action='store_true')
+parser.add_option('--https', help='use https', action='store_true')
+parser.add_option('--patch', help='patch id')
+parser.add_option('--port', help='server port')
+parser.add_option('--software', help='software name')
+options, args = parser.parse_args()
+
+if not options.patch:
+    parser.error('a patch id is required')
+
+if not options.software:
+    parser.error('software name is required')
+
+if not options.host:
+    parser.error('hostname or ip address required')
+
+if options.port:
+    port = int(options.port)
+
+if options.http:
+    protocol = 'http'
+    if port is None:
+        port = 80
+elif options.https:
+    protocol = 'https'
+    if port is None:
+        port = 443
+else:
+    parser.error('--http or --https required')
+
+server = options.host
+software = options.software
+patch_id = options.patch
+
+# FIXME: There must be a better way to determine whether we need HTTP or HTTPS.
+if protocol == 'http':
+    conn = HTTPConnection(server, port)
+elif protocol == 'https':
+    conn = HTTPSConnection(server, port)
+conn.request('GET', '/trees/%s' % patch_id)
+resp = conn.getresponse()
+conn.close()
+# FIXME: Check return codes.
+res = json.loads(resp.read())
+# FIXME: The list is ordered with integer keys but json converts the keys from
+# ints to strings.  There must be a smarter way than this to convert the keys
+# back to ints so they are sorted correctly.  ASCII order won't work when the
+# patch count gets longer than 1 digit.
+tree = dict()
+for i in res:
+    tree[int(i)] = res[i]
+
+# Reverse the list because popping stuff the list happens in the reverse order
+# of what we really want.
+tree.keys().reverse()
+patches = list()
+for i in tree:
+    patches.append(tree[i])
+
+print 'Applies Tree: %s' % patches
+
+# FIXME: Make this script work in a temporary directory that so that the files
+# are easier to clean up afterwards.
+# Set up base source.
+p_id = patches.pop()
+# FIXME: There must be a better way to determine whether we need HTTP or HTTPS.
+if protocol == 'http':
+    conn = HTTPConnection(server, port)
+elif protocol == 'https':
+    conn = HTTPSConnection(server, port)
+conn.request('GET', '/ps/%d' % p_id)
+resp = conn.getresponse()
+conn.close()
+# FIXME: Check return codes.
+baseline = json.loads(resp.read())
+
+# FIXME: There must be a better way to determine whether we need HTTP or HTTPS.
+if protocol == 'http':
+    conn = HTTPConnection(server, port)
+elif protocol == 'https':
+    conn = HTTPSConnection(server, port)
+conn.request('GET', '/sources/%d' % baseline['source_id'])
+resp = conn.getresponse()
+conn.close()
+# FIXME: Check return codes.
+source = json.loads(resp.read())
+
+print 'Retrieving software base from [ %s ] %s' % (source['source_type'],
+                                                   source['root_location'])
+
+url = source['root_location'] + baseline['remote_identifier']
+urlretrieve(url, baseline['remote_identifier'])
+# FIXME: Handle if file not retrieved successfully.
+type, encoding = guess_type(baseline['remote_identifier'])
+if type == 'application/x-tar':
+    tar = tarfile.open(baseline['remote_identifier'])
+    tar.extractall()
+    tar.close()
+# FIXME: Why rename the directory instead of working with the known directory
+# name?
+rename(baseline['name'], software)
+
+for p_id in patches:
+    # Get patch details.
+    # FIXME: There must be a better way to determine whether we need HTTP or
+    # HTTPS.
+    if protocol == 'http':
+        conn = HTTPConnection(server, port)
+    elif protocol == 'https':
+        conn = HTTPSConnection(server, port)
+    conn.request('GET', '/ps/%d' % p_id)
+    resp = conn.getresponse()
+    conn.close()
+    # FIXME: Check return code.
+    patch = json.loads(resp.read())
+
+    # Download the patch file.
+    url = '%s://%s:%d/patch/download/%d' % (protocol, server, port, p_id)
+    patch_filename = 'plm.%d.patch.bz2' % p_id
+    urlretrieve(url, patch_filename)
+    # FIXME: Should this be done with a python lib?
+    system('bunzip2 %s' % patch_filename)
+
+    # Apply the patch to the source tree.
+    output = 'patch.%d.out' % p_id
+    print 'Patching source, placing output in: %s' % output
+    chdir(software)
+    # Seems silly to use popen or something to read the output into python and
+    # then back out to the filesystem.  Is system() the best choice here?
+    rc = system('patch -p%s < ../plm.%d.patch > %s' % \
+                (patch['strip_level'], p_id, output))
+    if rc != 0:
+        # If patch throws an error, stop running and contintue to throw the
+        # error up.
+        exit(rc)
+    chdir('..')

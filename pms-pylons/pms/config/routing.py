@@ -20,6 +20,11 @@ def make_map(config):
 
     # CUSTOM ROUTES HERE
 
+    map.resource('p', 'ps')
+    map.resource('request', 'requests')
+    map.resource('source', 'sources')
+    map.resource('tree', 'trees')
+
     map.connect('/{controller}/{action}')
     map.connect('/{controller}/{action}/{id}')
 

@@ -1,0 +1,174 @@
+#!/usr/bin/env python
+
+from httplib import HTTPConnection, HTTPSConnection
+from optparse import OptionParser
+from os import chdir, chmod, fork, mkdir, setsid, system, umask
+from shutil import rmtree
+from stat import S_IRUSR, S_IWUSR, S_IXUSR, S_IRGRP, S_IXGRP, S_IROTH, S_IXOTH
+from subprocess import PIPE, Popen
+from tempfile import mkdtemp
+from time import sleep
+from urllib import urlencode, urlopen, urlretrieve
+
+try:
+    import json
+except ImportError:
+    import simplejson as json
+
+def run(protocol, server, port, code):
+    # I did this so I didn't have to indent the code in work() another level.
+    # Is this a poor reason?
+    while True:
+        work(protocol=protocol, server=server, port=port, code=code)
+        # TODO: It would be cool to take advantage of LISTEN/NOTIFY with
+        # Postgres instead of polling with a sleep.
+        sleep(60)
+
+def work(protocol, server, port, code):
+    # TODO: There must be a better way to determine whether we need HTTP or
+    # HTTPS.
+    if protocol == 'http':
+        conn = HTTPConnection(server, port)
+    elif protocol == 'https':
+        conn = HTTPSConnection(server, port)
+
+    # TODO: There must be a better way of building the paramter string.
+    codes = code.split(',')
+    codes2 = list()
+    for c in codes:
+        codes2.append('type=%s' % c)
+    params = '&'.join(codes2)
+    conn.request('GET', '/requests?%s' % params)
+    resp = conn.getresponse()
+    conn.close()
+    # FIXME: Handle errors.
+    request = json.loads(resp.read())
+
+    # Nothing to be done if no requests are queued.
+    if len(request) == 0:
+        return
+
+    # Create a temporary working directory.
+    working_dir = mkdtemp()
+    chdir(working_dir)
+
+    p = Popen('/usr/local/bin/pms-build-tree --%s --host %s --port %d --software %s ' \
+           '--patch %s' % (protocol, server, port, request['software'],
+                           request['patch_id']),
+              shell=True, stdout=PIPE).stdout
+    print p.read()
+    # FIXME: Handle errors.
+
+    # Download the filter to execute.
+    url = '%s://%s:%s/filters/%s' % (protocol, server, port,
+                                     request['filename'])
+
+    # FIXME: When forked, python complains 'The process has forked and you
+    # cannot use this CoreFoundation functionality safely...' when using
+    # urlretrieve.  Use wget?
+    #urlretrieve(url, request['filename'])
+    system('wget --quiet --no-check-certificate --no-clobber %s' % url)
+    chmod(request['filename'], S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP | S_IXGRP |
+                            S_IROTH | S_IXOTH)
+
+    # Update the status of this filter request.
+    # FIXME: Send authentication information with the parameters.
+    params = urlencode({'id': request['id'], 'state': 'Running'})
+    headers = {"Content-type": "application/x-www-form-urlencoded",
+               "Accept": "text/plain"}
+    # TODO: There must be a better way to determine whether we need HTTP or
+    # HTTPS.
+    if protocol == 'http':
+        conn = HTTPConnection(server, port)
+    elif protocol == 'https':
+        conn = HTTPSConnection(server, port)
+    conn.request('PUT', '/requests/%s' % request['id'], params, headers)
+    conn.close()
+    # FIXME: Handle errors.
+
+    p = Popen('./%s %s %s' % (request['filename'], str(request['patch_id']),
+                              str(request['software'])),
+              shell=True, stdout=PIPE).stdout
+    output = p.read()
+    f = open('result.filter', 'r')
+    # FIXME: Handle file not file or not reable, etc.
+    result = f.read()
+    f.close()
+
+    # Upload the results of the filter.
+    params = urlencode({'id': request['id'], 'state': 'Completed',
+                        'result': result, 'result_detail': output})
+    headers = {"Content-type": "application/x-www-form-urlencoded",
+            "Accept": "text/plain"}
+    # TODO: There must be a better way to determine whether we need HTTP or
+    # HTTPS.
+    if protocol == 'http':
+        conn = HTTPConnection(server, port)
+    elif protocol == 'https':
+        conn = HTTPSConnection(server, port)
+    conn.request('PUT', '/requests/%s' % request['id'], params, headers)
+    conn.close()
+    # FIXME: Handle errors.
+
+    # Clean up by removing the temporary directory and everything in it..
+    chdir('/')
+    rmtree(working_dir)
+
+if __name__ == '__main__':
+    # Handle command line arguments.
+    parser = OptionParser(usage="usage: %prog [options]")
+    parser.add_option('--code', help='filter tags')
+    parser.add_option('-D', help='run in background', action='store_true')
+    parser.add_option('--host', help='server address')
+    parser.add_option('--http', help='use http', action='store_true')
+    parser.add_option('--https', help='use https', action='store_true')
+    parser.add_option('--port', help='server port')
+    options, args = parser.parse_args()
+
+    if not options.host:
+        parser.error('hostname or ip address required')
+    server = options.host
+
+    if options.port:
+        port = int(options.port)
+
+    if options.http:
+        protocol = 'http'
+        if port is None:
+            port = 80
+    elif options.https:
+        protocol = 'https'
+        if port is None:
+            port = 443
+    else:
+        parser.error('--http or --https required')
+
+    if options.D:
+        daemonize = True
+    else:
+        daemonize = False
+
+    if not options.code:
+        parser.error('--code required')
+    code = options.code
+
+    if daemonize:
+        try:
+            pid = fork()
+            if pid > 0:
+                exit(0)
+        except OSError, e:
+            exit(1)
+
+        chdir('/')
+        setsid()
+        umask(0)
+
+        try:
+            pid = fork()
+            if pid > 0:
+                exit(0)
+        except OSError, e:
+            exit(1)
+
+    run(protocol=protocol, server=server, port=port, code=code)

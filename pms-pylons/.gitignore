@@ -1,0 +1,8 @@
+# Pylons
+data/
+
+# Python
+*.pyc
+
+# ctags
+tags
