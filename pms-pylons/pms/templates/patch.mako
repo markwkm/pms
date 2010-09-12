@@ -64,7 +64,7 @@
         <th>Detailed Result</th>
         <th>Status</th>
       </tr>
-% for filter_request in c.patch.filter_requests:
+% for filter_request in c.filter_requests:
       <tr>
         <td>${filter_request.filter.name}</td>
         <td>${filter_request.result_detail}</td>

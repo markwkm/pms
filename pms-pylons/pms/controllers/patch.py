@@ -169,6 +169,12 @@ class PatchController(BaseController):
         q = q.filter(Patch.id==id)
         c.patch = q.one()
 
+        q = Session.query(FilterRequest)
+        q = q.join(Filter)
+        q = q.filter(FilterRequest.patch_id==id)
+        q = q.order_by(Filter.name)
+        c.filter_requests = q.all()
+
         return render('/patch.mako')
 
     def view(self, id):
